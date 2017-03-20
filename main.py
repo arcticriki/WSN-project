@@ -24,7 +24,7 @@ for i in xrange(n):
             node_list[i].neighbor_write(node_list[j])
 
 for i in xrange(n):      # printing the results
-    node_list[i].spec()
+    #node_list[i].spec()
     [x[i], y[i]] = node_list[i].get_pos()
 for i in sensors_position:
     [u[i], v[i]] = node_list[i].get_pos()
