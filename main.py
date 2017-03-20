@@ -7,7 +7,7 @@ n = 10
 k = 5
 L = 50   # lato del quadrato in metri
 
-node_list = [Node(_+1, rnd.uniform(0.0, L+1), rnd.uniform(0.0, L+1)) for _ in xrange(n)]        # initialization
+node_list = [Node(_+1, rnd.uniform(0.0, L), rnd.uniform(0.0, L)) for _ in xrange(n)]        # initialization
 
 
 x = np.zeros(n)
@@ -17,7 +17,7 @@ for i in xrange(n):
     [x[i], y[i]] = node_list[i].get_pos()
 
 
-plt.title('Graphical representation of sensor positions.')
+plt.title('Graphical representation of sensor positions. ')
 plt.xlabel('X')
 plt.ylabel('Y')
 plt.grid()
