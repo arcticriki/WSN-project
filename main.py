@@ -7,7 +7,7 @@ n = 100
 k = 5
 L = 50   # lato del quadrato in metri
 
-node_list = [Node(_+1, rnd.randrange(0, L+1) , rnd.randrange(0, L+1)) for _ in xrange(n)]        # initialization
+node_list = [Node(_+1, rnd.uniform(0.0, L+1), rnd.uniform(0.0, L+1)) for _ in xrange(n)]        # initialization
 
 
 x = np.zeros(n)
