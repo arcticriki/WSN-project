@@ -5,7 +5,7 @@ class Node(object):
         self.X = X
         self.Y = Y
 
-    def node_write(self, ID, X, Y):
+    def node_write(self, ID, X, Y): #change ID and position coordinates
         self.ID = ID
         self.X = X
         self.Y = Y
