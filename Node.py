@@ -1,4 +1,4 @@
-class Node(object):
+class Storage(object):
 
     def __init__(self, ID, X, Y):
         self.ID = ID
@@ -6,15 +6,13 @@ class Node(object):
         self.Y = Y
         self.neighbor_list = []
 
-    def node_write(self, ID, X, Y, neighbor): #change ID and position coordinates
+    def node_write(self, ID, X, Y): #change ID and position coordinates
         self.ID = ID
         self.X = X
         self.Y = Y
-        #self.neighbor_list.append(neighbor)
 
     def spec(self):
-        print 'Node ID is %d and its position is (x=%d, y=%d)' % (self.ID, self.X, self.Y)
-        print self.neighbor_list
+        print 'Storage ID is %d and its position is (x=%d, y=%d)' % (self.ID, self.X, self.Y)
 
     def get_pos(self):
         return self.X, self.Y
@@ -22,4 +20,14 @@ class Node(object):
     def neighbor_write(self, neighbor):
         self.neighbor_list.append(neighbor)
 
+
+class Sensor(Storage):
+
+    def __init__(self, ID, X, Y):
+        self.ID = ID
+        self.X = X
+        self.Y = Y
+        self.neighbor_list = []
+    def spec(self):
+        print 'Sensor ID is %d and its position is (x=%d, y=%d)' % (self.ID, self.X, self.Y)
 
