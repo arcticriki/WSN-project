@@ -3,7 +3,7 @@ import random as rnd
 import matplotlib.pyplot as plt
 from Node import Node
 
-n = 100
+n = 10
 k = 5
 L = 50   # lato del quadrato in metri
 
