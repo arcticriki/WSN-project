@@ -12,3 +12,6 @@ class Node(object):
 
     def spec(self):
         print 'Node ID is %d and its position is (x=%d, y=%d)' % (self.ID, self.X, self.Y)
+
+    def get_pos(self):
+        return self.X, self.Y
