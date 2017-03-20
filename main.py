@@ -1,7 +1,10 @@
 import numpy as np
 import random as rnd
 import matplotlib.pyplot as plt
+import time as time
 from Node import *
+
+t = time.time()
 
 n = 1000  # number of nodes
 k = 200
@@ -29,6 +32,9 @@ for i in xrange(n):      # printing the results
 for i in sensors_position:
     [u[i], v[i]] = node_list[i].get_pos()
 
+elapsed = time.time() - t
+print elapsed
+
 plt.title("Graphical representation of sensors' positions")
 plt.xlabel('X')
 plt.ylabel('Y')
@@ -39,3 +45,4 @@ plt.axis([-1, L+1, -1, L+1])
 plt.plot(x, y, linestyle='', marker='o')
 plt.plot(u, v, color='red', linestyle='', marker='o')
 plt.show()
+
