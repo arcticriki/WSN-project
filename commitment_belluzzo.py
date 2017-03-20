@@ -1,0 +1,1 @@
+print "Scemo chi legge"
