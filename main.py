@@ -17,7 +17,7 @@ for i in xrange(n):
     [x[i], y[i]] = node_list[i].get_pos()
 
 
-plt.title('Graphical representation of sensor positions.')
+plt.title('Graphical representation of sensor positions. ')
 plt.xlabel('X')
 plt.ylabel('Y')
 plt.grid()
