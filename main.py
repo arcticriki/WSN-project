@@ -9,7 +9,7 @@ t = time.time()                                 # initial timestamp
 # PARAMETER INITIALIZATION SECTION
 
 n = 1000                                        # number of nodes
-k = 200                                         # number of sensors
+k = 100                                         # number of sensors
 L = 100                                         # square dimension
 
 positions = np.zeros((n, 2))                    # matrix containing info on all node positions
@@ -41,7 +41,7 @@ for i in xrange(n):                             # cycle on all nodes
         y = positions[i, 1] - positions[j, 1]   # compute y distance between node i and node j
         dist2 = x * x + y * y                   # compute distance square, avoid comp. of sqrt for comp. optim. reasons
         if dist2 <= dmax2:                      # check on distance square
-            if dist2 != 0:                       # avoid considering self node as neighbor
+            if dist2 != 0:                      # avoid considering self node as neighbor
                 node_list[i].neighbor_write(node_list[j])   # append operation on node's neighbor list
 
 elapsed = time.time() - t                       # computation of elapsed time
