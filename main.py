@@ -1,6 +1,6 @@
 import numpy as np                              # import of package numpy for mathematical tools
 import random as rnd                            # import of package random for homonym tools
-import matplotlib.pyplot as plt                 # import of package matplotlib.pyplot for plottools
+import matplotlib.pyplot as plt                 # import of package matplotlib.pyplot for plot-tools
 import time as time                             # import of package time for monitoring computational time
 from Node import *                              # * means we import both Storage() and Sensor() classes
 
@@ -8,8 +8,8 @@ t = time.time()                                 # initial timestamp
 
 # PARAMETER INITIALIZATION SECTION
 
-n = 1000                                        # number of nodes
-k = 100                                         # number of sensors
+n = 100                                        # number of nodes
+k = 10                                         # number of sensors
 L = 100                                         # square dimension
 
 positions = np.zeros((n, 2))                    # matrix containing info on all node positions
