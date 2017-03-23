@@ -10,11 +10,11 @@ t = time.time()                                 # initial timestamp
 
 n = 1000                                        # number of nodes
 k = 200                                         # number of sensors
-L = 100                                         # square dimension
+L = 50                                         # square dimension
 
 positions = np.zeros((n, 2))                    # matrix containing info on all node positions
 node_list = []                                  # list of references to node objects
-dmax = 1                                        # maximum distance for communication
+dmax = 3                                        # maximum distance for communication
 dmax2 = dmax * dmax                             # square of maximum distance for communication
 sensors_position = rnd.sample(range(0, n), k)   # generation of random indices for sensors
 
@@ -35,7 +35,9 @@ for i in sensors_position:                      # for on sensors position indice
     positions[i, :] = [x, y]                    # support variable for positions info, used for comp. optim. reasons
 
 # Find nearest neighbours using euclidean distance
+ok = True
 for i in xrange(n):                             # cycle on all nodes
+    checker = True
     for j in xrange(n):                         # compare each node with all the others
         x = positions[i, 0] - positions[j, 0]   # compute x distance between node i and node j
         y = positions[i, 1] - positions[j, 1]   # compute y distance between node i and node j
@@ -43,9 +45,18 @@ for i in xrange(n):                             # cycle on all nodes
         if dist2 <= dmax2:                      # check on distance square
             if dist2 != 0:                      # avoid considering self node as neighbor
                 node_list[i].neighbor_write(node_list[j])   # append operation on node's neighbor list
+                checker = None
+    if checker:
+        print 'Node %d has no neighbors' % i
+        ok = None
+
+if ok:
+    print 'Al nodes are connected'
 
 elapsed = time.time() - t                       # computation of elapsed time
 print elapsed
+
+
 
 plt.title("Graphical representation of sensors' positions")
 plt.xlabel('X')
@@ -58,3 +69,4 @@ plt.plot(positions[:, 0], positions[:, 1], linestyle='', marker='o', label='Stor
 plt.plot(positions[sensors_position, 0], positions[sensors_position, 1], color='red', linestyle='', marker='o' ,label='Sensor')
 plt.legend(loc='upper left')
 plt.show()
+
