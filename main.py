@@ -9,7 +9,7 @@ t = time.time()                                 # initial timestamp
 # PARAMETER INITIALIZATION SECTION
 
 n = 1000                                        # number of nodes
-k = 100                                         # number of sensors
+k = 200                                         # number of sensors
 L = 100                                         # square dimension
 
 positions = np.zeros((n, 2))                    # matrix containing info on all node positions
