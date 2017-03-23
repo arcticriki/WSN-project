@@ -9,14 +9,19 @@ t = time.time()                                 # initial timestamp
 # PARAMETER INITIALIZATION SECTION
 
 n = 1000                                        # number of nodes
-k = 200                                         # number of sensors
-L = 50                                         # square dimension
+k = 10                                         # number of sensors
+L = 25                                         # square dimension (messo piccolo xk se ho nodi scollegati crasho e va tt a puttane)
 
 positions = np.zeros((n, 2))                    # matrix containing info on all node positions
 node_list = []                                  # list of references to node objects
 dmax = 3                                        # maximum distance for communication
 dmax2 = dmax * dmax                             # square of maximum distance for communication
-sensors_position = rnd.sample(range(0, n), k)   # generation of random indices for sensors
+sensors_indexes = rnd.sample(range(0, n), k)   # generation of random indices for sensors
+
+# DEGREE INITIALIZATION
+d = np.ones(n)*5                                #degree provvisorio per fare prove
+#degree_generator = PRNG()                     CAPIRE COME FAR FUNZIONARE STAMMERDA DI FUNZIONE GENERATRICE DI D
+#d = [ for i in xrange(n)]
 
 # NETWORK INITIALIZATION
 
@@ -24,14 +29,14 @@ sensors_position = rnd.sample(range(0, n), k)   # generation of random indices f
 for i in xrange(n):                             # for on 0 to n indices
     x = rnd.uniform(0.0, L)                     # generation of random coordinate x
     y = rnd.uniform(0.0, L)                     # generation of random coordinate y
-    node_list.append(Storage(i + 1, x, y))      # creation of storage node, function Storage()
+    node_list.append(Storage(i + 1, x, y, d[i], n, k))      # creation of storage node, function Storage()
     positions[i, :] = [x, y]
 
 # Generation of sensor nodes
-for i in sensors_position:                      # for on sensors position indices
+for i in sensors_indexes:                      # for on sensors position indices
     x = rnd.uniform(0.0, L)                     # generation of random coordinate x
     y = rnd.uniform(0.0, L)                     # generation of random coordinate y
-    node_list[i] = Sensor(i + 1, x, y)          # creation of sensor node, function Sensor(), extend Storage class
+    node_list[i] = Sensor(i + 1, x, y, d[i], n, k)          # creation of sensor node, function Sensor(), extend Storage class
     positions[i, :] = [x, y]                    # support variable for positions info, used for comp. optim. reasons
 
 # Find nearest neighbours using euclidean distance
@@ -58,15 +63,18 @@ print elapsed
 
 
 
-plt.title("Graphical representation of sensors' positions")
-plt.xlabel('X')
-plt.ylabel('Y')
-#plt.grid()
-plt.xticks([5 * k for k in xrange(L / 5 + 1)])
-plt.yticks([5 * k for k in xrange(L / 5 + 1)])
-plt.axis([-1, L + 1, -1, L + 1])
-plt.plot(positions[:, 0], positions[:, 1], linestyle='', marker='o', label='Storage')
-plt.plot(positions[sensors_position, 0], positions[sensors_position, 1], color='red', linestyle='', marker='o' ,label='Sensor')
-plt.legend(loc='upper left')
-plt.show()
+# plt.title("Graphical representation of sensors' positions")
+# plt.xlabel('X')
+# plt.ylabel('Y')
+# #plt.grid()
+# plt.xticks([5 * k for k in xrange(L / 5 + 1)])
+# plt.yticks([5 * k for k in xrange(L / 5 + 1)])
+# plt.axis([-1, L + 1, -1, L + 1])
+# plt.plot(positions[:, 0], positions[:, 1], linestyle='', marker='o', label='Storage')
+# plt.plot(positions[sensors_indexes, 0], positions[sensors_indexes, 1], color='red', linestyle='', marker='o', label='Sensor')
+# plt.legend(loc='upper left')
+# plt.show()
 
+[node_list[sensors_indexes[i]].pkt_gen() for i in xrange(k)]
+for i in xrange(n):
+   node_list[i].send_pkt(0)
