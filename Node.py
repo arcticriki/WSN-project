@@ -53,7 +53,8 @@ class Storage(object):
 
     def receive_pkt(self, pkt):                 # define what to do on pkt receiving
         self.visits[pkt[0]] += 1                # increase number of visits this pkt has done in this very node
-        if self.visits[pkt[0]] == 1 and self.num_encoded <= self.d: # if it is the first time the pkt reaches thi very node
+        if self.visits[pkt[0]] == 1 and self.num_encoded <= self.degree:
+                                                # if it is the first time the pkt reaches thi very node
                                                 # and we have NOT already coded d pkts
             prob = rnd.random()                 # generate a random number in the range [0,1)
             if prob <= self.degree / self.k:    # if generated number less or equal to coding probability

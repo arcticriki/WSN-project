@@ -10,7 +10,7 @@ t = time.time()                                 # initial timestamp
 
 n = 1000                                        # number of nodes
 k = 200                                         # number of sensors
-L = 100                                         # square dimension (messo piccolo xk se ho nodi scollegati crasho e va tt a puttane)
+L = 50                                          # square dimension (messo piccolo xk se ho nodi scollegati crasho e va tt a puttane)
 
 positions = np.zeros((n, 2))                    # matrix containing info on all node positions
 node_list = []                                  # list of references to node objects
