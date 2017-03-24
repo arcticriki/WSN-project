@@ -43,7 +43,8 @@ class Storage(object):
         chosen_node = 0                         # initialize variable of chosen node to which tx
         if mode == 0:                           # mode 0 = uniform at random selection
             chosen_node = rnd.randint(0, self.num_neighbor-1)
-        #elseif mode==1:                        # mode 1 = metropolis algo (ancora da implementare per paper 1)
+        elif mode == 1:                         # mode 1 = metropolis algo (ancora da implementare per paper 1)
+            print 'Metropolis algorithm not yet implemented'
             #chosen_node = metropolis()
         if self.out_buffer:                     # if buffer non empy --> we can send something
             pkt = self.out_buffer.pop(0)        # pop of older pkt

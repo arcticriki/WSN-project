@@ -75,7 +75,7 @@ for i in xrange(n):                             # cycle on all nodes
 # plt.show()
 
 [node_list[sensors_indexes[i]].pkt_gen() for i in xrange(k)]        #generate data pkt, only sensore node can
-for i in
+
 for i in xrange(n):
     node_list[i].send_pkt(0)                    # send data pkt to one neighbor
 
