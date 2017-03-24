@@ -1,25 +1,25 @@
 import multiprocessing
 import time as time
 
-def worker():
-    """worker function"""
-    print 'Worker'
-    return
-t = time.time()
+
+def funSquare(num):
+    return num ** 2
+t=time.time()
+
 if __name__ == '__main__':
-    jobs = []
-    for i in range(5000):
-        p = multiprocessing.Process(target=worker)
-        jobs.append(p)
-        p.start()
+    pool = multiprocessing.Pool()
+    results = pool.map(funSquare, range(10000000))
+    #print(results)
 
 elapsed = time.time() - t
 print elapsed
 
-t = time.time()
-jobs = []
-for i in range(5000):
-    jobs.append(worker())
 
-elapsed = time.time() - t
+t1=time.time()
+results=[]
+for i in xrange(10000000):
+    results.append(funSquare(i))
+#print results
+
+elapsed = time.time() - t1
 print elapsed

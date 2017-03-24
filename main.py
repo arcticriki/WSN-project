@@ -9,9 +9,9 @@ t1 = time.time()                                 # initial timestamp
 
 # PARAMETER INITIALIZATION SECTION
 
-n = 1000                                        # number of nodes
+n = 500                                        # number of nodes
 k = 200                                         # number of sensors
-L = 50                                          # square dimension (messo piccolo xk se ho nodi scollegati crasho e va tt a puttane)
+L = 20                                          # square dimension (messo piccolo xk se ho nodi scollegati crasho e va tt a puttane)
 
 positions = np.zeros((n, 2))                    # matrix containing info on all node positions
 node_list = []                                  # list of references to node objects
@@ -68,24 +68,36 @@ print elapsed
 # PKT GENERATION AND DISSEMINATION
 [node_list[sensors_indexes[i]].pkt_gen() for i in xrange(k)]        #generate data pkt, only sensore node can
 
-for i in xrange(n):
-    node_list[i].send_pkt(0)                    # send data pkt to one neighbor
+stop = np.zeros(n)
+j = 1
+while np.sum(stop) < k:
+    #print j
+    #j += 1
+    for i in xrange(n):
+        [val, ID] = node_list[i].send_pkt(0)
+        #print val , ID
+        stop[ID-1] += val
+        if np.sum(stop) == k:
+            break
+
+
+
 
 elapsed = time.time() - t1  # computation of elapsed time
 print elapsed
 
 
-plt.title("Graphical representation of sensors' positions")
-plt.xlabel('X')
-plt.ylabel('Y')
-#plt.grid()
-plt.xticks([5 * k for k in xrange(L / 5 + 1)])
-plt.yticks([5 * k for k in xrange(L / 5 + 1)])
-plt.axis([-1, L + 1, -1, L + 1])
-plt.plot(positions[:, 0], positions[:, 1], linestyle='', marker='o', label='Storage')
-plt.plot(positions[sensors_indexes, 0], positions[sensors_indexes, 1], color='red', linestyle='', marker='o', label='Sensor')
-plt.legend(loc='upper left')
-plt.show()
+# plt.title("Graphical representation of sensors' positions")
+# plt.xlabel('X')
+# plt.ylabel('Y')
+# #plt.grid()
+# plt.xticks([5 * k for k in xrange(L / 5 + 1)])
+# plt.yticks([5 * k for k in xrange(L / 5 + 1)])
+# plt.axis([-1, L + 1, -1, L + 1])
+# plt.plot(positions[:, 0], positions[:, 1], linestyle='', marker='o', label='Storage')
+# plt.plot(positions[sensors_indexes, 0], positions[sensors_indexes, 1], color='red', linestyle='', marker='o', label='Sensor')
+# plt.legend(loc='upper left')
+# plt.show()
 
 
 

@@ -2,7 +2,7 @@ import random as rnd
 import numpy as np
 
 payload = 10
-C1 = 10
+C1 = 1
 
 
 class Storage(object):
@@ -46,10 +46,13 @@ class Storage(object):
         elif mode == 1:                         # mode 1 = metropolis algo (ancora da implementare per paper 1)
             print 'Metropolis algorithm not yet implemented'
             #chosen_node = metropolis()
-        if self.out_buffer:                     # if buffer non empy --> we can send something
-            pkt = self.out_buffer.pop(0)        # pop of older pkt
-            vicino = self.neighbor_list[chosen_node]    # choice of a neighbor
-            vicino.receive_pkt(pkt)             # send message to the neighbor
+        if len(self.out_buffer) > 0 :                     # if buffer non empy --> we can send something
+            pkt = self.out_buffer.pop(0)
+            vicino = self.neighbor_list[chosen_node]
+            return vicino.receive_pkt(pkt), pkt[0]
+        else:
+            return 0, 0
+                                                # send operation return a pkt and a neighbor
 
     def receive_pkt(self, pkt):                 # define what to do on pkt receiving
         self.visits[pkt[0]-1] += 1                # increase number of visits this pkt has done in this very node
@@ -58,16 +61,17 @@ class Storage(object):
                                                 # and we have NOT already coded d pkts
             prob = rnd.random()                 # generate a random number in the range [0,1)
             if prob <= self.degree / self.k:    # if generated number less or equal to coding probability
-                print 'sto codificando'         # check message, DEPRECATED
+                #print 'sto codificando'         # check message, DEPRECATED
                 self.ID_list.append(pkt[0])     # save ID of node who generated the coded pkt
                 self.storage = [self.storage[i] ^ pkt[i + 2] for i in xrange(len(pkt) - 2)]  # code procedure(XOR)
         pkt[1] += 1                             # no matter what, increase pkt counter
         if self.visits[pkt[0]-1] > 1 and pkt[1] >= C1* self.n * np.log(self.n):  # if packet already visited the node
                                                 # and its counter is greater than C1nlog(n) then, discard it
-            print 'Pacchetto %d bloccato.'      # Check message
+            #print 'Pacchetto %d bloccato.' % pkt[0]     # Check message
+            return 1
         else:
             self.out_buffer.append(pkt)         # else, if pkt is at its first visit, or it haven't reached C1nlog(n)
-                                                # then put it in the outgoing buffer
+            return 0                            # then put it in the outgoing buffer
 
 
 class Sensor(Storage):
@@ -99,7 +103,7 @@ class Sensor(Storage):
         self.out_buffer.append(pkt)  # set generated pkt as ready to be sent adding it to the outgoing buffer
         prob = rnd.random()                 # generate a random number in the range [0,1)
         if prob <= self.degree / self.k:    # if generated number less or equal to coding probability
-            print 'sto codificando'         # check message, DEPRECATED
+            #print 'sto codificando'         # check message, DEPRECATED
             self.ID_list.append(pkt[0])     # save ID of node who generated the coded pkt
             self.storage = [self.storage[i] ^ pkt[i + 2] for i in xrange(len(pkt) - 2)]  # code procedure(XOR)
 
