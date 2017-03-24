@@ -52,19 +52,21 @@ class Storage(object):
             vicino.receive_pkt(pkt)             # send message to the neighbor
 
     def receive_pkt(self, pkt):                 # define what to do on pkt receiving
-        self.visits[pkt[1]] += 1                # increase number of visits this pkt has done in this very node
-        if self.visits[pkt[1]] >= 1 and pkt[1] <= C1* self.n * np.log(self.n) : # if
-            if self.visits[pkt[1]] == 1 and self.num_encoded <= self.d:
-                if pkt[1] == 1:
-                    prob = rnd.random()
-                    if prob <= self.degree/self.k:
-                        print 'sto codificando'
-                        self.ID_list.append(pkt[0])
-                        self.storage = [self.storage[i] ^ pkt[i+2] for i in xrange(len(pkt)-2)] #possibili evitare il for? forse no
-            pkt[2] += 1
-            self.out_buffer.append(pkt)
-        else:                                   # if number of
-            print 'Pacchetto %d bloccato.'
+        self.visits[pkt[0]] += 1                # increase number of visits this pkt has done in this very node
+        if self.visits[pkt[0]] == 1 and self.num_encoded <= self.d: # if it is the first time the pkt reaches thi very node
+                                                # and we have NOT already coded d pkts
+            prob = rnd.random()                 # generate a random number in the range [0,1)
+            if prob <= self.degree / self.k:    # if generated number less or equal to coding probability
+                print 'sto codificando'         # check message, DEPRECATED
+                self.ID_list.append(pkt[0])     # save ID of node who generated the coded pkt
+                self.storage = [self.storage[i] ^ pkt[i + 2] for i in xrange(len(pkt) - 2)]  # code procedure(XOR)
+        pkt[1] += 1                             # no matter what, increase pkt counter
+        if self.visits[pkt[0]] > 1 and pkt[1] >= C1* self.n * np.log(self.n):  # if packet already visited the node
+                                                # and its counter is greater than C1nlog(n) then, discard it
+            print 'Pacchetto %d bloccato.'      # Check message
+        else:
+            self.out_buffer.append(pkt)         # else, if pkt is at its first visit, or it haven't reached C1nlog(n)
+                                                # then put it in the outgoing buffer
 
 
 class Sensor(Storage):
