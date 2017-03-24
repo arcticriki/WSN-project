@@ -9,9 +9,9 @@ t1 = time.time()                                 # initial timestamp
 
 # PARAMETER INITIALIZATION SECTION
 
-n = 1000                                        # number of nodes
-k = 200                                         # number of sensors
-L = 50                                          # square dimension
+n = 500                                        # number of nodes
+k = 100                                         # number of sensors
+L = 5                                          # square dimension
 
 positions = np.zeros((n, 2))                    # matrix containing info on all node positions
 node_list = []                                  # list of references to node objects
@@ -87,6 +87,10 @@ while np.sum(stop) < k:
 elapsed = time.time() - t1  # computation of elapsed time
 print elapsed
 
+tot=0
+for i in xrange(n):
+    tot += node_list[i].num_encoded
+print tot
 
 plt.title("Graphical representation of sensors' positions")
 plt.xlabel('X')

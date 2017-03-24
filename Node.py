@@ -2,7 +2,7 @@ import random as rnd
 import numpy as np
 
 payload = 10
-C1 = 1
+C1 = 30
 
 
 class Storage(object):
@@ -60,12 +60,13 @@ class Storage(object):
                                                 #print 'Pacchetto %d bloccato.' % pkt[0]     # Check message
             return 1
         else:
-            if self.visits[pkt[0] - 1] == 1 and self.num_encoded <= self.code_degree:
+            if self.visits[pkt[0] - 1] == 1 and self.num_encoded < self.code_degree:
                 # if it is the first time the pkt reaches this very node and we have NOT already coded d pkts
                 prob = rnd.random()             # generate a random number in the range [0,1)
                 if prob <= self.code_degree / self.k:  # if generated number less or equal to coding probability
                     self.ID_list.append(pkt[0])        # save ID of node who generated the coded pkt
                     self.storage = [self.storage[i] ^ pkt[i + 2] for i in xrange(len(pkt) - 2)]  # code procedure(XOR)
+                    self.num_encoded += 1              # increase num of encoded pkts
 
             pkt[1] += 1                         # increase pkt counter then put it in the outgoing buffer
             self.out_buffer.append(pkt)         # else, if pkt is at its first visit, or it haven't reached C1nlog(n)
@@ -106,4 +107,5 @@ class Sensor(Storage):
             #print 'sto codificando'         # check message, DEPRECATED
             self.ID_list.append(pkt[0])     # save ID of node who generated the coded pkt
             self.storage = [self.storage[i] ^ pkt[i + 2] for i in xrange(len(pkt) - 2)]  # code procedure(XOR)
+            self.num_encoded += 1           # increase num of encoded pkts
 
