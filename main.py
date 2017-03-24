@@ -3,8 +3,9 @@ import random as rnd                            # import of package random for h
 import matplotlib.pyplot as plt                 # import of package matplotlib.pyplot for plottools
 import time as time                             # import of package time for monitoring computational time
 from Node import *                              # * means we import both Storage() and Sensor() classes
+from multiprocessing import Pool                # parallel programming
 
-t = time.time()                                 # initial timestamp
+t1 = time.time()                                 # initial timestamp
 
 # PARAMETER INITIALIZATION SECTION
 
@@ -38,7 +39,7 @@ for i in sensors_indexes:                      # for on sensors position indices
     y = rnd.uniform(0.0, L)                     # generation of random coordinate y
     node_list[i] = Sensor(i + 1, x, y, d[i], n, k)          # creation of sensor node, function Sensor(), extend Storage class
     positions[i, :] = [x, y]                    # support variable for positions info, used for comp. optim. reasons
-
+t = time.time()
 # Find nearest neighbours using euclidean distance
 nearest_neighbor = []                           #simplifying assumption, if no neighbors exist withing the range we consider the nearest neighbor
 nn_distance = 2*L*L                             # maximum distance square equal the diagonal of the square [L,L]
@@ -60,30 +61,31 @@ for i in xrange(n):                             # cycle on all nodes
     if not checker:                             # if no neighbors are found withing max dist, use NN
         print 'Node %d has no neighbors within the rage, the nearest neighbor is chosen.' % i
         node_list[i].neighbor_write(nearest_neighbor)   # Connect node with NN
+elapsed = time.time() - t  # computation of elapsed time
+print elapsed
 
 
-# plt.title("Graphical representation of sensors' positions")
-# plt.xlabel('X')
-# plt.ylabel('Y')
-# #plt.grid()
-# plt.xticks([5 * k for k in xrange(L / 5 + 1)])
-# plt.yticks([5 * k for k in xrange(L / 5 + 1)])
-# plt.axis([-1, L + 1, -1, L + 1])
-# plt.plot(positions[:, 0], positions[:, 1], linestyle='', marker='o', label='Storage')
-# plt.plot(positions[sensors_indexes, 0], positions[sensors_indexes, 1], color='red', linestyle='', marker='o', label='Sensor')
-# plt.legend(loc='upper left')
-# plt.show()
-
+# PKT GENERATION AND DISSEMINATION
 [node_list[sensors_indexes[i]].pkt_gen() for i in xrange(k)]        #generate data pkt, only sensore node can
 
 for i in xrange(n):
     node_list[i].send_pkt(0)                    # send data pkt to one neighbor
 
-elapsed = time.time() - t  # computation of elapsed time
+elapsed = time.time() - t1  # computation of elapsed time
 print elapsed
 
 
-
+plt.title("Graphical representation of sensors' positions")
+plt.xlabel('X')
+plt.ylabel('Y')
+#plt.grid()
+plt.xticks([5 * k for k in xrange(L / 5 + 1)])
+plt.yticks([5 * k for k in xrange(L / 5 + 1)])
+plt.axis([-1, L + 1, -1, L + 1])
+plt.plot(positions[:, 0], positions[:, 1], linestyle='', marker='o', label='Storage')
+plt.plot(positions[sensors_indexes, 0], positions[sensors_indexes, 1], color='red', linestyle='', marker='o', label='Sensor')
+plt.legend(loc='upper left')
+plt.show()
 
 
 

@@ -1,6 +1,25 @@
-from  lt_sampler import *
+import multiprocessing
+import time as time
 
-params =(10000, 0.05, 0.2)
-degree_generator = PRNG(params)
+def worker():
+    """worker function"""
+    print 'Worker'
+    return
+t = time.time()
+if __name__ == '__main__':
+    jobs = []
+    for i in range(5000):
+        p = multiprocessing.Process(target=worker)
+        jobs.append(p)
+        p.start()
 
-[_, d, nums] = degree_generator.get_src_blocks()
+elapsed = time.time() - t
+print elapsed
+
+t = time.time()
+jobs = []
+for i in range(5000):
+    jobs.append(worker())
+
+elapsed = time.time() - t
+print elapsed
