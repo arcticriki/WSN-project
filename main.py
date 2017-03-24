@@ -9,18 +9,18 @@ t1 = time.time()                                 # initial timestamp
 
 # PARAMETER INITIALIZATION SECTION
 
-n = 500                                        # number of nodes
+n = 1000                                        # number of nodes
 k = 200                                         # number of sensors
-L = 20                                          # square dimension (messo piccolo xk se ho nodi scollegati crasho e va tt a puttane)
+L = 50                                          # square dimension
 
 positions = np.zeros((n, 2))                    # matrix containing info on all node positions
 node_list = []                                  # list of references to node objects
-dmax = 3                                        # maximum distance for communication
+dmax = 5                                        # maximum distance for communication
 dmax2 = dmax * dmax                             # square of maximum distance for communication
-sensors_indexes = rnd.sample(range(0, n), k)   # generation of random indices for sensors
+sensors_indexes = rnd.sample(range(0, n), k)    # generation of random indices for sensors
 
 # DEGREE INITIALIZATION
-d = np.ones(n)*5                                #degree provvisorio per fare prove
+d = np.ones(n)*2                                #degree provvisorio per fare prove
 #degree_generator = PRNG()                     CAPIRE COME FAR FUNZIONARE STAMMERDA DI FUNZIONE GENERATRICE DI D
 #d = [ for i in xrange(n)]
 
@@ -34,14 +34,17 @@ for i in xrange(n):                             # for on 0 to n indices
     positions[i, :] = [x, y]
 
 # Generation of sensor nodes
-for i in sensors_indexes:                      # for on sensors position indices
+for i in sensors_indexes:                       # for on sensors position indices
     x = rnd.uniform(0.0, L)                     # generation of random coordinate x
     y = rnd.uniform(0.0, L)                     # generation of random coordinate y
-    node_list[i] = Sensor(i + 1, x, y, d[i], n, k)          # creation of sensor node, function Sensor(), extend Storage class
+    node_list[i] = Sensor(i + 1, x, y, d[i], n, k)    # creation of sensor node, function Sensor(), extend Storage class
     positions[i, :] = [x, y]                    # support variable for positions info, used for comp. optim. reasons
+
+
 t = time.time()
 # Find nearest neighbours using euclidean distance
-nearest_neighbor = []                           #simplifying assumption, if no neighbors exist withing the range we consider the nearest neighbor
+nearest_neighbor = []                           #simplifying assumption, if no neighbors exist withing the range
+                                                # we consider the nearest neighbor
 nn_distance = 2*L*L                             # maximum distance square equal the diagonal of the square [L,L]
 for i in xrange(n):                             # cycle on all nodes
     checker = False                             # boolean variable used to check if neighbors are found (false if not)
@@ -53,9 +56,10 @@ for i in xrange(n):                             # cycle on all nodes
             if dist2 != 0:                      # avoid considering self node as neighbor
                 node_list[i].neighbor_write(node_list[j])   # append operation on node's neighbor list
                 checker = True                              # at least one neighbor has been founded
-        if not checker and dist2 <= nn_distance and dist2 != 0: # in order to be sure that the graph is connected we determine the nearest neighbot
+        if not checker and dist2 <= nn_distance and dist2 != 0: # in order to be sure that the graph is connected
+                                                                # we determine the nearest neighbot
                                                                 # even if its distance is greater than the max distance
-            nn_distance = dist2                 # is distance of new NN is less than the distance of previous NN, update it
+            nn_distance = dist2                 # if distance of new NN is less than distance of previous NN, update it
             nearest_neighbor = node_list[i]     # save NN reference, to use only if no neighbors are found
 
     if not checker:                             # if no neighbors are found withing max dist, use NN
@@ -80,24 +84,21 @@ while np.sum(stop) < k:
         if np.sum(stop) == k:
             break
 
-
-
-
 elapsed = time.time() - t1  # computation of elapsed time
 print elapsed
 
 
-# plt.title("Graphical representation of sensors' positions")
-# plt.xlabel('X')
-# plt.ylabel('Y')
-# #plt.grid()
-# plt.xticks([5 * k for k in xrange(L / 5 + 1)])
-# plt.yticks([5 * k for k in xrange(L / 5 + 1)])
-# plt.axis([-1, L + 1, -1, L + 1])
-# plt.plot(positions[:, 0], positions[:, 1], linestyle='', marker='o', label='Storage')
-# plt.plot(positions[sensors_indexes, 0], positions[sensors_indexes, 1], color='red', linestyle='', marker='o', label='Sensor')
-# plt.legend(loc='upper left')
-# plt.show()
+plt.title("Graphical representation of sensors' positions")
+plt.xlabel('X')
+plt.ylabel('Y')
+#plt.grid()
+plt.xticks([5 * k for k in xrange(L / 5 + 1)])
+plt.yticks([5 * k for k in xrange(L / 5 + 1)])
+plt.axis([-1, L + 1, -1, L + 1])
+plt.plot(positions[:, 0], positions[:, 1], linestyle='', marker='o', label='Storage')
+plt.plot(positions[sensors_indexes, 0], positions[sensors_indexes, 1], color='red', linestyle='', marker='o', label='Sensor')
+plt.legend(loc='upper left')
+plt.show()
 
 
 
