@@ -45,24 +45,26 @@ class Storage(object):
             chosen_node = rnd.randint(0, self.num_neighbor-1)
         #elseif mode==1:                              # mode 1 = metropolis algo (ancora da implementare per paper 1)
             #chosen_node = metropolis()
-        if self.out_buffer:                             # if buffer non empy --> we can send something
+        if self.out_buffer:                      # if buffer non empy --> we can send something
             pkt = self.out_buffer.pop(0)
             vicino = self.neighbor_list[chosen_node]
             vicino.receive_pkt(pkt)  # pop a message from the buffer,
 
-    def receive_pkt(self, pkt):
-        self.visits[pkt[1]] += 1
-        if pkt[2] <= C1* self.n * np.log(self.n):
-            if pkt[2] == 1:
-                prob = rnd.random()
-                if prob <= self.degree/self.k:
-                    print 'sto codificando'
-                    self.ID_list.append(pkt[0])
-
-                    self.storage = [self.storage[i] ^ pkt[i+2] for i in xrange(len(pkt)-2)] #possibili evitare il for? forse no
+    def receive_pkt(self, pkt):                 # define what to do on pkt receiving
+        self.visits[pkt[1]] += 1                # increase number of visits this pkt has done in this very node
+        if self.visits[pkt[1]] >= 1 and pkt[1] <= C1* self.n * np.log(self.n) : # if
+            if self.visits[pkt[1]] == 1 and self.num_encoded <= self.d:
+                if pkt[1] == 1:
+                    prob = rnd.random()
+                    if prob <= self.degree/self.k:
+                        print 'sto codificando'
+                        self.ID_list.append(pkt[0])
+                        self.storage = [self.storage[i] ^ pkt[i+2] for i in xrange(len(pkt)-2)] #possibili evitare il for? forse no
             pkt[2] += 1
             self.out_buffer.append(pkt)
-        #else non fare nulla
+        else:                                   # if number of
+            print 'Pacchetto %d bloccato.'
+        #else non fare nulla e blocca quindi il pacchetto
 
 
 
@@ -90,4 +92,9 @@ class Sensor(Storage):
         pkt[0] = self.ID        # first cell of pks is node ID which generated it
         pkt[1] = 0              # second cell of vector is the counter for pkt as specified in page [174] paper 2
         self.out_buffer.append(pkt)
+        prob = rnd.random()
+        if prob <= self.degree / self.k:
+            print 'sto codificando'
+            self.ID_list.append(pkt[0])
+            self.storage = [self.storage[i] ^ pkt[i + 2] for i in xrange(len(pkt) - 2)]  # possibili evitare il for? forse no
 

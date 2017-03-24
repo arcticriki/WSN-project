@@ -10,7 +10,7 @@ t = time.time()                                 # initial timestamp
 
 n = 1000                                        # number of nodes
 k = 200                                         # number of sensors
-L = 25                                          # square dimension (messo piccolo xk se ho nodi scollegati crasho e va tt a puttane)
+L = 100                                         # square dimension (messo piccolo xk se ho nodi scollegati crasho e va tt a puttane)
 
 positions = np.zeros((n, 2))                    # matrix containing info on all node positions
 node_list = []                                  # list of references to node objects
@@ -55,7 +55,7 @@ for i in xrange(n):                             # cycle on all nodes
         if not checker and dist2 <= nn_distance and dist2 != 0: # in order to be sure that the graph is connected we determine the nearest neighbot
                                                                 # even if its distance is greater than the max distance
             nn_distance = dist2                 # is distance of new NN is less than the distance of previous NN, update it
-            nearest_neighbor = node_list[i]     # save NN reference
+            nearest_neighbor = node_list[i]     # save NN reference, to use only if no neighbors are found
 
     if not checker:                             # if no neighbors are found withing max dist, use NN
         print 'Node %d has no neighbors within the rage, the nearest neighbor is chosen.' % i
@@ -74,9 +74,16 @@ for i in xrange(n):                             # cycle on all nodes
 # plt.legend(loc='upper left')
 # plt.show()
 
-[node_list[sensors_indexes[i]].pkt_gen() for i in xrange(k)]
+[node_list[sensors_indexes[i]].pkt_gen() for i in xrange(k)]        #generate data pkt, only sensore node can
+for i in
 for i in xrange(n):
-    node_list[i].send_pkt(0)
+    node_list[i].send_pkt(0)                    # send data pkt to one neighbor
 
 elapsed = time.time() - t  # computation of elapsed time
 print elapsed
+
+
+
+
+
+
