@@ -9,8 +9,8 @@ t = time.time()                                 # initial timestamp
 # PARAMETER INITIALIZATION SECTION
 
 n = 1000                                        # number of nodes
-k = 10                                         # number of sensors
-L = 25                                         # square dimension (messo piccolo xk se ho nodi scollegati crasho e va tt a puttane)
+k = 200                                         # number of sensors
+L = 25                                          # square dimension (messo piccolo xk se ho nodi scollegati crasho e va tt a puttane)
 
 positions = np.zeros((n, 2))                    # matrix containing info on all node positions
 node_list = []                                  # list of references to node objects
@@ -40,27 +40,26 @@ for i in sensors_indexes:                      # for on sensors position indices
     positions[i, :] = [x, y]                    # support variable for positions info, used for comp. optim. reasons
 
 # Find nearest neighbours using euclidean distance
-ok = True
+nearest_neighbor = []                           #simplifying assumption, if no neighbors exist withing the range we consider the nearest neighbor
+nn_distance = 2*L*L                             # maximum distance square equal the diagonal of the square [L,L]
 for i in xrange(n):                             # cycle on all nodes
-    checker = True
+    checker = False                             # boolean variable used to check if neighbors are found (false if not)
     for j in xrange(n):                         # compare each node with all the others
         x = positions[i, 0] - positions[j, 0]   # compute x distance between node i and node j
         y = positions[i, 1] - positions[j, 1]   # compute y distance between node i and node j
         dist2 = x * x + y * y                   # compute distance square, avoid comp. of sqrt for comp. optim. reasons
-        if dist2 <= dmax2:                      # check on distance square
+        if dist2 <= dmax2:                      # check if distance square is less or equal the max coverage dist
             if dist2 != 0:                      # avoid considering self node as neighbor
                 node_list[i].neighbor_write(node_list[j])   # append operation on node's neighbor list
-                checker = None
-    if checker:
-        print 'Node %d has no neighbors' % i
-        ok = None
+                checker = True                              # at least one neighbor has been founded
+        if not checker and dist2 <= nn_distance and dist2 != 0: # in order to be sure that the graph is connected we determine the nearest neighbot
+                                                                # even if its distance is greater than the max distance
+            nn_distance = dist2                 # is distance of new NN is less than the distance of previous NN, update it
+            nearest_neighbor = node_list[i]     # save NN reference
 
-if ok:
-    print 'Al nodes are connected'
-
-elapsed = time.time() - t                       # computation of elapsed time
-print elapsed
-
+    if not checker:                             # if no neighbors are found withing max dist, use NN
+        print 'Node %d has no neighbors within the rage, the nearest neighbor is chosen.' % i
+        node_list[i].neighbor_write(nearest_neighbor)   # Connect node with NN
 
 
 # plt.title("Graphical representation of sensors' positions")
@@ -77,4 +76,7 @@ print elapsed
 
 [node_list[sensors_indexes[i]].pkt_gen() for i in xrange(k)]
 for i in xrange(n):
-   node_list[i].send_pkt(0)
+    node_list[i].send_pkt(0)
+
+elapsed = time.time() - t  # computation of elapsed time
+print elapsed
