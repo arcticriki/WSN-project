@@ -13,9 +13,9 @@ def main():
 
     # PARAMETER INITIALIZATION SECTION
 
-    n = 1000                                        # number of nodes
-    k = 200                                         # number of sensors
-    L = 25                                          # square dimension
+    n = 500                                        # number of nodes
+    k = 100                                         # number of sensors
+    L = 15                                          # square dimension
 
     positions = np.zeros((n, 2))                    # matrix containing info on all node positions
     node_list = []                                  # list of references to node objects
@@ -100,6 +100,7 @@ def main():
     elapsed = time.time() - t1  # computation of elapsed time
     print 'Tempo totale di esecuzione:', elapsed
 
+
     # plt.title("Graphical representation of sensors' positions")
     # plt.xlabel('X')
     # plt.ylabel('Y')
@@ -112,6 +113,15 @@ def main():
     # plt.legend(loc='upper left')
     # plt.show()
 
+    return elapsed
+
 if __name__ == "__main__":
-    #main()
-    cProfile.run('main()')
+    u = 2
+    tempi = np.zeros(u)
+    for i in xrange(u):
+        tempi[i] = main()
+    print tempi
+    medio = np.sum(tempi)/u
+    print 'tempo medio:' , medio
+
+    # cProfile.run('main()')
