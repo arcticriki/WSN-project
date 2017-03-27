@@ -10,7 +10,7 @@ import cProfile
 def main():
     t1 = time.time()                                 # initial timestamp
 
-    # PARAMETER INITIALIZATION SECTION
+    # -- PARAMETER INITIALIZATION SECTION --
 
     n = 500                                        # number of nodes
     k = 100                                         # number of sensors
@@ -22,12 +22,12 @@ def main():
     dmax2 = dmax * dmax                             # square of maximum distance for communication
     sensors_indexes = rnd.sample(range(0, n), k)    # generation of random indices for sensors
 
-    # DEGREE INITIALIZATION
+    # -- DEGREE INITIALIZATION --
     d = np.ones(n)*2                                #degree provvisorio per fare prove
     #degree_generator = PRNG()                     CAPIRE COME FAR FUNZIONARE STAMMERDA DI FUNZIONE GENERATRICE DI D
     #d = [ for i in xrange(n)]
 
-    # NETWORK INITIALIZATION
+    # -- NETWORK INITIALIZATION --
     # Generation of storage nodes
     for i in xrange(n):                             # for on 0 to n indices
         x = rnd.uniform(0.0, L)                     # generation of random coordinate x
@@ -69,7 +69,7 @@ def main():
     elapsed = time.time() - t  # computation of elapsed time
     print 'Tempo di determinazione dei vicini:', elapsed
 
-    # PKT GENERATION AND DISSEMINATION
+    # -- PKT GENERATION AND DISSEMINATION --
     [node_list[sensors_indexes[i]].pkt_gen() for i in xrange(k)]        #generate data pkt, only sensore node can
 
     stop = np.zeros(n)
