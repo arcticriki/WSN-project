@@ -1,5 +1,6 @@
 import numpy
 import pylab  # Plots; also imports array functions cumsum, transpose
+import array
 
 
 def RandomWalk(N=10, d=2):
@@ -135,3 +136,26 @@ def demo():
 
 if __name__ == "__main__":
     demo()
+
+# Robust distribution
+
+def Robust_Soliton_Distribution(k=500)
+    k=500
+    tou = []
+    Rr = 2
+    #c = 1
+    delta = 0.5 #bisogna metterlo a random
+
+
+    for i in range(1,500):
+        if i < ((k/Rr) - 1):
+            tou.append(Rr/(i*k))
+        if i == (k/Rr):
+            #tou.append(Rr*log(Rr/delta))
+            print 'dai che ndemo'
+)
+        if i> ((k/Rr) - 1):
+            print i
+
+    R= c0*sqrt(k)*log(K/delta, e)
+    rsd= (tau+sd)/B
