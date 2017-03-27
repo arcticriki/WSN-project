@@ -7,7 +7,6 @@ from multiprocessing import Pool                # parallel programming
 import cProfile
 
 
-
 def main():
     t1 = time.time()                                 # initial timestamp
 
