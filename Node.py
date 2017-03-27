@@ -2,7 +2,7 @@ import random as rnd
 import numpy as np
 
 payload = 10
-C1 = 10
+C1 = 1
 
 
 class Storage(object):
@@ -23,6 +23,7 @@ class Storage(object):
         self.visits = np.zeros(n)                   # n-dim list which purpose is to count pkts visits to the node
                                                     # it should be k-dim since only k nodes generate pkts but for
                                                     # computational reason it isn't. OPEN QUESTION
+        self.dim_buffer=0
 
     def node_write(self, ID, X, Y): #change ID and position coordinates, DEPRECATED
         self.ID = ID
@@ -47,12 +48,13 @@ class Storage(object):
             #chosen_node = metropolis()
         if self.out_buffer:                     # if buffer non empy --> we can send something
             pkt = self.out_buffer.pop(0)        # pop of older pkt
+            self.dim_buffer -= 1
             self.neighbor_list[chosen_node].receive_pkt(pkt)    # choice of a neighbor and send message
 
     def receive_pkt(self, pkt):                 # define what to do on pkt receiving
         self.visits[pkt[1]] += 1                # increase number of visits this pkt has done in this very node
         if self.visits[pkt[1]] >= 1 and pkt[1] <= C1* self.n * np.log(self.n) : # if
-            if self.visits[pkt[1]] == 1 and self.num_encoded <= self.d:
+            if self.visits[pkt[1]] == 1 and self.num_encoded <= self.degree:
                 if pkt[1] == 1:
                     prob = rnd.random()
                     if prob <= self.degree/self.k:
@@ -61,6 +63,7 @@ class Storage(object):
                         self.storage = [self.storage[i] ^ pkt[i+2] for i in xrange(len(pkt)-2)] #possibili evitare il for? forse no
             pkt[2] += 1
             self.out_buffer.append(pkt)
+            self.dim_buffer += 1
         else:                                   # if number of
             print 'Pacchetto %d bloccato.'
 
@@ -83,6 +86,7 @@ class Sensor(Storage):
         self.visits = np.zeros(n)               # n-dim list which purpose is to count pkts visits to the node
                                                 # it should be k-dim since only k nodes generate pkts but for
                                                 # computational reason it isn't. OPEN QUESTION
+        self.dim_buffer = 0
 
     def spec(self):     # DEPRECATED
         print 'Sensor ID is %d and its position is (x=%d, y=%d)' % (self.ID, self.X, self.Y)
@@ -97,4 +101,5 @@ class Sensor(Storage):
             print 'sto codificando'         # check message, DEPRECATED
             self.ID_list.append(pkt[0])     # save ID of node who generated the coded pkt
             self.storage = [self.storage[i] ^ pkt[i + 2] for i in xrange(len(pkt) - 2)]  # code procedure(XOR)
+        self.dim_buffer += 1
 
