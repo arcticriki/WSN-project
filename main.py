@@ -115,12 +115,12 @@ def main():
     return elapsed
 
 if __name__ == "__main__":
-    u = 2
-    tempi = np.zeros(u)
-    for i in xrange(u):
-        tempi[i] = main()
-    print tempi
-    medio = np.sum(tempi)/u
-    print 'tempo medio:' , medio
+    # u = 2
+    # tempi = np.zeros(u)
+    # for i in xrange(u):
+    #     tempi[i] = main()
+    # print tempi
+    # medio = np.sum(tempi)/u
+    # print 'tempo medio:' , medio
 
-    # cProfile.run('main()')
+    cProfile.run('main()')
