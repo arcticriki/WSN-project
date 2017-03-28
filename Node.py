@@ -16,7 +16,7 @@ class Storage(object):
         self.out_buffer = []                        # outgoing packets buffer
         self.dim_buffer = 0                         # number of pkt in the outgoing queue
         self.code_degree = d                        # degree of the node, define how many pkts to encode
-        self.ID_list =[]                            # ID list of encoded pkts, saved for decoding purposes
+        self.ID_list = []                           # ID list of encoded pkts, saved for decoding purposes
         self.storage = [np.random.randint(0, 1) for _ in xrange(payload)]  # initialization of storage variable [0,..,0]
         self.num_encoded = 0                        # num. of encoded pkts, used to stop encoding process if it reaces d
 
@@ -27,6 +27,7 @@ class Storage(object):
                                                     # computational reason it isn't. OPEN QUESTION
         self.code_prob = self.code_degree / self.k
         self.iteration = C1 * self.n * np.log(self.n)
+
 
     def node_write(self, ID, X, Y): #change ID and position coordinates, DEPRECATED
         self.ID = ID
