@@ -1,7 +1,8 @@
-import numpy
+import numpy as np
 import pylab  # Plots; also imports array functions cumsum, transpose
-import array
-
+import decimal
+import random
+import math
 
 def RandomWalk(N=10, d=2):
     """
@@ -137,25 +138,45 @@ def demo():
 if __name__ == "__main__":
     demo()
 
-# Robust distribution
+# Robust Solition Distribution
+def Robust_Soliton_Distribution(k, c0):
+    delta = random.random()
+    R= c0 * np.sqrt(k) * np.log(float(k)/delta)
 
-def Robust_Soliton_Distribution(k=500)
-    k=500
-    tou = []
-    Rr = 2
-    #c = 1
-    delta = 0.5 #bisogna metterlo a random
+    #Tau Function
+    tau = []
+    for i in range(1, k):
+        if i < ((k/R) - 1):
+            tau.append(float(R)/(i*k))
+        if i == (k/R):
+            tau.append((float(R)*np.log(float(R)/delta))/k)
+        if i > ((k/R) - 1):
+            tau.append(0)
+
+    #Ideal Soliton Distribution
+    sd = []
+    for j in range(1,k):
+        if j == 1:
+            sd.append(float(1)/k)
+        if j > 1:
+            sd.append(float(1)/(j*(j-1)))
+
+    #Beta
+    Beta = 0
+    for i in range(0,k-1):
+        Beta = Beta + (tau[i]+sd[i])
+
+    #Robust Soliton Distribution
+    rsd=[]
+    for i in range(0, k - 1):
+        rsd.append((tau[i] + sd[i])/Beta)
+
+    return rsd
 
 
-    for i in range(1,500):
-        if i < ((k/Rr) - 1):
-            tou.append(Rr/(i*k))
-        if i == (k/Rr):
-            #tou.append(Rr*log(Rr/delta))
-            print 'dai che ndemo'
-)
-        if i> ((k/Rr) - 1):
-            print i
+prova = Robust_Soliton_Distribution(500,2)
 
-    R= c0*sqrt(k)*log(K/delta, e)
-    rsd= (tau+sd)/B
+import matplotlib.pyplot as plt
+plt.plot(prova)
+plt.ylabel('some numbers')
+plt.show()
