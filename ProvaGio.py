@@ -30,7 +30,9 @@ def Robust_Soliton_Distribution(k, c0, delta):
         rsd.append((tau[i] + sd[i])/beta)
     return rsd
 
-k = 10000
+
+t1 = time.time()
+k = 1000
 pdf = Robust_Soliton_Distribution(k, c0=0.2, delta=0.05)
 cdf = np.zeros(k)
 cdf[0] = pdf[0]
@@ -41,19 +43,20 @@ t = time.time()
 d = np.zeros(k)
 for i in xrange(k):
     d[i] = np.random.choice(np.arange(1, k+1), p=pdf)
-    print d[i]
-elapsed = time.time() - t
-print elapsed
 
-plt.subplot(2, 1, 1)
-plt.title('Robust soliton pdf')
-y = pdf[0:50]
-x = np.linspace(1, 50, 50, endpoint=True)
-plt.bar(x, y)
-plt.axis([0, 50, 0, 0.45])
-plt.subplot(2, 1, 2)
-plt.title('Robust soliton cdf')
-y1 = cdf[0:50]
-plt.bar(x, y1, color='red')
-plt.axis([0, 50, 0, 1])
-plt.show()
+elapsed = time.time() - t
+elapsed1 = time.time() - t1
+print elapsed1, elapsed
+
+# plt.subplot(2, 1, 1)
+# plt.title('Robust soliton pdf')
+# y = pdf[0:50]
+# x = np.linspace(1, 50, 50, endpoint=True)
+# plt.bar(x, y)
+# plt.axis([0, 50, 0, 0.45])
+# plt.subplot(2, 1, 2)
+# plt.title('Robust soliton cdf')
+# y1 = cdf[0:50]
+# plt.bar(x, y1, color='red')
+# plt.axis([0, 50, 0, 1])
+# plt.show()
