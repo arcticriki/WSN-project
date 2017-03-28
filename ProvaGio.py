@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 import pylab  # Plots; also imports array functions cumsum, transpose
 import decimal
 import random
@@ -141,7 +142,7 @@ import random
 # Robust Solition Distribution
 def Robust_Soliton_Distribution(k, c0):
     delta = 0.05 #random.random()
-    R= c0 * np.sqrt(k) * np.log10(float(k)/delta)
+    R = c0 * np.sqrt(k) * np.log10(float(k)/delta)
 
     #Tau Function
     tau = []
@@ -152,6 +153,13 @@ def Robust_Soliton_Distribution(k, c0):
             tau.append((float(R)*np.log(float(R)/delta))/k)
         if i > ((k/R) - 1):
             tau.append(0)
+    y = tau[0:50]
+    plt.title('tau')
+    x = np.linspace(1, 50, 50, endpoint=True)
+    plt.bar(x, y)
+    plt.xticks(np.linspace(0, 52, 53, endpoint=True))
+    plt.ylabel('some numbers')
+    plt.show()
 
     #Ideal Soliton Distribution
     sd = []
@@ -160,6 +168,15 @@ def Robust_Soliton_Distribution(k, c0):
             sd.append(float(1)/k)
         if j > 1:
             sd.append(float(1)/(j*(j-1)))
+
+    y = tau[0:50]
+    plt.title('Ideal soliton')
+    x = np.linspace(1, 50, 50, endpoint=True)
+    plt.bar(x, y)
+    plt.xticks(np.linspace(0, 52, 53, endpoint=True))
+    plt.ylabel('some numbers')
+    plt.show()
+
 
     #Beta
     Beta = 0
@@ -176,8 +193,8 @@ def Robust_Soliton_Distribution(k, c0):
 
 prova = Robust_Soliton_Distribution(10000, 0.2)
 
-import matplotlib.pyplot as plt
 
+plt.title('Robust soliton')
 y = prova[0:50]
 x = np.linspace(1, 50, 50, endpoint=True)
 plt.bar(x,y)
