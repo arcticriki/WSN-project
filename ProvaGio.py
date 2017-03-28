@@ -31,7 +31,6 @@ def Robust_Soliton_Distribution(k, c0, delta):
     return rsd
 
 
-t1 = time.time()
 k = 1000
 pdf = Robust_Soliton_Distribution(k, c0=0.2, delta=0.05)
 cdf = np.zeros(k)
@@ -41,22 +40,32 @@ for i in xrange(k-1):
 
 t = time.time()
 d = np.zeros(k)
-for i in xrange(k):
-    d[i] = np.random.choice(np.arange(1, k+1), p=pdf)
 
+kkk = 500
+medio = np.zeros(kkk)
+for j in xrange(kkk):
+    for i in xrange(k):
+        d[i] = np.random.choice(np.arange(1, k+1), p=pdf)
+    medio[j] = float(np.sum(d))/k
+m = float(np.sum(medio))/len(medio)
 elapsed = time.time() - t
-elapsed1 = time.time() - t1
-print elapsed1, elapsed
+print elapsed, m
 
 #---------Distribution sampling Demo
-
+t = time.time()
 xk = np.arange(k)                                           #Prob[X=xk]=pk. Thus, xk={indices of vector pdf}
 pk = pdf                                                    #and pk={elements of vector pdf}
 custm = stats.rv_discrete(name='custm', values=(xk, pk))    #create object stats.custm that represents our distribution
-sample = custm.rvs()                                        #randomly sample an element from custm, following the
+sample= np.zeros(k)
+for j in xrange(kkk):
+    for i in xrange(k):
+        sample[i] = custm.rvs()                                 #randomly sample an element from custm, following the
                                                             #distribution of custm
-print 'Chosen degree is', sample
-print 'with probability: ', pdf[sample]
+    medio[j] = float(np.sum(sample))/k
+m = float(np.sum(medio))/len(medio)
+elapsed = time.time() - t
+print elapsed, m
+
 
 
 # plt.subplot(2, 1, 1)
