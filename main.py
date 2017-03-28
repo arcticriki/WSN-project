@@ -1,9 +1,9 @@
-import numpy as np                              # import of package numpy for mathematical tools
-import random as rnd                            # import of package random for homonym tools
-import matplotlib.pyplot as plt                 # import of package matplotlib.pyplot for plottools
+# import numpy as np                              # import of package numpy for mathematical tools
+# import random as rnd                            # import of package random for homonym tools
+# import matplotlib.pyplot as plt                 # import of package matplotlib.pyplot for plottools
 import time as time                             # import of package time for monitoring computational time
 from Node import *                              # * means we import both Storage() and Sensor() classes
-from multiprocessing import Pool                # parallel programming
+# from multiprocessing import Pool                # parallel programming
 import cProfile
 
 
@@ -106,12 +106,14 @@ def main():
     return elapsed
 
 if __name__ == "__main__":
-    u = 5
-    tempi = np.zeros(u)
-    for i in xrange(u):
-        tempi[i] = main()
-    print tempi
-    medio = np.sum(tempi)/u
-    print 'tempo medio:' , medio
+    # u = 1
+    # tempi = np.zeros(u)
+    # for i in xrange(u):
+    #     tempi[i] = main()
+    # print tempi
+    # medio = np.sum(tempi)/u
+    # print 'tempo medio:' , medio
 
-    #cProfile.run('main()')
+
+
+    cProfile.run('main()')

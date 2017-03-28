@@ -1,9 +1,9 @@
 import random as rnd
 import numpy as np
+import time as time
 
 payload = 10
 C1 = 1
-
 
 class Storage(object):
 
