@@ -1,9 +1,9 @@
-import numpy as np                              # import of package numpy for mathematical tools
-import random as rnd                            # import of package random for homonym tools
-import matplotlib.pyplot as plt                 # import of package matplotlib.pyplot for plottools
+# import numpy as np                              # import of package numpy for mathematical tools
+# import random as rnd                            # import of package random for homonym tools
+# import matplotlib.pyplot as plt                 # import of package matplotlib.pyplot for plottools
 import time as time                             # import of package time for monitoring computational time
 from Node import *                              # * means we import both Storage() and Sensor() classes
-from multiprocessing import Pool                # parallel programming
+# from multiprocessing import Pool                # parallel programming
 import cProfile
 
 
@@ -14,7 +14,7 @@ def main():
 
     n = 1000                                        # number of nodes
     k = 200                                         # number of sensors
-    L = 25                                          # square dimension
+    L = 5                                          # square dimension
 
     positions = np.zeros((n, 2))                    # matrix containing info on all node positions
     node_list = []                                  # list of references to node objects
@@ -75,15 +75,6 @@ def main():
     stop = np.zeros(n)
     j = 0
 
-    # while np.sum(stop) < k:
-    #     for i in xrange(n):
-    #         [val, ID] = node_list[i].send_pkt(0)
-    #         #print val , ID
-    #         stop[ID-1] += val
-    #         #j += val
-    #         if np.sum(stop) == k:
-    #             break
-
     while j < k:
         for i in xrange(n):
             if node_list[i].dim_buffer != 0:
@@ -115,12 +106,14 @@ def main():
     return elapsed
 
 if __name__ == "__main__":
-    u = 10
-    tempi = np.zeros(u)
-    for i in xrange(u):
-        tempi[i] = main()
-    print tempi
-    medio = np.sum(tempi)/u
-    print 'tempo medio:' , medio
+    # u = 1
+    # tempi = np.zeros(u)
+    # for i in xrange(u):
+    #     tempi[i] = main()
+    # print tempi
+    # medio = np.sum(tempi)/u
+    # print 'tempo medio:' , medio
 
-    #cProfile.run('main()')
+
+
+    cProfile.run('main()')

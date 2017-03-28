@@ -1,9 +1,9 @@
 import random as rnd
 import numpy as np
+import time as time
 
 payload = 10
 C1 = 1
-
 
 class Storage(object):
 
@@ -16,7 +16,7 @@ class Storage(object):
         self.out_buffer = []                        # outgoing packets buffer
         self.dim_buffer = 0                         # number of pkt in the outgoing queue
         self.code_degree = d                        # degree of the node, define how many pkts to encode
-        self.ID_list =[]                            # ID list of encoded pkts, saved for decoding purposes
+        self.ID_list = []                           # ID list of encoded pkts, saved for decoding purposes
         self.storage = [np.random.randint(0, 1) for _ in xrange(payload)]  # initialization of storage variable [0,..,0]
         self.num_encoded = 0                        # num. of encoded pkts, used to stop encoding process if it reaches d
 
@@ -26,6 +26,7 @@ class Storage(object):
                                                     # it should be k-dim since only k nodes generate pkts but for
                                                     # computational reason it isn't. OPEN QUESTION
         self.code_prob = self.code_degree / self.k
+
 
     def node_write(self, ID, X, Y): #change ID and position coordinates, DEPRECATED
         self.ID = ID
