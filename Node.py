@@ -16,7 +16,7 @@ class Storage(object):
         self.out_buffer = []                        # outgoing packets buffer
         self.dim_buffer = 0                         # number of pkt in the outgoing queue
         self.code_degree = d                        # degree of the node, define how many pkts to encode
-        self.ID_list =[]                            # ID list of encoded pkts, saved for decoding purposes
+        self.ID_list = []                           # ID list of encoded pkts, saved for decoding purposes
         self.storage = [np.random.randint(0, 1) for _ in xrange(payload)]  # initialization of storage variable [0,..,0]
         self.num_encoded = 0                        # num. of encoded pkts, used to stop encoding process if it reaces d
 
@@ -26,6 +26,8 @@ class Storage(object):
                                                     # it should be k-dim since only k nodes generate pkts but for
                                                     # computational reason it isn't. OPEN QUESTION
         self.code_prob = self.code_degree / self.k
+        self.iteration = C1 * self.n * np.log(self.n)
+
 
     def node_write(self, ID, X, Y): #change ID and position coordinates, DEPRECATED
         self.ID = ID
@@ -57,7 +59,7 @@ class Storage(object):
 
     def receive_pkt(self, pkt):                 # define what to do on pkt receiving
         self.visits[pkt.ID-1] += 1              # increase number of visits this pkt has done in this very node
-        if self.visits[pkt.ID-1] > 1 and pkt.counter >= C1 * self.n * np.log(self.n):  # if packet already visited the node
+        if self.visits[pkt.ID-1] > 1 and pkt.counter >= self.iteration:  # if packet already visited the node
                                                 # and its counter is greater than C1nlog(n) then, discard it
             return 1                            # pkt dropped
         else:
@@ -96,6 +98,7 @@ class Sensor(Storage):
                                                     # it should be k-dim since only k nodes generate pkts but for
                                                     # computational reason it isn't. OPEN QUESTION
         self.code_prob = self.code_degree / self.k
+        self.iteration = C1 * self.n * np.log(self.n)
 
     def spec(self):     # DEPRECATED
         print 'Sensor ID is %d and its position is (x=%d, y=%d)' % (self.ID, self.X, self.Y)

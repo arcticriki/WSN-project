@@ -12,9 +12,9 @@ def main():
 
     # -- PARAMETER INITIALIZATION SECTION --
 
-    n = 500                                        # number of nodes
-    k = 100                                         # number of sensors
-    L = 15                                          # square dimension
+    n = 1000                                        # number of nodes
+    k = 200                                         # number of sensors
+    L = 5                                          # square dimension
 
     positions = np.zeros((n, 2))                    # matrix containing info on all node positions
     node_list = []                                  # list of references to node objects
@@ -75,15 +75,6 @@ def main():
     stop = np.zeros(n)
     j = 0
 
-    # while np.sum(stop) < k:
-    #     for i in xrange(n):
-    #         [val, ID] = node_list[i].send_pkt(0)
-    #         #print val , ID
-    #         stop[ID-1] += val
-    #         #j += val
-    #         if np.sum(stop) == k:
-    #             break
-
     while j < k:
         for i in xrange(n):
             if node_list[i].dim_buffer != 0:
@@ -115,7 +106,7 @@ def main():
     return elapsed
 
 if __name__ == "__main__":
-    u = 2
+    u = 5
     tempi = np.zeros(u)
     for i in xrange(u):
         tempi[i] = main()
@@ -123,4 +114,4 @@ if __name__ == "__main__":
     medio = np.sum(tempi)/u
     print 'tempo medio:' , medio
 
-    # cProfile.run('main()')
+    #cProfile.run('main()')
