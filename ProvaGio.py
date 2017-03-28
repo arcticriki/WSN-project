@@ -153,13 +153,7 @@ def Robust_Soliton_Distribution(k, c0):
             tau.append((float(R)*np.log(float(R)/delta))/k)
         if i > ((k/R) - 1):
             tau.append(0)
-    y = tau[0:50]
-    plt.title('tau')
-    x = np.linspace(1, 50, 50, endpoint=True)
-    plt.bar(x, y)
-    plt.xticks(np.linspace(0, 52, 53, endpoint=True))
-    plt.ylabel('some numbers')
-    plt.show()
+
 
     #Ideal Soliton Distribution
     sd = []
@@ -168,14 +162,6 @@ def Robust_Soliton_Distribution(k, c0):
             sd.append(float(1)/k)
         if j > 1:
             sd.append(float(1)/(j*(j-1)))
-
-    y = tau[0:50]
-    plt.title('Ideal soliton')
-    x = np.linspace(1, 50, 50, endpoint=True)
-    plt.bar(x, y)
-    plt.xticks(np.linspace(0, 52, 53, endpoint=True))
-    plt.ylabel('some numbers')
-    plt.show()
 
 
     #Beta
@@ -188,16 +174,35 @@ def Robust_Soliton_Distribution(k, c0):
     for i in range(0, k - 1):
         rsd.append((tau[i] + sd[i])/Beta)
 
+    plt.subplot(3, 1, 1)
+    L = 50
+    y1 = tau[0:50]
+    plt.title('tau')
+    x = np.linspace(1, 50, 50, endpoint=True)
+    plt.bar(x, y1)
+    plt.subplot(3, 1, 2)
+
+    y2 = sd[0:50]
+    plt.title('Ideal distribution')
+    plt.bar(x, y2)
+
+    plt.subplot(3, 1, 3)
+
+    y3 = rsd[0:50]
+    plt.title('Robust Soliton Distribution')
+    plt.bar(x, y3)
+    plt.ylabel('some numbers')
+    plt.show()
+
     return rsd
 
 
 prova = Robust_Soliton_Distribution(10000, 0.2)
 
-
-plt.title('Robust soliton')
-y = prova[0:50]
-x = np.linspace(1, 50, 50, endpoint=True)
-plt.bar(x,y)
-plt.xticks(np.linspace(0,52,53,endpoint=True))
-plt.ylabel('some numbers')
-plt.show()
+# plt.title('Robust soliton')
+# y = prova[0:50]
+# x = np.linspace(1, 50, 50, endpoint=True)
+# plt.bar(x,y)
+# plt.xticks(np.linspace(0,52,53,endpoint=True))
+# plt.ylabel('some numbers')
+# plt.show()
