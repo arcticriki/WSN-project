@@ -53,12 +53,13 @@ m = float(np.sum(medio))/len(medio)
 elapsed = time.time() - t
 print elapsed, m
 
-#---------Distribution sampling Demo
+# ---------Distribution sampling Demo
 t = time.time()
 xk = np.arange(k)                                           #Prob[X=xk]=pk. Thus, xk={indices of vector pdf}
 pk = pdf                                                    #and pk={elements of vector pdf}
 custm = stats.rv_discrete(name='custm', values=(xk, pk))    #create object stats.custm that represents our distribution
-sample= np.zeros(k)
+sample = np.zeros(k)
+
 for j in xrange(kkk):
     for i in xrange(k):
         sample[i] = custm.rvs()                             #randomly sample an element from custm, following the
@@ -70,6 +71,20 @@ elapsed = time.time() - t
 print elapsed, m
 
 
+
+
+# plt.subplot(2, 1, 1)
+# plt.title('Robust soliton pdf')
+# y = pdf[0:50]
+# x = np.linspace(1, 50, 50, endpoint=True)
+# plt.bar(x, y)
+# plt.axis([0, 50, 0, 0.45])
+# plt.subplot(2, 1, 2)
+# plt.title('Robust soliton cdf')
+# y1 = cdf[0:50]
+# plt.bar(x, y1, color='red')
+# plt.axis([0, 50, 0, 1])
+# plt.show()
 
 # plt.subplot(2, 1, 1)
 # plt.title('Robust soliton pdf')
