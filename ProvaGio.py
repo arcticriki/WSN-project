@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import time as time
-
+from scipy import stats
 
 # Robust Solition Distribution
 def Robust_Soliton_Distribution(k, c0, delta):
@@ -47,6 +47,17 @@ for i in xrange(k):
 elapsed = time.time() - t
 elapsed1 = time.time() - t1
 print elapsed1, elapsed
+
+#---------Distribution sampling Demo
+
+xk = np.arange(k)                                           #Prob[X=xk]=pk. Thus, xk={indices of vector pdf}
+pk = pdf                                                    #and pk={elements of vector pdf}
+custm = stats.rv_discrete(name='custm', values=(xk, pk))    #create object stats.custm that represents our distribution
+sample = custm.rvs()                                        #randomly sample an element from custm, following the
+                                                            #distribution of custm
+print 'Chosen degree is', sample
+print 'with probability: ', pdf[sample]
+
 
 # plt.subplot(2, 1, 1)
 # plt.title('Robust soliton pdf')
