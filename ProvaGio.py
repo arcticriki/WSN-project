@@ -31,22 +31,24 @@ def Robust_Soliton_Distribution(k, c0, delta):
     return rsd
 
 
-k = 1000
+k = 200
 pdf = Robust_Soliton_Distribution(k, c0=0.2, delta=0.05)
-cdf = np.zeros(k)
-cdf[0] = pdf[0]
-for i in xrange(k-1):
-    cdf[i+1] = cdf[i] + pdf[i+1]
+#cdf = np.zeros(k)
+#cdf[0] = pdf[0]
+#for i in xrange(k-1):
+#    cdf[i+1] = cdf[i] + pdf[i+1]
 
 t = time.time()
 d = np.zeros(k)
 
-kkk = 500
+kkk = 1000
 medio = np.zeros(kkk)
+
 for j in xrange(kkk):
     for i in xrange(k):
         d[i] = np.random.choice(np.arange(1, k+1), p=pdf)
     medio[j] = float(np.sum(d))/k
+
 m = float(np.sum(medio))/len(medio)
 elapsed = time.time() - t
 print elapsed, m
@@ -59,9 +61,10 @@ custm = stats.rv_discrete(name='custm', values=(xk, pk))    #create object stats
 sample= np.zeros(k)
 for j in xrange(kkk):
     for i in xrange(k):
-        sample[i] = custm.rvs()                                 #randomly sample an element from custm, following the
+        sample[i] = custm.rvs()                             #randomly sample an element from custm, following the
                                                             #distribution of custm
     medio[j] = float(np.sum(sample))/k
+
 m = float(np.sum(medio))/len(medio)
 elapsed = time.time() - t
 print elapsed, m
