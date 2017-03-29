@@ -1,7 +1,10 @@
-# import numpy as np                              # import of package numpy for mathematical tools
-# import random as rnd                            # import of package random for homonym tools
-# import matplotlib.pyplot as plt                 # import of package matplotlib.pyplot for plottools
+import numpy as np                              # import of package numpy for mathematical tools
+import random as rnd                            # import of package random for homonym tools
+import matplotlib.pyplot as plt                 # import of package matplotlib.pyplot for plottools
 import time as time
+from Node import *
+import cProfile
+from RSD import *
 
 
 def main():
@@ -11,7 +14,9 @@ def main():
 
     n = 1000                                        # number of nodes
     k = 200                                         # number of sensors
-    L = 5                                          # square dimension
+    L = 5                                           # square dimension
+    c0= 0.2                                         # value equal to paper 1
+    delta = 0.05                                    # value equal to paper 1
 
     positions = np.zeros((n, 2))                    # matrix containing info on all node positions
     node_list = []                                  # list of references to node objects
@@ -20,9 +25,9 @@ def main():
     sensors_indexes = rnd.sample(range(0, n), k)    # generation of random indices for sensors
 
     # -- DEGREE INITIALIZATION --
-    d = np.ones(n)*2                                #degree provvisorio per fare prove
-    #degree_generator = PRNG()                     CAPIRE COME FAR FUNZIONARE STAMMERDA DI FUNZIONE GENERATRICE DI D
-    #d = [ for i in xrange(n)]
+
+    d = Robust_Soliton_Distribution(n, k, c0, delta)
+    da_codificare = np.sum(d)
 
     # -- NETWORK INITIALIZATION --
     # Generation of storage nodes
@@ -42,7 +47,7 @@ def main():
     t = time.time()
     # Find nearest neighbours using euclidean distance
     nearest_neighbor = []                           #simplifying assumption, if no neighbors exist withing the range
-                                                # we consider the nearest neighbor
+                                                    # we consider the nearest neighbor
     nn_distance = 2*L*L                             # maximum distance square equal the diagonal of the square [L,L]
     for i in xrange(n):                             # cycle on all nodes
         checker = False                             # boolean variable used to check if neighbors are found (false if not)
@@ -63,15 +68,14 @@ def main():
         if not checker:                             # if no neighbors are found withing max dist, use NN
             print 'Node %d has no neighbors within the rage, the nearest neighbor is chosen.' % i
             node_list[i].neighbor_write(nearest_neighbor)   # Connect node with NN
-    elapsed = time.time() - t  # computation of elapsed time
+
+    elapsed = time.time() - t
     print 'Tempo di determinazione dei vicini:', elapsed
 
     # -- PKT GENERATION AND DISSEMINATION --
     [node_list[sensors_indexes[i]].pkt_gen() for i in xrange(k)]        #generate data pkt, only sensore node can
 
-    stop = np.zeros(n)
     j = 0
-
     while j < k:
         for i in xrange(n):
             if node_list[i].dim_buffer != 0:
@@ -79,10 +83,10 @@ def main():
             if j == k:
                 break
 
-    tot=0
+    tot = 0
     for i in xrange(n):
         tot += node_list[i].num_encoded
-    print 'Numero di pacchetti codificati:', tot
+    print 'Numero di pacchetti codificati:', tot, 'su un totale di:',da_codificare
 
     elapsed = time.time() - t1  # computation of elapsed time
     print 'Tempo totale di esecuzione:', elapsed
@@ -103,14 +107,13 @@ def main():
     return elapsed
 
 if __name__ == "__main__":
-    # u = 1
-    # tempi = np.zeros(u)
-    # for i in xrange(u):
-    #     tempi[i] = main()
-    # print tempi
-    # medio = np.sum(tempi)/u
-    # print 'tempo medio:' , medio
+    u = 1
+    tempi = np.zeros(u)
+    for v in xrange(u):
+        tempi[v] = main()
+    medio = np.sum(tempi)/u
+    print 'tempo medio:' , medio
 
 
 
-    cProfile.run('main()')
+    #cProfile.run('main()')
