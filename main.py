@@ -1,10 +1,7 @@
 # import numpy as np                              # import of package numpy for mathematical tools
 # import random as rnd                            # import of package random for homonym tools
 # import matplotlib.pyplot as plt                 # import of package matplotlib.pyplot for plottools
-import time as time                             # import of package time for monitoring computational time
-from Node import *                              # * means we import both Storage() and Sensor() classes
-# from multiprocessing import Pool                # parallel programming
-import cProfile
+import time as time
 
 
 def main():
