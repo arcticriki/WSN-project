@@ -36,7 +36,7 @@ def Robust_Soliton_Distribution(n, k, c0, delta):
     # x = np.linspace(1, 50, 50, endpoint=True)
     # plt.bar(x, y)
     # #plt.axis([0, 50, 0, 0.45])
-    # plt.subplot(3, 1, 2)                              #PLOT CODE FOR TAU/SD/PDF VARIABLES, SUBPLOT TYPE
+    # plt.subplot(3, 1, 2)                            #PLOT CODE FOR TAU/SD/PDF VARIABLES, SUBPLOT TYPE
     # plt.title('Robust soliton cdf')
     # y1 = sd[0:50]
     # plt.bar(x, y1, color='red')

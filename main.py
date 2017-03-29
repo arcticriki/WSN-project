@@ -112,7 +112,7 @@ if __name__ == "__main__":
     for v in xrange(u):
         tempi[v] = main()
     medio = np.sum(tempi)/u
-    print 'tempo medio:' , medio
+    print 'tempo medio:', medio
 
 
 
