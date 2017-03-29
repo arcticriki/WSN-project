@@ -1,5 +1,6 @@
 import numpy as np
 from scipy import stats
+import time as time
 import matplotlib.pyplot as plt
 # Robust Solition Distribution
 
@@ -9,14 +10,14 @@ def Robust_Soliton_Distribution(n, k, c0, delta):
     d = np.zeros(n)                                         # initialization of degree variable
 
     #Tau Function
-    tau = []                                                # initialization of tau
-    for i in range(1, k+1):                                 # computation of tau, it follows the formula on the papers
-        if i <= round((k/R) - 1):
-            tau.append(float(R)/(i*k))
-        elif i >= round((k/R)+1):
-            tau.append(0)
-        else:                                               # case i == (k/R), since K/R is not integer equality is never
-            tau.append((float(R) * np.log(float(R) / delta)) / k)   # verified, so ve use >= <= instead
+    tau = np.zeros(k)  # initialization of tau
+    for i in range(1, k + 1):  # computation of tau, it follows the formula on the papers
+        if i <= round((k / R) - 1):
+            tau[i - 1] = (float(R) / (i * k))
+        elif i >= round((k / R) + 1):
+            break
+        else:  # case i == (k/R), since K/R is not integer equality is never
+            tau[i - 1] = (float(R) * np.log(float(R) / delta)) / k  # verified, so ve use >= <= instead
 
     # Ideal Soliton Distribution
     sd = [1.0 / k]                                          # initialization of soliton distribution with first value
@@ -29,7 +30,7 @@ def Robust_Soliton_Distribution(n, k, c0, delta):
     pdf = []                                                # initialization of target pdf
     for i in xrange(k):
         pdf.append((tau[i] + sd[i])/beta)                   # computation of pdf using tau, sd and the normalization coeff
-    #
+
     # plt.subplot(3, 1, 1)
     # plt.title('Tau')
     # y = tau[0:50]
@@ -55,5 +56,3 @@ def Robust_Soliton_Distribution(n, k, c0, delta):
         d[i] = custm.rvs()                          # randomly sample n elements from custm, following the
                                                     # distribution of custm
     return d                                        # return sampled degree
-
-
