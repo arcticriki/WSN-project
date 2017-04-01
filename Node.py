@@ -5,6 +5,12 @@ import time as time
 payload = 10
 C1 = 5
 
+# -- We conceptually divide the nodes into 2 categories:
+#    - STORAGE NODE: generic node that can only store and forward pkts
+#    - SENSOR NODE: node that can actually sense the environment and generate pktts. It can also store and forward
+#    (NOTE: class SENSOR extends class STORAGE)
+
+#-- STORAGE NODE SPECIFICATIONS ---------------------------------------------------------------------------------
 class Storage(object):
 
     def __init__(self, ID, X, Y, d, n, k):
@@ -79,8 +85,12 @@ class Storage(object):
                                                  #the node! That is to say: if pkt x has visited node v before
                                                  #BUT c(x)<C1nlog(n), v accepts it with Prob=0, BUT it forwards it
 
+    def storage_info(self):
+        return self.code_degree, self.ID_list, self.storage       #return code degree of the node, list of ID XORed pkts
+                                                                  #and the result of the XOR operation
 
 
+# -- SENSOR NODE SPECIFICATIONS -----------------------------------------------------------------------
 class Sensor(Storage):
 
     def __init__(self, ID, X, Y, d, n, k):
