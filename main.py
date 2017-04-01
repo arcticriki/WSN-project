@@ -10,13 +10,13 @@ from RSD import *
 def main():
     t1 = time.time()                                 # initial timestamp
 
-    # -- PARAMETER INITIALIZATION SECTION --
+    # -- PARAMETER INITIALIZATION SECTION --------------------------------------------------------------
 
     n = 1000                                        # number of nodes
-    k = 200                                         # number of sensors
-    L = 5                                           # square dimension
-    c0= 0.2                                         # value equal to paper 1
-    delta = 0.05                                    # value equal to paper 1
+    k = 350                                        # number of sensors
+    L = 10                                           # square dimension
+    c0= 0.2                                         # parameter for RSD
+    delta = 0.05                                    # Prob['we're not able to recover the K pkts']<=delta
 
     positions = np.zeros((n, 2))                    # matrix containing info on all node positions
     node_list = []                                  # list of references to node objects
@@ -26,15 +26,15 @@ def main():
 
     # -- DEGREE INITIALIZATION --
 
-    d = Robust_Soliton_Distribution(n, k, c0, delta)
-    da_codificare = np.sum(d)
+    d = Robust_Soliton_Distribution(n, k, c0, delta) #See RSD doc
+    to_be_encoded = np.sum(d)                        #use to check how many pkts we should encode ***OPEN PROBLEM***
 
     # -- NETWORK INITIALIZATION --
     # Generation of storage nodes
     for i in xrange(n):                             # for on 0 to n indices
         x = rnd.uniform(0.0, L)                     # generation of random coordinate x
         y = rnd.uniform(0.0, L)                     # generation of random coordinate y
-        node_list.append(Storage(i + 1, x, y, d[i], n, k))      # creation of storage node, function Storage()
+        node_list.append(Storage(i + 1, x, y, d[i], n, k))      # creation of Storage node
         positions[i, :] = [x, y]
 
     # Generation of sensor nodes
@@ -60,38 +60,19 @@ def main():
                     node_list[i].neighbor_write(node_list[j])   # append operation on node's neighbor list
                     checker = True                              # at least one neighbor has been founded
             if not checker and dist2 <= nn_distance and dist2 != 0: # in order to be sure that the graph is connected
-                                                                # we determine the nearest neighbot
+                                                                # we determine the nearest neighbor
                                                                 # even if its distance is greater than the max distance
                 nn_distance = dist2                 # if distance of new NN is less than distance of previous NN, update it
                 nearest_neighbor = node_list[i]     # save NN reference, to use only if no neighbors are found
 
         if not checker:                             # if no neighbors are found withing max dist, use NN
-            print 'Node %d has no neighbors within the rage, the nearest neighbor is chosen.' % i
+            print 'Node %d has no neighbors within the range, the nearest neighbor is chosen.' % i
             node_list[i].neighbor_write(nearest_neighbor)   # Connect node with NN
 
     elapsed = time.time() - t
     print 'Tempo di determinazione dei vicini:', elapsed
 
-    # -- PKT GENERATION AND DISSEMINATION --
-    [node_list[sensors_indexes[i]].pkt_gen() for i in xrange(k)]        #generate data pkt, only sensore node can
-
-    j = 0
-    while j < k:
-        for i in xrange(n):
-            if node_list[i].dim_buffer != 0:
-                j += node_list[i].send_pkt(0)
-            if j == k:
-                break
-
-    tot = 0
-    for i in xrange(n):
-        tot += node_list[i].num_encoded
-    print 'Numero di pacchetti codificati:', tot, 'su un totale di:',da_codificare
-
-    elapsed = time.time() - t1  # computation of elapsed time
-    print 'Tempo totale di esecuzione:', elapsed
-
-
+    # -- PLOTTING THE WSN ---
     # plt.title("Graphical representation of sensors' positions")
     # plt.xlabel('X')
     # plt.ylabel('Y')
@@ -104,16 +85,35 @@ def main():
     # plt.legend(loc='upper left')
     # plt.show()
 
+    # -- PKT GENERATION AND DISSEMINATION -----------------------------------------------------------
+    [node_list[sensors_indexes[i]].pkt_gen() for i in xrange(k)]        #generate data pkt, only sensor nodes are allowed
+
+    j = 0
+    while j < k:
+        for i in xrange(n):
+            if node_list[i].dim_buffer != 0:
+                j += node_list[i].send_pkt(0)
+            if j == k:
+                break
+
+
+    # -- DEBUGGING -----------------------------------------------------------------
+
+    tot = 0
+    for i in xrange(n):
+        tot += node_list[i].num_encoded
+    print 'Numero di pacchetti codificati:', tot, 'su un totale di:',to_be_encoded
+
+    elapsed = time.time() - t1  # computation of elapsed time
+    print 'Tempo totale di esecuzione:', elapsed
     return elapsed
 
 if __name__ == "__main__":
-    u = 1
+    u = 3
     tempi = np.zeros(u)
     for v in xrange(u):
         tempi[v] = main()
     medio = np.sum(tempi)/u
     print 'tempo medio:', medio
 
-
-
-    #cProfile.run('main()')
+   #cProfile.run('main()')

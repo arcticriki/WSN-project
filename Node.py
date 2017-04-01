@@ -3,7 +3,7 @@ import numpy as np
 import time as time
 
 payload = 10
-C1 = 1
+C1 = 5
 
 class Storage(object):
 
@@ -46,34 +46,39 @@ class Storage(object):
     def send_pkt(self, mode):                       # send function used to move messages between nodes
         if self.dim_buffer > 0:                     # if buffer non empty --> we can send something
             if mode == 0:                           # mode 0 = uniform at random selection
-                vicino = rnd.choice(self.neighbor_list)
+                neighbor = rnd.choice(self.neighbor_list)
                 pkt = self.out_buffer.pop(0)
                 self.dim_buffer -= 1
-                return vicino.receive_pkt(pkt)      # pass pkt to neighbor and return 1 if blocked or 0 if not blocked
+                return neighbor.receive_pkt(pkt)    # pass pkt to neighbor and return 1 if blocked or 0 if not blocked
             elif mode == 1:                         # mode 1 = metropolis algo (ancora da implementare per paper 1)
-                print 'Metropolis algorithm not yet implemented'
-        else:                   # empy buffer
+                print 'Metropolis algorithm not implemented yet'
+        else:                                       # empty buffer
             return 0
                                                 # send operation return a pkt and a neighbor
 
     def receive_pkt(self, pkt):                 # define what to do on pkt receiving
         self.visits[pkt.ID-1] += 1              # increase number of visits this pkt has done in this very node
-        if self.visits[pkt.ID-1] > 1 and pkt.counter >= C1 * self.n * np.log10(self.n):  # if packet already visited the node
+        if self.visits[pkt.ID-1] >= 1 and pkt.counter >= C1 * self.n * np.log10(self.n):  # if packet already visited the node
                                                 # and its counter is greater than C1nlog10(n) then, discard it
             return 1                            # pkt dropped
-        else:
-            if self.visits[pkt.ID - 1] == 1 and self.num_encoded < self.code_degree:
-                # if it is the first time the pkt reaches this very node and we have NOT already coded d pkts
-                prob = rnd.random()             # generate a random number in the range [0,1)
-                if prob <= self.code_prob:      # if generated number less or equal to coding probability
-                    self.ID_list.append(pkt.ID)        # save ID of node who generated the coded pkt
-                    self.storage = [self.storage[i] ^ pkt.payload[i] for i in xrange(payload)]  # code procedure(XOR)
-                    self.num_encoded += 1              # increase num of encoded pkts
 
-            pkt.counter += 1                         # increase pkt counter then put it in the outgoing buffer
-            self.out_buffer.append(pkt)         # else, if pkt is at its first visit, or it haven't reached C1nlog10(n)
-            self.dim_buffer += 1
-            return 0
+        if self.visits[pkt.ID - 1] >= 1 and pkt.counter < C1 * self.n * np.log10(self.n):
+                # if it is the first time the pkt reaches this very node ...
+                if self.num_encoded < self.code_degree: #...and we still have to encode something
+                    prob = rnd.random()
+                    # generate a random number in the range [0,1)
+                    if prob <= self.code_prob:      # if generated number less or equal to coding probability
+                      self.ID_list.append(pkt.ID)        # save ID of node who generated the coded pkt
+                      self.storage = [self.storage[i] ^ pkt.payload[i] for i in xrange(payload)]  # code procedure(XOR)
+                      self.num_encoded += 1              # increase num of encoded pkts
+
+        pkt.counter += 1                         # increase pkt counter then put it in the outgoing buffer
+        self.out_buffer.append(pkt)              # else, if pkt is at its first visit, or it haven't reached C1nlog10(n)
+        self.dim_buffer += 1
+        return 0                                 #NOTE: this procedure has to be done even if the pkt has already visited
+                                                 #the node! That is to say: if pkt x has visited node v before
+                                                 #BUT c(x)<C1nlog(n), v accepts it with Prob=0, BUT it forwards it
+
 
 
 class Sensor(Storage):
