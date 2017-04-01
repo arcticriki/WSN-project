@@ -113,4 +113,4 @@ print (XOR_payload_list[2])
 print (XOR_payload_list[1])+(XOR_payload_list[2])
 
 #SOLVE THE PROBLEM: we are still working with list.. note that the "+" between elements of the list do concatenation
-#but we want the "XOR" operation... we have to transform the lists into integers
+#but we want the "XOR" operation... we have to transform the lists into integers,
