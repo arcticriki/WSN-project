@@ -12,8 +12,8 @@ t1 = time.time()                                 # initial timestamp
 
 # -- PARAMETER INITIALIZATION SECTION --------------------------------------------------------------
 
-n = 100                                        # number of nodes
-k = 10                                        # number of sensors
+n = 10                                      # number of nodes
+k = 2                                        # number of sensors
 L = 10                                           # square dimension
 c0= 0.2                                         # parameter for RSD
 delta = 0.05                                    # Prob['we're not able to recover the K pkts']<=delta
@@ -75,6 +75,8 @@ print 'Tempo di determinazione dei vicini:', elapsed
 # -- PKT GENERATION AND DISSEMINATION -----------------------------------------------------------
 [node_list[sensors_indexes[i]].pkt_gen() for i in xrange(k)]        #generate data pkt, only sensor nodes are allowed
 
+#USE storage_info() here to get the source pkts
+
 # print [node_list[sensors_indexes[i]].storage_info() for i in xrange(k)]
 
 j = 0
@@ -88,29 +90,46 @@ while j < k:
 #-- DECODING PHASE -----------------------------------------------------------------------
 #-- Decoding parameters extraction --
 
+payload=10
 
-epsilon=1           #we need h=(k+epsilon) over n nodes to succefully decode with high probability
+epsilon=2          #we need h=(k+epsilon) over n nodes to succefully decode with high probability
 h=k+epsilon
 
-decoding_indices=rnd.sample(range(0, n), h)                           #selecting h random nodes in the graph
+decoding_indices=rnd.sample(range(0, n), h)   #selecting h random nodes in the graph
 
-degrees= [0]*h          #create a Integer vector of all zeros, dimension h
-ID_XORed_list=[]        #empty list of XORed pkt IDs
-XOR_payload_list=[]     #empty list of XOR payload stored
+degrees= []             #list of integers
+ID_list=[]        #empty list of XORed pkt IDs
+XOR_list=[]     #empty list of XOR payload stored
+
+hashmap=np.zeros((n,2))  #vector nx2 that maps IDs to integer keys for the matrix of the coded pkts
+num_hasmpap=0            #key counter
+
+decodificati=np.zeros((k,payload))
+
 for i in xrange(h):     #filling of the variables, through method storage_info()
-    degree,ID,XOR=node_list[decoding_indices[i]].storage_info()
-    degrees[i]=degree.astype(int)  #cast to int
-    ID_XORed_list.append(ID)
-    XOR_payload_list.append(XOR)
+    degree,ID,XOR=node_list[decoding_indices[i]].storage_info()  #get the useful info
+    a=degree            #temp variables
+    b=ID
+    c=XOR
+    if degree<=1:       #se il pkt ha grado 0 non faremo niente
+        if degree==1:   #se il pkt ha grado 1, risolviamo il pkt
+            decodificati(hashmap[ID-1,1])
+    else:
+
+
 
 # Up to now, we have:
 # - Integer vector of the degrees -> MP works looking for degree 1, etc...
 # - List of ID -> when we simplify the system through MP we will keep track of the IDs involved
 # - XOR bits
 
-print (XOR_payload_list[1][1])
-print (XOR_payload_list[2])
-print (XOR_payload_list[1])+(XOR_payload_list[2])
+print degrees
+print ID_list
+print XOR_list
 
 #SOLVE THE PROBLEM: we are still working with list.. note that the "+" between elements of the list do concatenation
 #but we want the "XOR" operation... we have to transform the lists into integers,
+
+#POSSIBLE SOLUTIONS FOR THE PROBLEM list -> integers
+#1) results = [int(i) for i in results] apply this to the needed vector
+#2) use function map: results = map(int, results)

@@ -23,7 +23,7 @@ class Storage(object):
         self.dim_buffer = 0                         # number of pkt in the outgoing queue
         self.code_degree = d                        # degree of the node, define how many pkts to encode
         self.ID_list = []                           # ID list of encoded pkts, saved for decoding purposes
-        self.storage = [np.random.randint(0, 1) for _ in xrange(payload)]  # initialization of storage variable [0,..,0]
+        self.storage = [0]*payload                  # initialization of storage variable [0,..,0]
         self.num_encoded = 0                        # num. of encoded pkts, used to stop encoding process if it reaches d
 
         self.n = n                                  # number of nodes in the network
@@ -94,7 +94,7 @@ class Storage(object):
                 if self.num_encoded < self.code_degree: #...and we still have to encode something
                     prob = rnd.random()
                     # generate a random number in the range [0,1)
-                    if prob <= 1: #self.code_prob:      # if generated number less or equal to coding probability
+                    if prob <= self.code_prob:      # if generated number less or equal to coding probability
                       self.ID_list.append(pkt.ID)        # save ID of node who generated the coded pkt
                       self.storage = [self.storage[i] ^ pkt.payload[i] for i in xrange(payload)]  # code procedure(XOR)
                       self.num_encoded += 1              # increase num of encoded pkts
@@ -119,7 +119,7 @@ class Storage(object):
 
 
     def storage_info(self):
-        return self.code_degree, self.ID_list, self.storage       #return code degree of the node, list of ID XORed pkts
+        return self.num_encoded, self.ID_list, self.storage       #return code degree of the node, list of ID XORed pkts
                                                                   #and the result of the XOR operation
 
 

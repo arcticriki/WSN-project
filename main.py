@@ -12,8 +12,8 @@ def main():
 
     # -- PARAMETER INITIALIZATION SECTION --------------------------------------------------------------
 
-    n = 1000                                        # number of nodes
-    k = 200                                        # number of sensors
+    n = 500                                        # number of nodes
+    k = 2                                        # number of sensors
     L = 25                                           # square dimension
     c0= 0.2                                         # parameter for RSD
     delta = 0.05                                    # Prob['we're not able to recover the K pkts']<=delta
@@ -109,7 +109,7 @@ def main():
     return elapsed
 
 if __name__ == "__main__":
-    u = 1
+    u = 10
     tempi = np.zeros(u)
     for v in xrange(u):
         tempi[v] = main()
