@@ -147,7 +147,7 @@ class Sensor(Storage):
         self.code_prob = self.code_degree / self.k
 
     def spec(self):     # DEPRECATED
-        print 'Sensor ID is %d and its position is (x=%d, y=%d)' % (self.ID, self.X, self.Y)
+        print 'Sensor ID is %d and its position is (x=%d, y=%d) ' % (self.ID, self.X, self.Y)
 
     def pkt_gen(self):
         pkt = Pkt(self.ID, payload)
