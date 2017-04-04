@@ -102,7 +102,7 @@ ID_list=[]        #empty list of XORed pkt IDs
 XOR_list=[]     #empty list of XOR payload stored
 
 hashmap=np.zeros((n,2))  #vector nx2 that maps IDs to integer keys for the matrix of the coded pkts
-num_hasmpap=0            #key counter
+num_hashmap=0            #key counter
 
 decodificati=np.zeros((k,payload))
 
