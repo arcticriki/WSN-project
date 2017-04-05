@@ -111,7 +111,7 @@ isolated_storage_nodes=0        #counts the number of isolated storage nodes, us
 for i in xrange(h):         #filling of the variables, through method storage_info()
     degree,ID,XOR=node_list[decoding_indices[i]].storage_info()  #get the useful info
 
-    decoded_pkts=0                      #variable that keeps track of the number of decoded variables for the round
+
 
     if degree==0:                       #if the pkt has degree=0 -> no pkts to decode
         isolated_storage_nodes+=1
@@ -120,25 +120,21 @@ for i in xrange(h):         #filling of the variables, through method storage_in
         hashmap[ID-1][1] = num_hashmap                  #track num_hashmap
         decoded[num_hashmap][0:payload] = XOR           #copy the payload
         num_hashmap += 1                               #update num_hashmap and decoded
-        decoded_pkts +=1
     else degree > 1:                    #if the pkt has degree>1 -> investigate if is possible to decode, or wait
         j=0                             #temp variable for the scanning process
-        not_decoded=degree-decoded_pkts #number of undecoded pkt, over the total in vector ID
-        temp_ID = []                    #temp list for un-processed ID pkts
+        not_decoded=0                   #number of undecoded pkt, over the total in vector ID
+        temp_ID = 0                     #temp list for un-processed ID pkts
         while j<len(ID):                #we scan the IDs connected to the node
             if hashmap[ID[j]][0]==1:
                 for bit in xrange(payload):                                     #XOR bit per bit
                     XOR[bit]= XOR[bit]^decoded[hashmap[ID[j][1]][bit]]          #XOR(new)=XOR+decoded[the node which is connected to and has already been solved]
                 j +=1
-                not_decoded -=1
-
+            elif not_decoded==0:
+                not_decoded+=1
+                temp_ID=ID[j]
+                j+=1
             else:
-                if not_decoded<2:                                               #it should be like the case of degree==1
-                    hasmap[ID[j]-1][0]=1
-                    hashmap[ID[j]-1][1]=num_hashmap
-                    decoded[num_hashmap][0:payload]=XOR
-                    num_hashmap +=1
-                else:
+
 
 
                 #save the info appending it in the node_list
