@@ -95,47 +95,54 @@ payload=10
 epsilon=2          #we need h=(k+epsilon) over n nodes to succefully decode with high probability
 h=k+epsilon
 
-decoding_indices=rnd.sample(range(0, n), h)   #selecting h random nodes in the graph
+decoding_indices = rnd.sample(range(0, n), h)   #selecting h random nodes in the graph
 
 #degrees= []                #list of integers (Not used)
 #ID_list=[]                  #empty list of XORed pkt IDs
 #XOR_list=[]                #empty list of XOR payload stored (Not used)
 
-hashmap=np.zeros((n,2))         #vector nx2: pos[ID-1,0]-> "1" pkt of (ID-1) is decoded, "0" otherwise; pos[ID-1,1]->num_hashmap
+hashmap = np.zeros((n,2))         #vector nx2: pos[ID-1,0]-> "1" pkt of (ID-1) is decoded, "0" otherwise; pos[ID-1,1]->num_hashmap
 num_hashmap = 0                 #key counter: indicates the index of the next free row in decoded matrix
 
-decoded=np.zeros((k,payload))   #matrix k*payload: the i-th row stores the total XOR of the decoded pkts
+decoded = np.zeros((k,payload))   #matrix k*payload: the i-th row stores the total XOR of the decoded pkts
 isolated_storage_nodes=0        #counts the number of isolated storage nodes, useless for the decoding procedure
 
 
-for i in xrange(h):         #filling of the variables, through method storage_info()
-    degree,ID,XOR=node_list[decoding_indices[i]].storage_info()  #get the useful info
+#for i in xrange(h):         #filling of the variables, through method storage_info()
+i = -1
 
+while
+    i += 1
+    degree,ID,XOR = node_list[decoding_indices[i]].storage_info()  #get the useful info
 
-
-    if degree==0:                       #if the pkt has degree=0 -> no pkts to decode
-        isolated_storage_nodes+=1
-    elif degree==1:                       #if the pkt has degree=1 -> immediately decoded
-        hashmap[ID-1][0] = 1                            #pkt decoded
-        hashmap[ID-1][1] = num_hashmap                  #track num_hashmap
-        decoded[num_hashmap][0:payload] = XOR           #copy the payload
-        num_hashmap += 1                               #update num_hashmap and decoded
-    else degree > 1:                    #if the pkt has degree>1 -> investigate if is possible to decode, or wait
-        j=0                             #temp variable for the scanning process
-        not_decoded=0                   #number of undecoded pkt, over the total in vector ID
-        temp_ID = 0                     #temp list for un-processed ID pkts
-        while j<len(ID):                #we scan the IDs connected to the node
-            if hashmap[ID[j]][0]==1:
+    if degree == 0:                       #if the pkt has degree=0 -> no pkts to decode
+        isolated_storage_nodes += 1
+    elif degree == 1:                     #if the pkt has degree=1 -> immediately decoded
+        hashmap[ID-1, :] = [1 , num_hashmap]             #pkt decoded
+        #decoded[num_hashmap][0:payload] = XOR           #copy the payload
+        decoded[num_hashmap, :] = XOR
+        num_hashmap += 1                                #update num_hashmap and decoded
+    else:                                 #if the pkt has degree>1 -> investigate if is possible to decode, or wait
+        j = 0                             #temp variable for the scanning process
+        not_decoded = 0                   #number of undecoded pkt, over the total in vector ID
+        temp_ID = 0                       #temp list for un-processed ID pkts
+        while j <= len(ID) and not_decoded < 2:                #we scan the IDs connected to the node
+            if hashmap[ID[j]-1, 0] == 1:
                 for bit in xrange(payload):                                     #XOR bit per bit
-                    XOR[bit]= XOR[bit]^decoded[hashmap[ID[j][1]][bit]]          #XOR(new)=XOR+decoded[the node which is connected to and has already been solved]
-                j +=1
-            elif not_decoded==0:
-                not_decoded+=1
-                temp_ID=ID[j]
-                j+=1
+                    x = hashmap[ID[j]-1,1]
+                    XOR[bit] = XOR[bit]^decoded[x,bit]          #XOR(new)=XOR+decoded[the node which is connected to and has already been solved]
+                j += 1
             else:
+                not_decoded += 1
+                temp_ID = ID[j]
+                j += 1
 
-
+        if not_decoded == 1:
+            hashmap[temp_ID - 1, :] = [1, num_hashmap]
+            decoded[num_hashmap, :] = XOR
+            num_hashmap +=1
+        elif not_decoded == 2:
+            decoding_indices.append(decoding_indices[i])
 
                 #save the info appending it in the node_list
                 #increase h by 1
