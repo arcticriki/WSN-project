@@ -101,66 +101,58 @@ decoding_indices=rnd.sample(range(0, n), h)   #selecting h random nodes in the g
 #ID_list=[]                  #empty list of XORed pkt IDs
 #XOR_list=[]                #empty list of XOR payload stored (Not used)
 
-hashmap=np.zeros((n,2))     #vector nx2 that maps IDs to integer keys for the matrix of the coded pkts
-num_hashmap = 0             #key counter
+hashmap=np.zeros((n,2))         #vector nx2: pos[ID-1,0]-> "1" pkt of (ID-1) is decoded, "0" otherwise; pos[ID-1,1]->num_hashmap
+num_hashmap = 0                 #key counter: indicates the index of the next free row in decoded matrix
 
-decoded=np.zeros((k,payload))
+decoded=np.zeros((k,payload))   #matrix k*payload: the i-th row stores the total XOR of the decoded pkts
+isolated_storage_nodes=0        #counts the number of isolated storage nodes, useless for the decoding procedure
+
 
 for i in xrange(h):         #filling of the variables, through method storage_info()
     degree,ID,XOR=node_list[decoding_indices[i]].storage_info()  #get the useful info
-    a=degree                #temp variables
-    b=ID                    #IDs of XORed pkt in a node
-    c=XOR                   #value of XOR
 
-    if degree==0:           #if the pck has degree=0 -> no pkts to decode
+    decoded_pkts=0                      #variable that keeps track of the number of decoded variables for the round
 
-    if degree==1:           #if the pck has degree=1 -> possible to decode
-        decode(ID[1], c)
-        num_hashmap += 1;
+    if degree==0:                       #if the pkt has degree=0 -> no pkts to decode
+        isolated_storage_nodes+=1
+    elif degree==1:                       #if the pkt has degree=1 -> immediately decoded
+        hashmap[ID-1][0] = 1                            #pkt decoded
+        hashmap[ID-1][1] = num_hashmap                  #track num_hashmap
+        decoded[num_hashmap][0:payload] = XOR           #copy the payload
+        num_hashmap += 1                               #update num_hashmap and decoded
+        decoded_pkts +=1
+    else degree > 1:                    #if the pkt has degree>1 -> investigate if is possible to decode, or wait
+        j=0                             #temp variable for the scanning process
+        not_decoded=degree-decoded_pkts #number of undecoded pkt, over the total in vector ID
+        temp_ID = []                    #temp list for un-processed ID pkts
+        while j<len(ID):                #we scan the IDs connected to the node
+            if hashmap[ID[j]][0]==1:
+                for bit in xrange(payload):                                     #XOR bit per bit
+                    XOR[bit]= XOR[bit]^decoded[hashmap[ID[j][1]][bit]]          #XOR(new)=XOR+decoded[the node which is connected to and has already been solved]
+                j +=1
+                not_decoded -=1
 
-    if degree > 1:          #if the pck has degree>1 -> info in a "list of wait"
-        #provo a decodificare con i pacchetti che ho già decodificato
-        j=0;
-        not_decoded=0;
-        temp_c = c;         #temp variable to test XORing
-        temp_ID = 0;
-        while j<len(ID):
-            if hashmap[ID[j]][0]==1:    #pkt already decoded
-                temp_c= temp_c^decoded[hashmap[ID[j]]][1]
-                j +=1;
-            elif not_decoded==0:
-                not_decoded +=1;
-                temp_ID= ID[j];
-                j +=1;
             else:
+                if not_decoded<2:                                               #it should be like the case of degree==1
+                    hasmap[ID[j]-1][0]=1
+                    hashmap[ID[j]-1][1]=num_hashmap
+                    decoded[num_hashmap][0:payload]=XOR
+                    num_hashmap +=1
+                else:
+
+
                 #save the info appending it in the node_list
                 #increase h by 1
                 #Possible to append the info modified by this while cicle!
                 #   In this manner we are able to do less operation in the second time
 
-        if not_decoded<=1:
-            decode(temp_ID, temp_c^Storage.storage)
-
-    def decode(pos,value):
-    hashmap[pos][0] = 1;
-    hashmap[pos][1] = num_hashmap;
-    decoded[num_hashmap]=value;
 
 
 
+# print degree
+# print type(ID[0])
+# print XOR[0:len(XOR)]
 
-# Up to now, we have:
-# - Integer vector of the degrees -> MP works looking for degree 1, etc...
-# - List of ID -> when we simplify the system through MP we will keep track of the IDs involved
-# - XOR bits
+#
 
-print degrees
-print ID_list
-print XOR_list
 
-#SOLVE THE PROBLEM: we are still working with list.. note that the "+" between elements of the list do concatenation
-#but we want the "XOR" operation... we have to transform the lists into integers,
-
-#POSSIBLE SOLUTIONS FOR THE PROBLEM list -> integers
-#1) results = [int(i) for i in results] apply this to the needed vector
-#2) use function map: results = map(int, results)

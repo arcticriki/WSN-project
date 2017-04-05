@@ -3,7 +3,7 @@ import numpy as np
 import time as time
 
 payload = 10
-C1 = 5
+C1 = 3
 
 # -- We conceptually divide the nodes into 2 categories:
 #    - STORAGE NODE: generic node that can only store and forward pkts
