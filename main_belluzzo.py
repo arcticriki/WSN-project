@@ -12,8 +12,13 @@ t1 = time.time()                                 # initial timestamp
 
 # -- PARAMETER INITIALIZATION SECTION --------------------------------------------------------------
 
+
+payload=10
+
+
+
 n = 10                                      # number of nodes
-k = 2                                        # number of sensors
+k = 3                                        # number of sensors
 L = 10                                           # square dimension
 c0= 0.2                                         # parameter for RSD
 delta = 0.05                                    # Prob['we're not able to recover the K pkts']<=delta
@@ -73,8 +78,12 @@ elapsed = time.time() - t
 print 'Tempo di determinazione dei vicini:', elapsed
 
 # -- PKT GENERATION AND DISSEMINATION -----------------------------------------------------------
-[node_list[sensors_indexes[i]].pkt_gen() for i in xrange(k)]        #generate data pkt, only sensor nodes are allowed
+source_pkt = np.zeros((k,payload))
+for i in xrange(k):
+    node_list[sensors_indexes[i]].pkt_gen()
+    _, _, source_pkt[i,:] = node_list[sensors_indexes[i]].storage_info()
 
+#print 'Source packets: \n',source_pkt
 #USE storage_info() here to get the source pkts
 
 # print [node_list[sensors_indexes[i]].storage_info() for i in xrange(k)]
@@ -86,11 +95,15 @@ while j < k:
             j += node_list[i].send_pkt(0)
         if j == k:
             break
+tot = 0
+for i in xrange(n):
+    tot += node_list[i].num_encoded
+print 'Numero di pacchetti codificati:', tot, 'su un totale di:', to_be_encoded
 
 #-- DECODING PHASE -----------------------------------------------------------------------
 #-- Decoding parameters extraction --
 
-payload=10
+
 
 epsilon=2          #we need h=(k+epsilon) over n nodes to succefully decode with high probability
 h=k+epsilon
@@ -104,21 +117,35 @@ decoding_indices = rnd.sample(range(0, n), h)   #selecting h random nodes in the
 hashmap = np.zeros((n,2))         #vector nx2: pos[ID-1,0]-> "1" pkt of (ID-1) is decoded, "0" otherwise; pos[ID-1,1]->num_hashmap
 num_hashmap = 0                 #key counter: indicates the index of the next free row in decoded matrix
 
-decoded = np.zeros((k,payload))   #matrix k*payload: the i-th row stores the total XOR of the decoded pkts
+decoded = np.zeros((k,payload), dtype=np.int8)   #matrix k*payload: the i-th row stores the total XOR of the decoded pkts
+print 'decoded type:',type(decoded)
 isolated_storage_nodes=0        #counts the number of isolated storage nodes, useless for the decoding procedure
 
 
 #for i in xrange(h):         #filling of the variables, through method storage_info()
 i = -1
+added = 0
+condition_vector = np.zeros(3)
 
-while
+condition_vector[0] = h
+
+while num_hashmap < k :
     i += 1
+    if i == condition_vector[0]:
+        if condition_vector[1] == condition_vector[2]:
+            print 'DECODING FAILURE'
+            break
+        else:
+            condition_vector=[ condition_vector[0]+condition_vector[2], condition_vector[2], 0]
+
     degree,ID,XOR = node_list[decoding_indices[i]].storage_info()  #get the useful info
+    print 'Degree of packet %d is %d' % (i, degree)
 
     if degree == 0:                       #if the pkt has degree=0 -> no pkts to decode
         isolated_storage_nodes += 1
     elif degree == 1:                     #if the pkt has degree=1 -> immediately decoded
-        hashmap[ID-1, :] = [1 , num_hashmap]             #pkt decoded
+        hashmap[ID[0] - 1, 0] = 1             #pkt decoded
+        hashmap[ID[0] - 1, 1] = num_hashmap
         #decoded[num_hashmap][0:payload] = XOR           #copy the payload
         decoded[num_hashmap, :] = XOR
         num_hashmap += 1                                #update num_hashmap and decoded
@@ -126,11 +153,11 @@ while
         j = 0                             #temp variable for the scanning process
         not_decoded = 0                   #number of undecoded pkt, over the total in vector ID
         temp_ID = 0                       #temp list for un-processed ID pkts
-        while j <= len(ID) and not_decoded < 2:                #we scan the IDs connected to the node
+        while j < len(ID) and not_decoded < 2:                #we scan the IDs connected to the node
             if hashmap[ID[j]-1, 0] == 1:
                 for bit in xrange(payload):                                     #XOR bit per bit
                     x = hashmap[ID[j]-1,1]
-                    XOR[bit] = XOR[bit]^decoded[x,bit]          #XOR(new)=XOR+decoded[the node which is connected to and has already been solved]
+                    XOR[bit] = XOR[bit]^decoded[x,bit]         #XOR(new)=XOR+decoded[the node which is connected to and has already been solved]
                 j += 1
             else:
                 not_decoded += 1
@@ -138,20 +165,30 @@ while
                 j += 1
 
         if not_decoded == 1:
-            hashmap[temp_ID - 1, :] = [1, num_hashmap]
+            hashmap[temp_ID - 1, 0] = 1  # pkt decoded
+            hashmap[temp_ID - 1, 1] = num_hashmap
             decoded[num_hashmap, :] = XOR
             num_hashmap +=1
         elif not_decoded == 2:
             decoding_indices.append(decoding_indices[i])
+            condition_vector[2] += 1
 
                 #save the info appending it in the node_list
                 #increase h by 1
                 #Possible to append the info modified by this while cicle!
                 #   In this manner we are able to do less operation in the second time
 
+print 'Numero di decodificati:',num_hashmap
+print 'Decoded packets BEFORE :\n', decoded
+#-- DEBUGGING -----------------------------------------------------------------------
+decoded2 = np.zeros((k,payload), dtype=np.int8)
 
+for i in xrange(len(sensors_indexes)):
+    a = hashmap[sensors_indexes[i],1]
+    decoded2[i,:] = decoded[a,:]
 
-
+print 'Decoded packets:\n', decoded2
+print 'Hash table:\n', hashmap
 # print degree
 # print type(ID[0])
 # print XOR[0:len(XOR)]
