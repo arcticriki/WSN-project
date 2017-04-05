@@ -97,24 +97,55 @@ h=k+epsilon
 
 decoding_indices=rnd.sample(range(0, n), h)   #selecting h random nodes in the graph
 
-degrees= []             #list of integers
-ID_list=[]        #empty list of XORed pkt IDs
-XOR_list=[]     #empty list of XOR payload stored
+#degrees= []                #list of integers (Not used)
+#ID_list=[]                  #empty list of XORed pkt IDs
+#XOR_list=[]                #empty list of XOR payload stored (Not used)
 
-hashmap=np.zeros((n,2))  #vector nx2 that maps IDs to integer keys for the matrix of the coded pkts
-num_hashmap=0            #key counter
+hashmap=np.zeros((n,2))     #vector nx2 that maps IDs to integer keys for the matrix of the coded pkts
+num_hashmap = 0             #key counter
 
-decodificati=np.zeros((k,payload))
+decoded=np.zeros((k,payload))
 
-for i in xrange(h):     #filling of the variables, through method storage_info()
+for i in xrange(h):         #filling of the variables, through method storage_info()
     degree,ID,XOR=node_list[decoding_indices[i]].storage_info()  #get the useful info
-    a=degree            #temp variables
-    b=ID
-    c=XOR
-    if degree<=1:       #se il pkt ha grado 0 non faremo niente
-        if degree==1:   #se il pkt ha grado 1, risolviamo il pkt
-            decodificati(hashmap[ID-1,1])
-    else:
+    a=degree                #temp variables
+    b=ID                    #IDs of XORed pkt in a node
+    c=XOR                   #value of XOR
+
+    if degree==0:           #if the pck has degree=0 -> no pkts to decode
+
+    if degree==1:           #if the pck has degree=1 -> possible to decode
+        decode(ID[1], c)
+        num_hashmap += 1;
+
+    if degree > 1:          #if the pck has degree>1 -> info in a "list of wait"
+        #provo a decodificare con i pacchetti che ho già decodificato
+        j=0;
+        not_decoded=0;
+        temp_c = c;         #temp variable to test XORing
+        temp_ID = 0;
+        while j<len(ID):
+            if hashmap[ID[j]][0]==1:    #pkt already decoded
+                temp_c= temp_c^decoded[hashmap[ID[j]]][1]
+                j +=1;
+            elif not_decoded==0:
+                not_decoded +=1;
+                temp_ID= ID[j];
+                j +=1;
+            else:
+                #save the info appending it in the node_list
+                #increase h by 1
+                #Possible to append the info modified by this while cicle!
+                #   In this manner we are able to do less operation in the second time
+
+        if not_decoded<=1:
+            decode(temp_ID, temp_c^Storage.storage)
+
+    def decode(pos,value):
+    hashmap[pos][0] = 1;
+    hashmap[pos][1] = num_hashmap;
+    decoded[num_hashmap]=value;
+
 
 
 
