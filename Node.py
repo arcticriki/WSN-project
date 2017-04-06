@@ -23,7 +23,8 @@ class Storage(object):
         self.dim_buffer = 0                         # number of pkt in the outgoing queue
         self.code_degree = d                        # degree of the node, define how many pkts to encode
         self.ID_list = []                           # ID list of encoded pkts, saved for decoding purposes
-        self.storage = [0]*payload                  # initialization of storage variable [0,..,0]
+        self.storage = np.zeros(payload, dtype=np.int64)
+        #self.storage = [0]*payload                  # initialization of storage variable [0,..,0]
         self.num_encoded = 0                        # num. of encoded pkts, used to stop encoding process if it reaches d
 
         self.n = n                                  # number of nodes in the network
@@ -136,7 +137,8 @@ class Sensor(Storage):
         self.dim_buffer = 0                         # number of pkt in the outgoing queue
         self.code_degree = d                        # degree of the node, define how many pkts to encode
         self.ID_list =[]                            # ID list of encoded pkts, saved for decoding purposes
-        self.storage = [np.random.randint(0, 1) for _ in xrange(payload)]  # initialization of storage variable [0,..,0]
+        self.storage = np.zeros(payload, dtype=np.int64)
+        #self.storage = [np.random.randint(0, 1) for _ in xrange(payload)]  # initialization of storage variable [0,..,0]
         self.num_encoded = 0                        # num. of encoded pkts, used to stop encoding process if it reaces d
 
         self.n = n                                  # number of nodes in the network
@@ -165,4 +167,6 @@ class Pkt(object):
     def __init__(self, ID, pay):
         self.ID = ID
         self.counter = 0
-        self.payload = [np.random.randint(0, 2) for _ in xrange(pay)]
+        self.payload = np.zeros(pay, dtype=np.int64)
+        for i in xrange(pay):
+            self.payload[i] = np.random.randint(0, 2)

@@ -193,12 +193,9 @@ for i in xrange(len(sensors_indexes)):
         decoded2[i,:] = decoded[a,:]
 
 print 'Decoded packets:\n', decoded2
-aa = np.zeros((k,payload), dtype=np.int64)
-for j in xrange(payload):
-    for i in xrange(k):
-        aa[i,j] = source_pkt[i][j]-decoded2[i,j]
-#aa = source_pkt-decoded2
+aa = source_pkt-decoded2
 print 'Differenza tra matrice di pkt generati e matrice di pacchetti decodificati\n',aa
+
 print 'Hash table:\n', hashmap
 # print degree
 # print type(ID[0])
