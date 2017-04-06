@@ -184,8 +184,9 @@ print 'Decoded packets BEFORE :\n', decoded
 decoded2 = np.zeros((k,payload), dtype=np.int8)
 
 for i in xrange(len(sensors_indexes)):
-    a = hashmap[sensors_indexes[i],1]
-    decoded2[i,:] = decoded[a,:]
+    if hashmap[sensors_indexes[i],0] == 1:
+        a = hashmap[sensors_indexes[i],1]
+        decoded2[i,:] = decoded[a,:]
 
 print 'Decoded packets:\n', decoded2
 print 'Hash table:\n', hashmap
