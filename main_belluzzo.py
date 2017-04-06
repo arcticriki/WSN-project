@@ -105,7 +105,8 @@ print 'Numero di pacchetti codificati:', tot, 'su un totale di:', to_be_encoded
 
 
 
-epsilon=2          #we need h=(k+epsilon) over n nodes to succefully decode with high probability
+#epsilon= int(round(2.0*k/10) )         #we need h=(k+epsilon) over n nodes to succefully decode with high probability
+epsilon= 2
 h=k+epsilon
 
 decoding_indices = rnd.sample(range(0, n), h)   #selecting h random nodes in the graph
