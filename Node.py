@@ -158,7 +158,7 @@ class Sensor(Storage):
             self.storage = [self.storage[i] ^ pkt.payload[i] for i in xrange(payload)]  # code procedure(XOR)
             self.num_encoded += 1           # increase num of encoded pkts
         self.dim_buffer = 1
-        print self.storage
+        print pkt.payload
 
 
 class Pkt(object):

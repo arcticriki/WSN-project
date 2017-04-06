@@ -131,7 +131,7 @@ condition_vector[0] = h
 
 while num_hashmap < k :
     i += 1
-    if i == condition_vector[0]:
+    if i == condition_vector[0]-1:
         if condition_vector[1] == condition_vector[2]:
             print 'DECODING FAILURE'
             break
