@@ -17,9 +17,9 @@ payload=10
 
 
 
-n = 10                                      # number of nodes
-k = 3                                        # number of sensors
-L = 10                                           # square dimension
+n = 10                                          # number of nodes
+k = 3                                           # number of sensors
+L = 10                                          # square dimension
 c0= 0.2                                         # parameter for RSD
 delta = 0.05                                    # Prob['we're not able to recover the K pkts']<=delta
 
@@ -80,8 +80,8 @@ print 'Tempo di determinazione dei vicini:', elapsed
 # -- PKT GENERATION AND DISSEMINATION -----------------------------------------------------------
 source_pkt = np.zeros((k,payload), dtype=np.int64)
 for i in xrange(k):
-    node_list[sensors_indexes[i]].pkt_gen()
-    _, _,  source_pkt[i,:] = node_list[sensors_indexes[i]].storage_info()
+    source_pkt[i, :] = node_list[sensors_indexes[i]].pkt_gen()
+print 'Pacchetti generati \n', source_pkt
 
 #print 'Source packets: \n',source_pkt
 #USE storage_info() here to get the source pkts
@@ -98,7 +98,7 @@ while j < k:
 tot = 0
 for i in xrange(n):
     tot += node_list[i].num_encoded
-print 'Numero di pacchetti codificati:', tot, 'su un totale di:', to_be_encoded
+print '\nNumero di pacchetti codificati:', tot, 'su un totale di:', to_be_encoded, '\n'
 
 #-- DECODING PHASE -----------------------------------------------------------------------
 #-- Decoding parameters extraction --
@@ -151,7 +151,6 @@ while num_hashmap < k :
         #decoded[num_hashmap][0:payload] = XOR           #copy the payload
         decoded[num_hashmap, :] = XOR
         num_hashmap += 1                                #update num_hashmap and decoded
-        print 'num_hashmap:' ,num_hashmap
     else:                                 #if the pkt has degree>1 -> investigate if is possible to decode, or wait
         j = 0                             #temp variable for the scanning process
         not_decoded = 0                   #number of undecoded pkt, over the total in vector ID
@@ -172,7 +171,6 @@ while num_hashmap < k :
             hashmap[temp_ID[0] -1, 1] = num_hashmap
             decoded[num_hashmap, :] = XOR
             num_hashmap +=1
-            print 'num_hashmap:' ,num_hashmap
         elif not_decoded == 2:
             decoding_indices.append(decoding_indices[i])
             condition_vector[2] += 1
@@ -182,8 +180,8 @@ while num_hashmap < k :
                 #Possible to append the info modified by this while cicle!
                 #   In this manner we are able to do less operation in the second time
 
-print 'Numero di decodificati:',num_hashmap
-print 'Decoded packets BEFORE :\n', decoded
+
+print '\nDecoded packets BEFORE :\n', decoded
 
 #-- DEBUGGING -----------------------------------------------------------------------
 decoded2 = np.zeros((k,payload), dtype=np.int64)
@@ -193,11 +191,14 @@ for i in xrange(len(sensors_indexes)):
         a = hashmap[sensors_indexes[i],1]
         decoded2[i,:] = decoded[a,:]
 
-print 'Decoded packets:\n', decoded2
-aa = source_pkt-decoded2
-print 'Differenza tra matrice di pkt generati e matrice di pacchetti decodificati\n',aa
+print '\nDecoded packets: REORDERED \n', decoded2
 
-print 'Hash table:\n', hashmap
+aa=source_pkt - decoded2
+diff = sum(sum(source_pkt - decoded2))
+
+print '\nDifferenza tra matrice di pkt generati e matrice di pacchetti decodificati', diff ,'\n',aa
+
+print '\nHash table:\n', hashmap
 # print degree
 # print type(ID[0])
 # print XOR[0:len(XOR)]
