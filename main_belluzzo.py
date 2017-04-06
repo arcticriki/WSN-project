@@ -126,12 +126,14 @@ isolated_storage_nodes=0        #counts the number of isolated storage nodes, us
 i = -1
 added = 0
 condition_vector = np.zeros(3)
-
+round = 0
 condition_vector[0] = h
 
 while num_hashmap < k :
     i += 1
-    if i == condition_vector[0]-1:
+    if i == condition_vector[0]:
+        print 'Round :', i-condition_vector[0]+1 +round
+        round += 1
         if condition_vector[1] == condition_vector[2]:
             print 'DECODING FAILURE'
             break
@@ -149,6 +151,7 @@ while num_hashmap < k :
         #decoded[num_hashmap][0:payload] = XOR           #copy the payload
         decoded[num_hashmap, :] = XOR
         num_hashmap += 1                                #update num_hashmap and decoded
+        print 'num_hashmap:' ,num_hashmap
     else:                                 #if the pkt has degree>1 -> investigate if is possible to decode, or wait
         j = 0                             #temp variable for the scanning process
         not_decoded = 0                   #number of undecoded pkt, over the total in vector ID
@@ -165,10 +168,11 @@ while num_hashmap < k :
                 j += 1
 
         if not_decoded == 1:
-            hashmap[temp_ID - 1, 0] = 1  # pkt decoded
-            hashmap[temp_ID - 1, 1] = num_hashmap
+            hashmap[temp_ID -1, 0] = 1  # pkt decoded
+            hashmap[temp_ID -1, 1] = num_hashmap
             decoded[num_hashmap, :] = XOR
             num_hashmap +=1
+            print 'num_hashmap:' ,num_hashmap
         elif not_decoded == 2:
             decoding_indices.append(decoding_indices[i])
             condition_vector[2] += 1
@@ -180,6 +184,7 @@ while num_hashmap < k :
 
 print 'Numero di decodificati:',num_hashmap
 print 'Decoded packets BEFORE :\n', decoded
+
 #-- DEBUGGING -----------------------------------------------------------------------
 decoded2 = np.zeros((k,payload), dtype=np.int8)
 
@@ -189,6 +194,12 @@ for i in xrange(len(sensors_indexes)):
         decoded2[i,:] = decoded[a,:]
 
 print 'Decoded packets:\n', decoded2
+aa = np.zeros((k,payload), dtype=np.int8)
+for j in xrange(payload):
+    for i in xrange(k):
+        aa[i,j] = source_pkt[i,j]-decoded2[i,j]
+#aa = source_pkt-decoded2
+print aa
 print 'Hash table:\n', hashmap
 # print degree
 # print type(ID[0])
