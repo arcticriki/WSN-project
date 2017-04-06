@@ -155,7 +155,7 @@ while num_hashmap < k :
     else:                                 #if the pkt has degree>1 -> investigate if is possible to decode, or wait
         j = 0                             #temp variable for the scanning process
         not_decoded = 0                   #number of undecoded pkt, over the total in vector ID
-        temp_ID = 0                       #temp list for un-processed ID pkts
+        temp_ID = []                       #temp list for un-processed ID pkts
         while j < len(ID) and not_decoded < 2:                #we scan the IDs connected to the node
             if hashmap[ID[j]-1, 0] == 1:
                 for bit in xrange(payload):                                     #XOR bit per bit
@@ -164,12 +164,12 @@ while num_hashmap < k :
                 j += 1
             else:
                 not_decoded += 1
-                temp_ID = ID[j]
+                temp_ID.append(ID[j])
                 j += 1
 
         if not_decoded == 1:
-            hashmap[temp_ID -1, 0] = 1  # pkt decoded
-            hashmap[temp_ID -1, 1] = num_hashmap
+            hashmap[temp_ID[0] -1, 0] = 1  # pkt decoded
+            hashmap[temp_ID[0] -1, 1] = num_hashmap
             decoded[num_hashmap, :] = XOR
             num_hashmap +=1
             print 'num_hashmap:' ,num_hashmap
@@ -197,9 +197,9 @@ print 'Decoded packets:\n', decoded2
 aa = np.zeros((k,payload), dtype=np.int8)
 for j in xrange(payload):
     for i in xrange(k):
-        aa[i,j] = source_pkt[i,j]-decoded2[i,j]
+        aa[i,j] = source_pkt[i][j]-decoded2[i,j]
 #aa = source_pkt-decoded2
-print 'Differenza tra matrice di pkt generati e matrice di pacchetti decodificati',aa
+print 'Differenza tra matrice di pkt generati e matrice di pacchetti decodificati\n',aa
 print 'Hash table:\n', hashmap
 # print degree
 # print type(ID[0])
