@@ -78,10 +78,10 @@ elapsed = time.time() - t
 print 'Tempo di determinazione dei vicini:', elapsed
 
 # -- PKT GENERATION AND DISSEMINATION -----------------------------------------------------------
-source_pkt = np.zeros((k,payload))
+source_pkt = np.zeros((k,payload), dtype=np.int64)
 for i in xrange(k):
     node_list[sensors_indexes[i]].pkt_gen()
-    _, _, source_pkt[i,:] = node_list[sensors_indexes[i]].storage_info()
+    _, _,  source_pkt[i,:] = node_list[sensors_indexes[i]].storage_info()
 
 #print 'Source packets: \n',source_pkt
 #USE storage_info() here to get the source pkts
@@ -117,8 +117,7 @@ decoding_indices = rnd.sample(range(0, n), h)   #selecting h random nodes in the
 hashmap = np.zeros((n,2))         #vector nx2: pos[ID-1,0]-> "1" pkt of (ID-1) is decoded, "0" otherwise; pos[ID-1,1]->num_hashmap
 num_hashmap = 0                 #key counter: indicates the index of the next free row in decoded matrix
 
-decoded = np.zeros((k,payload), dtype=np.int8)   #matrix k*payload: the i-th row stores the total XOR of the decoded pkts
-print 'decoded type:',type(decoded)
+decoded = np.zeros((k,payload), dtype=np.int64)   #matrix k*payload: the i-th row stores the total XOR of the decoded pkts
 isolated_storage_nodes=0        #counts the number of isolated storage nodes, useless for the decoding procedure
 
 
@@ -186,7 +185,7 @@ print 'Numero di decodificati:',num_hashmap
 print 'Decoded packets BEFORE :\n', decoded
 
 #-- DEBUGGING -----------------------------------------------------------------------
-decoded2 = np.zeros((k,payload), dtype=np.int8)
+decoded2 = np.zeros((k,payload), dtype=np.int64)
 
 for i in xrange(len(sensors_indexes)):
     if hashmap[sensors_indexes[i],0] == 1:
@@ -194,7 +193,7 @@ for i in xrange(len(sensors_indexes)):
         decoded2[i,:] = decoded[a,:]
 
 print 'Decoded packets:\n', decoded2
-aa = np.zeros((k,payload), dtype=np.int8)
+aa = np.zeros((k,payload), dtype=np.int64)
 for j in xrange(payload):
     for i in xrange(k):
         aa[i,j] = source_pkt[i][j]-decoded2[i,j]
