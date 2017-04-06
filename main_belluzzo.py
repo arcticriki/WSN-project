@@ -17,8 +17,8 @@ payload=10
 
 
 
-n = 10                                          # number of nodes
-k = 3                                           # number of sensors
+n = 1000                                          # number of nodes
+k = 200                                           # number of sensors
 L = 10                                          # square dimension
 c0= 0.2                                         # parameter for RSD
 delta = 0.05                                    # Prob['we're not able to recover the K pkts']<=delta
@@ -77,17 +77,19 @@ for i in xrange(n):                             # cycle on all nodes
 elapsed = time.time() - t
 print 'Tempo di determinazione dei vicini:', elapsed
 
-# -- PKT GENERATION AND DISSEMINATION -----------------------------------------------------------
+# -- PKT GENERATION  --------------------------------------------------------------------------------------------------
+t=time.time()
 source_pkt = np.zeros((k,payload), dtype=np.int64)
 for i in xrange(k):
     source_pkt[i, :] = node_list[sensors_indexes[i]].pkt_gen()
-print 'Pacchetti generati \n', source_pkt
 
-#print 'Source packets: \n',source_pkt
-#USE storage_info() here to get the source pkts
+elapsed=time.time()-t
+print '\nTempo di generazione dei pacchetti', elapsed
 
-# print [node_list[sensors_indexes[i]].storage_info() for i in xrange(k)]
+print '\nPacchetti generati \n', source_pkt
 
+
+# -- PKT  DISSEMINATION -----------------------------------------------------------------------------------------------
 j = 0
 while j < k:
     for i in xrange(n):
@@ -100,20 +102,13 @@ for i in xrange(n):
     tot += node_list[i].num_encoded
 print '\nNumero di pacchetti codificati:', tot, 'su un totale di:', to_be_encoded, '\n'
 
-#-- DECODING PHASE -----------------------------------------------------------------------
-#-- Decoding parameters extraction --
 
 
 
-#epsilon= int(round(2.0*k/10) )         #we need h=(k+epsilon) over n nodes to succefully decode with high probability
-epsilon= 2
+#-- DECODING PHASE ---------------------------------------------------------------------------------------------------
+epsilon= k                              #we need h=(k+epsilon) over n nodes to succefully decode with high probability
 h=k+epsilon
-
 decoding_indices = rnd.sample(range(0, n), h)   #selecting h random nodes in the graph
-
-#degrees= []                #list of integers (Not used)
-#ID_list=[]                  #empty list of XORed pkt IDs
-#XOR_list=[]                #empty list of XOR payload stored (Not used)
 
 hashmap = np.zeros((n,2))         #vector nx2: pos[ID-1,0]-> "1" pkt of (ID-1) is decoded, "0" otherwise; pos[ID-1,1]->num_hashmap
 num_hashmap = 0                 #key counter: indicates the index of the next free row in decoded matrix
@@ -135,7 +130,7 @@ while num_hashmap < k :
         print 'Round :', i-condition_vector[0]+1 +round
         round += 1
         if condition_vector[1] == condition_vector[2]:
-            print 'DECODING FAILURE'
+            print '\n DECODING FAILURE'
             break
         else:
             condition_vector=[ condition_vector[0]+condition_vector[2], condition_vector[2], 0]
@@ -199,10 +194,5 @@ diff = sum(sum(source_pkt - decoded2))
 print '\nDifferenza tra matrice di pkt generati e matrice di pacchetti decodificati', diff ,'\n',aa
 
 print '\nHash table:\n', hashmap
-# print degree
-# print type(ID[0])
-# print XOR[0:len(XOR)]
-
-#
 
 
