@@ -199,7 +199,7 @@ for j in xrange(payload):
     for i in xrange(k):
         aa[i,j] = source_pkt[i,j]-decoded2[i,j]
 #aa = source_pkt-decoded2
-print aa
+print 'Differenza tra matrice di pkt generati e matrice di pacchetti decodificati',aa
 print 'Hash table:\n', hashmap
 # print degree
 # print type(ID[0])
