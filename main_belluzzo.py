@@ -140,7 +140,7 @@ while num_hashmap < k :
             condition_vector=[ condition_vector[0]+condition_vector[2], condition_vector[2], 0]
 
     degree,ID,XOR = node_list[decoding_indices[i]].storage_info()  #get the useful info
-    print 'Degree of packet %d is %d' % (i, degree)
+    print 'Degree of packet %d is %d ' % (i, degree)
 
     if degree == 0 :                       #if the pkt has degree=0 -> no pkts to decode
         isolated_storage_nodes += 1
