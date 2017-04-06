@@ -127,16 +127,20 @@ for ii in xrange(totali):
     while num_hashmap < k :
         i += 1
         if i == condition_vector[0]:
-            print 'Round :', i-condition_vector[0]+1 +round
+            #print 'Round :', i-condition_vector[0]+1 +round
             round += 1
             if condition_vector[1] == condition_vector[2]:
                 #print '\n DECODING FAILURE'
                 break
             else:
                 condition_vector=[ condition_vector[0]+condition_vector[2], condition_vector[2], 0]
+        try:
+            degree,ID,XOR = node_list[decoding_indices[i]].storage_info()  #get the useful info
+        except (IndexError):
+            print 'Indice problematico ',i, len(decoding_indices)
+            degree, _, _ = node_list[decoding_indices[i]].storage_info()  # get the useful info
 
-        degree,ID,XOR = node_list[decoding_indices[i]].storage_info()  #get the useful info
-        print 'Degree of packet %d is %d ' % (i, degree)
+        #print 'Degree of packet %d is %d ' % (i, degree)
 
         if degree == 0 :                       #if the pkt has degree=0 -> no pkts to decode
             isolated_storage_nodes += 1
@@ -176,7 +180,7 @@ for ii in xrange(totali):
                     #   In this manner we are able to do less operation in the second time
 
 
-    print '\nDecoded packets BEFORE :\n', decoded
+    #print '\nDecoded packets BEFORE :\n', decoded
 
     #-- DEBUGGING -----------------------------------------------------------------------
     decoded2 = np.zeros((k,payload), dtype=np.int64)
@@ -186,21 +190,21 @@ for ii in xrange(totali):
             a = hashmap[sensors_indexes[i],1]
             decoded2[i,:] = decoded[a,:]
 
-    print '\nDecoded packets: REORDERED \n', decoded2
+    #print '\nDecoded packets: REORDERED \n', decoded2
 
     aa=source_pkt - decoded2
     diff = sum(sum(source_pkt - decoded2))
     if diff !=0:
         errati +=1
 
-    print '\nDifferenza tra matrice di pkt generati e matrice di pacchetti decodificati', diff ,'\n',aa
+    #print '\nDifferenza tra matrice di pkt generati e matrice di pacchetti decodificati', diff ,'\n',aa
 
-    print '\nHash table:\n', hashmap
+    #print '\nHash table:\n', hashmap
 
 
 
 elapsed = time.time()-t
-print elapsed
+print 'Time taken by reiterated decoding procedure', elapsed
 decoding_prob = (totali-errati)/totali
 failure_prob = errati/totali
 print 'errorors' ,errati
