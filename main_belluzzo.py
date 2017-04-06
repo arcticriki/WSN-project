@@ -142,9 +142,9 @@ while num_hashmap < k :
     degree,ID,XOR = node_list[decoding_indices[i]].storage_info()  #get the useful info
     print 'Degree of packet %d is %d' % (i, degree)
 
-    if degree == 0:                       #if the pkt has degree=0 -> no pkts to decode
+    if degree == 0 :                       #if the pkt has degree=0 -> no pkts to decode
         isolated_storage_nodes += 1
-    elif degree == 1:                     #if the pkt has degree=1 -> immediately decoded
+    elif degree == 1 and hashmap[ID[0] - 1, 0]==0:                     #if the pkt has degree=1 -> immediately decoded
         hashmap[ID[0] - 1, 0] = 1             #pkt decoded
         hashmap[ID[0] - 1, 1] = num_hashmap
         #decoded[num_hashmap][0:payload] = XOR           #copy the payload
