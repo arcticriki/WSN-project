@@ -168,7 +168,7 @@ while(empty_ripple == False):
             for l in xrange(len(v)):                # [4] fosse nel ripple. Va fatto per forza fuori dallo scan
               if p[0] == v[l]:
                   v.remove(v[l])
-    IDs = [x for x in IDs if x != []]               #rimuove la eventualità di liste vuote
+    IDs = [x for x in IDs if x != []]               #rimuove la eventualita di liste vuote
 
     print
     print 'AGGIORNATO'
