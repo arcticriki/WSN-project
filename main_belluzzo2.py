@@ -122,7 +122,10 @@ print 'XORs vector', XORs, len(XORs)
 
 ripple_payload=[]  #auxialiary vectors
 ripple_IDs=[]
+hashmap = np.zeros((n,2))         #vector nx2: pos[ID-1,0]-> "1" pkt of (ID-1) is decoded, "0" otherwise; pos[ID-1,1]->num_hashmap
+num_hashmap = 0                 #key counter: indicates the index of the next free row in decoded matrix
 
+decoded = np.zeros((k,payload), dtype=np.int64)   #matrix k*payload: the i-th row stores the total XOR of the decoded pkts
 empty_ripple = False
 
 while(empty_ripple == False):
@@ -130,18 +133,22 @@ while(empty_ripple == False):
     empty_ripple = True
 
     position=0                                          #linear search of degree one nodes
-    while position < h:
+    while position < len(degrees):
         if degrees[position] == 1:                      #if degree 1 is found
+            if hashmap[IDs[position][0]-1,0] == 0:
+                decoded[num_hashmap,:] = XORs[position]
+                hashmap[IDs[position][0]-1, 0] = 1
+                hashmap[IDs[position][0]-1, 1] = num_hashmap
+                num_hashmap += 1
+
             empty_ripple = False
-            degrees[position] -= 1                       #decrease degree
+            del degrees[position]                       #decrease degree
             ripple_IDs.append(IDs[position])            #update ripples
-            ripple_payload.append((XORs[position]))
+            del IDs[position]
+            ripple_payload.append(XORs[position])
             del XORs[position]                          #update vector XORs
-        position= position + 1
-
-    [IDs.remove(item) for item in ripple_IDs]            #remove from the ID list the released nodes
-    degrees = [x for x in degrees if x != 0]             #remove from the degree list the released nodes
-
+        else:
+            position= position + 1
 
     print
     print 'DOPO AVER TROVATO I NODI DI DEGREE = 1'
@@ -156,31 +163,71 @@ while(empty_ripple == False):
     #scanning the ripple
     for each_element in ripple_IDs:                 #prendi ogni elemento del ripple...
         for each_node in IDs:                       #...e ogni elemento del vettore degli ID...
-            for u in xrange(len(each_node)):        #...e scorri per vedere each_element[0] e presente oppure no
-                if each_element[0]==each_node[u]:
+            u = 0
+            while u < len(each_node):
+                if each_element[0] == each_node[u]:
                     indice_ID = IDs.index(each_node)
                     degrees[indice_ID] -= 1
                     indice_ripple = ripple_IDs.index(each_element)
                     XORs[indice_ID] = XORs[indice_ID] ^ ripple_payload[indice_ripple]
-    #
-    for element in ripple_IDs:                            #aggiornamento delle variabili
-        for vector in IDs:                               #questo ciclo serve per passare da [1,4,5] a [1,5] qualora l'elemento
-            for z in xrange(len(vector)):                # [4] fosse nel ripple. Va fatto per forza fuori dallo scan
-                if element[0] == vector[z-1]:
-                    vector.remove(element[0])
+                    temp =  each_node
+                    del temp[u]
+                    IDs[indice_ID] = temp
+                    each_node = temp
 
-    IDs = [x for x in IDs if x != []]               #rimuove la eventualita di liste vuote
+                else:
+                    u += 1
+
+    i=0
+    while i<len(IDs):
+        if degrees[i]==0:
+            IDs.remove([])
+            XORs.remove(XORs[i])
+            degrees.remove(0)
+        else:
+            i += 1
+
+            # for u in xrange(len(each_node)):        #...e scorri per vedere each_element[0] e presente oppure no
+            #     if each_element[0]==each_node[u]:
+            #         indice_ID = IDs.index(each_node)
+            #         degrees[indice_ID] -= 1
+            #         indice_ripple = ripple_IDs.index(each_element)
+            #         XORs[indice_ID] = XORs[indice_ID] ^ ripple_payload[indice_ripple]
+    #
+    # for element in ripple_IDs:                            #aggiornamento delle variabili
+    #     for vector in IDs:                               #questo ciclo serve per passare da [1,4,5] a [1,5] qualora l'elemento
+    #         for z in xrange(len(vector)):                # [4] fosse nel ripple. Va fatto per forza fuori dallo scan
+    #             if element[0] == vector[z]:
+    #                 vector.remove(element[0])
+
+    # IDs = [x for x in IDs if x != []]               #rimuove la eventualita di liste vuote
 
     ripple_IDs=[]                                    #riazzera il ripple
     ripple_payload=[]
 
-print
+
+
+print 'Decodificati',len(decoded),'\n' ,decoded
 print 'AGGIORNATO'
 print 'Degrees vector', degrees
 print 'IDs vector', IDs
 print 'XORs vector', XORs
 
+decoded2 = np.zeros((k,payload), dtype=np.int64)
 
+for i in xrange(len(sensors_indexes)):
+    if hashmap[sensors_indexes[i],0] == 1:
+        a = hashmap[sensors_indexes[i],1]
+        decoded2[i,:] = decoded[a,:]
+
+#print '\nDecoded packets: REORDERED \n', decoded2
+errati=0
+aa=source_pkt - decoded2
+diff = sum(sum(source_pkt - decoded2))
+if diff !=0:
+    errati +=1
+
+print 'errorors' ,errati
 
 #CASI PATOLOGICI IDs vector=[[17], [17], [20, 17], [], [12], [16, 17]] viene mappato nel ripple come:
 #ID ripple status [[17], [17], [12]]
