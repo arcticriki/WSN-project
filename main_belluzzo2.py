@@ -133,7 +133,7 @@ while(empty_ripple == False):
     while position < h:
         if degrees[position] == 1:                      #if degree 1 is found
             empty_ripple = False
-            degrees[position] -=1                       #decrease degree
+            degrees[position] -= 1                       #decrease degree
             ripple_IDs.append(IDs[position])            #update ripples
             ripple_payload.append((XORs[position]))
             del XORs[position]                          #update vector XORs
@@ -170,6 +170,9 @@ while(empty_ripple == False):
                     vector.remove(element[0])
 
     IDs = [x for x in IDs if x != []]               #rimuove la eventualita di liste vuote
+
+    ripple_IDs=[]                                    #riazzera il ripple
+    ripple_payload=[]
 
 print
 print 'AGGIORNATO'
