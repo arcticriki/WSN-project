@@ -114,9 +114,9 @@ for node in range(h):
     XORs[node]=XOR
 
 print 'INIZIO'
-print 'Degrees vector', degrees
-print 'IDs vector', IDs
-print 'XORs vector', XORs
+print 'Degrees vector', degrees, len(degrees)
+print 'IDs vector', IDs, len(IDs)
+print 'XORs vector', XORs, len(XORs)
 
 #-- MP. Naive approach --------------------------------
 
@@ -162,19 +162,20 @@ while(empty_ripple == False):
                     degrees[indice_ID] -= 1
                     indice_ripple = ripple_IDs.index(each_element)
                     XORs[indice_ID] = XORs[indice_ID] ^ ripple_payload[indice_ripple]
+    #
+    for element in ripple_IDs:                            #aggiornamento delle variabili
+        for vector in IDs:                               #questo ciclo serve per passare da [1,4,5] a [1,5] qualora l'elemento
+            for z in xrange(len(vector)):                # [4] fosse nel ripple. Va fatto per forza fuori dallo scan
+                if element[0] == vector[z-1]:
+                    vector.remove(element[0])
 
-    for p in ripple_IDs:                            #aggiornamento delle variabili
-        for v in IDs:                               #questo ciclo serve per passare da [1,4,5] a [1,5] qualora l'elemento
-            for l in xrange(len(v)):                # [4] fosse nel ripple. Va fatto per forza fuori dallo scan
-              if p[0] == v[l]:
-                  v.remove(v[l])
     IDs = [x for x in IDs if x != []]               #rimuove la eventualita di liste vuote
 
-    print
-    print 'AGGIORNATO'
-    print 'Degrees vector', degrees
-    print 'IDs vector', IDs
-    print 'XORs vector', XORs
+print
+print 'AGGIORNATO'
+print 'Degrees vector', degrees
+print 'IDs vector', IDs
+print 'XORs vector', XORs
 
 
 
