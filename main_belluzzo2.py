@@ -8,6 +8,7 @@ from RSD import *
 
 
 
+
 t1 = time.time()                                 # initial timestamp
 
 # -- PARAMETER INITIALIZATION SECTION --------------------------------------------------------------
@@ -15,9 +16,9 @@ t1 = time.time()                                 # initial timestamp
 
 payload=10
 
-n = 10                                          # number of nodes
-k = 4                                           # number of sensors
-L = 10                                          # square dimension
+n = 100                                          # number of nodes
+k = 10                                          # number of sensors
+L = 5                                          # square dimension
 c0= 0.2                                         # parameter for RSD
 delta = 0.05                                    # Prob['we're not able to recover the K pkts']<=delta
 
@@ -99,7 +100,7 @@ print '\nNumero di pacchetti codificati:', tot, 'su un totale di:', to_be_encode
 # -- DECODING PHASE ---------------------------------------------------------------------------------------------------
 # -- Initialization -------------------------
 
-epsilon=2                                       #we need h=(k+epsilon) over n nodes to succefully decode with high probability
+epsilon=2*k                                       #we need h=(k+epsilon) over n nodes to succefully decode with high probability
 h=k+epsilon
 decoding_indices = rnd.sample(range(0, n), h)   #selecting h random nodes in the graph
 
@@ -182,7 +183,8 @@ while(empty_ripple == False):
     while i<len(IDs):
         if degrees[i]==0:
             IDs.remove([])
-            XORs.remove(XORs[i])
+            #XORs.remove(XORs[i])
+            del XORs[i]
             degrees.remove(0)
         else:
             i += 1
