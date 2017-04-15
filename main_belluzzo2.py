@@ -5,6 +5,7 @@ import time as time
 from Node import *
 import cProfile
 from RSD import *
+from math import factorial
 
 
 
@@ -16,11 +17,11 @@ t1 = time.time()                                 # initial timestamp
 
 payload=10
 
-n = 100                                          # number of nodes
-k = 10                                          # number of sensors
-L = 5                                          # square dimension
-c0= 0.2                                         # parameter for RSD
-delta = 0.05                                    # Prob['we're not able to recover the K pkts']<=delta
+n = 1000                                          # number of nodes
+k = 400                                           # number of sensors
+L = 10                                          # square dimension
+c0= 0.1                                         # parameter for RSD
+delta = 0.5                                    # Prob['we're not able to recover the K pkts']<=delta
 
 positions = np.zeros((n, 2))                    # matrix containing info on all node positions
 node_list = []                                  # list of references to node objects
@@ -30,7 +31,7 @@ sensors_indexes = rnd.sample(range(0, n), k)    # generation of random indices f
 
 # -- DEGREE INITIALIZATION --
 
-d = Robust_Soliton_Distribution(n, k, c0, delta) #See RSD doc
+d ,pdf = Robust_Soliton_Distribution(n, k, c0, delta) #See RSD doc
 to_be_encoded = np.sum(d)                        #use to check how many pkts we should encode ***OPEN PROBLEM***
 
 # -- NETWORK INITIALIZATION --
@@ -93,9 +94,26 @@ while j < k:
         if j == k:
             break
 tot = 0
+distribution_post_dissemination = np.zeros(k)
 for i in xrange(n):
+    index = node_list[i].num_encoded
+    print index
+    distribution_post_dissemination[index] += 1.0/n
     tot += node_list[i].num_encoded
 print '\nNumero di pacchetti codificati:', tot, 'su un totale di:', to_be_encoded, '\n'
+
+plt.title('Post dissemination')
+y = distribution_post_dissemination
+x = np.linspace(1, k, k, endpoint=True)
+plt.axis([0, 20, 0, 0.6])
+plt.plot(x,y , label='post dissemination')
+y2 = np.zeros(k)
+y2[:len(pdf)] = pdf
+plt.plot(x, y2, color='red', label='robust soliton')
+plt.legend(loc='upper left')
+plt.grid()
+plt.show()
+
 
 # -- DECODING PHASE ---------------------------------------------------------------------------------------------------
 # -- Initialization -------------------------
@@ -108,11 +126,14 @@ degrees=[0]*h
 IDs=[0]*h
 XORs=[0]*h
 
+
 for node in range(h):
     degree, ID, XOR = node_list[decoding_indices[node]].storage_info()
+
     degrees[node]=degree
     IDs[node]=ID
     XORs[node]=XOR
+
 
 print 'INIZIO'
 print 'Degrees vector', degrees, len(degrees)

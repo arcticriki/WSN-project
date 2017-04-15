@@ -53,53 +53,23 @@ class Storage(object):
         else:                                       # empty buffer
             return 0
 
-    # def receive_pkt(self, pkt):                     # define what to do on pkt receiving
-    #     self.visits[pkt.ID-1] += 1                  # increase number of visits this pkt has done in this very node
-    #
-    #     if self.visits[pkt.ID - 1] == 1:            # if it is the first time the pkt reaches this very node ...
-    #             if self.num_encoded < self.code_degree: #...and we still have to encode something
-    #                 prob = rnd.random()             # generate a random number in the range [0,1)
-    #                 if prob <= self.code_prob:      # if generated number less or equal to coding probability
-    #                   self.ID_list.append(pkt.ID)        # save ID of node who generated the coded pkt
-    #                   self.storage = self.storage ^ pkt.payload # code procedure(XOR)
-    #                   self.num_encoded += 1              # increase num of encoded pkts
-    #             pkt.counter += 1                    # increase pkt counter then put it in the outgoing buffer
-    #             self.out_buffer.append(pkt)         # else, if pkt is at its first visit, or it haven't reached C1nlog10(n)
-    #             self.dim_buffer += 1
-    #             return 0                            # NOTE: this procedure has to be done even if the pkt has already visited
-    #                                                 # the node! That is to say: if pkt x has visited node v before
-    #                                                 # BUT c(x)<C1nlog(n), v accepts it with Prob=0, BUT it forwards it
-    #     if self.visits[pkt.ID-1] > 1:
-    #         if pkt.counter >= C1 * self.n * np.log10(self.n):  # if packet already visited the node
-    #                                                 # and its counter is greater than C1nlog10(n) then, discard it
-    #             return 1                            # pkt dropped
-    #         else:
-    #             pkt.counter += 1                    # increase pkt counter then put it in the outgoing buffer
-    #             self.out_buffer.append(pkt)         # else, if pkt is at its first visit, or it haven't reached C1nlog10(n)
-    #             self.dim_buffer += 1
-    #             return 0                            # NOTE: this procedure has to be done even if the pkt has already visited
-    #                                                 # the node! That is to say: if pkt x has visited node v before
-    #                                                 # BUT c(x)<C1nlog(n), v accepts it with Prob=0, BUT it forwards it
-
     def receive_pkt(self, pkt):                     # define what to do on pkt receiving
         self.visits[pkt.ID-1] += 1                  # increase number of visits this pkt has done in this very node
-        # CODING PROCEDURE ------------------------------
-        if self.already_coded[pkt.ID - 1] == 0:            # if it is the first time the pkt reaches this very node ...
+
+        if self.visits[pkt.ID - 1] == 1:            # if it is the first time the pkt reaches this very node ...
                 if self.num_encoded < self.code_degree: #...and we still have to encode something
                     prob = rnd.random()             # generate a random number in the range [0,1)
                     if prob <= self.code_prob:      # if generated number less or equal to coding probability
-                        self.ID_list.append(pkt.ID)        # save ID of node who generated the coded pkt
-                        self.storage = self.storage ^ pkt.payload # code procedure(XOR)
-                        self.num_encoded += 1              # increase num of encoded pkts
-                        self.already_coded[pkt.ID - 1] +=1
-        if self.visits[pkt.ID-1]== 1:
+                      self.ID_list.append(pkt.ID)        # save ID of node who generated the coded pkt
+                      self.storage = self.storage ^ pkt.payload # code procedure(XOR)
+                      self.num_encoded += 1              # increase num of encoded pkts
                 pkt.counter += 1                    # increase pkt counter then put it in the outgoing buffer
                 self.out_buffer.append(pkt)         # else, if pkt is at its first visit, or it haven't reached C1nlog10(n)
                 self.dim_buffer += 1
                 return 0                            # NOTE: this procedure has to be done even if the pkt has already visited
                                                     # the node! That is to say: if pkt x has visited node v before
                                                     # BUT c(x)<C1nlog(n), v accepts it with Prob=0, BUT it forwards it
-        else: #if self.visits[pkt.ID-1] > 1:
+        if self.visits[pkt.ID-1] > 1:
             if pkt.counter >= C1 * self.n * np.log10(self.n):  # if packet already visited the node
                                                     # and its counter is greater than C1nlog10(n) then, discard it
                 return 1                            # pkt dropped
@@ -110,6 +80,36 @@ class Storage(object):
                 return 0                            # NOTE: this procedure has to be done even if the pkt has already visited
                                                     # the node! That is to say: if pkt x has visited node v before
                                                     # BUT c(x)<C1nlog(n), v accepts it with Prob=0, BUT it forwards it
+
+    # def receive_pkt(self, pkt):                     # define what to do on pkt receiving
+    #     self.visits[pkt.ID-1] += 1                  # increase number of visits this pkt has done in this very node
+    #     # CODING PROCEDURE ------------------------------
+    #     if self.already_coded[pkt.ID - 1] == 0:            # if it is the first time the pkt reaches this very node ...
+    #             if self.num_encoded < self.code_degree: #...and we still have to encode something
+    #                 prob = rnd.random()             # generate a random number in the range [0,1)
+    #                 if prob <= self.code_prob:      # if generated number less or equal to coding probability
+    #                     self.ID_list.append(pkt.ID)        # save ID of node who generated the coded pkt
+    #                     self.storage = self.storage ^ pkt.payload # code procedure(XOR)
+    #                     self.num_encoded += 1              # increase num of encoded pkts
+    #                     self.already_coded[pkt.ID - 1] +=1
+    #     if self.visits[pkt.ID-1]== 1:
+    #             pkt.counter += 1                    # increase pkt counter then put it in the outgoing buffer
+    #             self.out_buffer.append(pkt)         # else, if pkt is at its first visit, or it haven't reached C1nlog10(n)
+    #             self.dim_buffer += 1
+    #             return 0                            # NOTE: this procedure has to be done even if the pkt has already visited
+    #                                                 # the node! That is to say: if pkt x has visited node v before
+    #                                                 # BUT c(x)<C1nlog(n), v accepts it with Prob=0, BUT it forwards it
+    #     else: #if self.visits[pkt.ID-1] > 1:
+    #         if pkt.counter >= C1 * self.n * np.log10(self.n):  # if packet already visited the node
+    #                                                 # and its counter is greater than C1nlog10(n) then, discard it
+    #             return 1                            # pkt dropped
+    #         else:
+    #             pkt.counter += 1                    # increase pkt counter then put it in the outgoing buffer
+    #             self.out_buffer.append(pkt)         # else, if pkt is at its first visit, or it haven't reached C1nlog10(n)
+    #             self.dim_buffer += 1
+    #             return 0                            # NOTE: this procedure has to be done even if the pkt has already visited
+    #                                                 # the node! That is to say: if pkt x has visited node v before
+    #                                                 # BUT c(x)<C1nlog(n), v accepts it with Prob=0, BUT it forwards it
 
 
     def storage_info(self):

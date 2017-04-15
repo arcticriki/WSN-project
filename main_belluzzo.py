@@ -5,6 +5,9 @@ import time as time
 from Node import *
 import cProfile
 from RSD import *
+from math import factorial
+
+
 
 
 
@@ -18,10 +21,10 @@ payload=10
 
 
 n = 20                                          # number of nodes
-k = 4                                           # number of sensors
+k = 4                                          # number of sensors
 L = 10                                          # square dimension
-c0= 0.2                                         # parameter for RSD
-delta = 0.05                                    # Prob['we're not able to recover the K pkts']<=delta
+c0= 0.1                                         # parameter for RSD
+delta = 0.5                                     # Prob['we're not able to recover the K pkts']<=delta
 
 positions = np.zeros((n, 2))                    # matrix containing info on all node positions
 node_list = []                                  # list of references to node objects
@@ -31,7 +34,7 @@ sensors_indexes = rnd.sample(range(0, n), k)    # generation of random indices f
 
 # -- DEGREE INITIALIZATION --
 
-d = Robust_Soliton_Distribution(n, k, c0, delta) #See RSD doc
+d, pdf = Robust_Soliton_Distribution(n, k, c0, delta) #See RSD doc
 to_be_encoded = np.sum(d)                        #use to check how many pkts we should encode ***OPEN PROBLEM***
 
 # -- NETWORK INITIALIZATION --
@@ -82,7 +85,7 @@ source_pkt = np.zeros((k,payload), dtype=np.int64)
 for i in xrange(k):
     source_pkt[i, :] = node_list[sensors_indexes[i]].pkt_gen()
 
-#print '\nPacchetti generati \n', source_pkt
+print '\nPacchetti generati \n', source_pkt ,'\n'
 
 
 # -- PKT  DISSEMINATION -----------------------------------------------------------------------------------------------
@@ -94,62 +97,68 @@ while j < k:
         if j == k:
             break
 tot = 0
+distribution_post_dissemination = np.zeros(k+1)
 for i in xrange(n):
+    index = node_list[i].num_encoded
+    distribution_post_dissemination[index] += 1.0/to_be_encoded
     tot += node_list[i].num_encoded
 print '\nNumero di pacchetti codificati:', tot, 'su un totale di:', to_be_encoded, '\n'
 
-
+# plt.title('Post dissemination')
+# y = distribution_post_dissemination
+# x = np.linspace(1, k, k, endpoint=True)
+# plt.axis([0, k, 0, 0.6])
+# plt.plot(x,y , label='post dissemination')
+# y2 = np.zeros(k)
+# y2[:len(pdf)] = pdf
+# plt.plot(x, y2, color='red', label='robust soliton')
+# plt.legend(loc='upper left')
+# plt.grid()
+# plt.show()
 
 
 #-- DECODING PHASE ---------------------------------------------------------------------------------------------------
-errati=0.0
-totali=1000
+epsilon = 2 * k                         #we need h=(k+epsilon) over n nodes to succefully decode with high probability
+h = k + epsilon                         # Number of node from which we retrieve the pkts
+errati = 0.0                            # Number of iteration in which we do not decode
+errati2 = 0.0                           # Number of iteration in which we do not decode
+M = factorial(n)/(10*factorial(h)*factorial(n-h))   # Computation of the number of iterations to perform, see paper 2
 t=time.time()
-for ii in xrange(totali):
-    epsilon= 2*k                              #we need h=(k+epsilon) over n nodes to succefully decode with high probability
-    h=k+epsilon
+M=5
+for ii in xrange(M):
+    #-- parameters initialization phase --------------------
+
     decoding_indices = rnd.sample(range(0, n), h)   #selecting h random nodes in the graph
-
-    hashmap = np.zeros((n,2))         #vector nx2: pos[ID-1,0]-> "1" pkt of (ID-1) is decoded, "0" otherwise; pos[ID-1,1]->num_hashmap
-    num_hashmap = 0                 #key counter: indicates the index of the next free row in decoded matrix
-
+    hashmap = np.zeros((n,2))           #vector nx2: pos[ID-1,0]-> "1" pkt of (ID-1) is decoded, "0" otherwise; pos[ID-1,1]->num_hashmap
+    num_hashmap = 0                     #key counter: indicates the index of the next free row in decoded matrix
     decoded = np.zeros((k,payload), dtype=np.int64)   #matrix k*payload: the i-th row stores the total XOR of the decoded pkts
-    isolated_storage_nodes=0        #counts the number of isolated storage nodes, useless for the decoding procedure
+    isolated_storage_nodes = 0          #counts the number of isolated storage nodes, useless for the decoding procedure
+                                        # or simply the number of zero degree node
+    i = 0                               # variabile accessori per il ciclo di iterazione sulla lista degli h nodi scelti tra gli n
+    condition_vector = np.zeros(3)      # list of 3 indicies useful for nex cycle
+    condition_vector[0] = h             # first index represent the lenght of the vector of indicies
 
+    print '\n'
 
-    #for i in xrange(h):         #filling of the variables, through method storage_info()
-    i = -1
-    added = 0
-    condition_vector = np.zeros(3)
-    round = 0
-    condition_vector[0] = h
+    while num_hashmap < k :             # While we have not decoded the k source pkts do:
 
-    while num_hashmap < k :
-        i += 1
-        if i == condition_vector[0]:
-            #print 'Round :', i-condition_vector[0]+1 +round
-            round += 1
-            if condition_vector[1] == condition_vector[2]:
-                #print '\n DECODING FAILURE'
-                break
+        if i == condition_vector[0]:  # if we watched the whole vector enter this section
+            if condition_vector[1] == condition_vector[2] or condition_vector[2]==0:      # if we queued the same number of pkt of previous round
+                #print '\n                                                     DECODING FAILURE'
+                break                                           # exit, they cannot be decoded, MP failure
             else:
-                condition_vector=[ condition_vector[0]+condition_vector[2], condition_vector[2], 0]
-        try:
-            degree,ID,XOR = node_list[decoding_indices[i]].storage_info()  #get the useful info
-        except (IndexError):
-            print 'Indice problematico ',i, len(decoding_indices)
-            degree, _, _ = node_list[decoding_indices[i]].storage_info()  # get the useful info
+                condition_vector=[ condition_vector[0]+condition_vector[2], condition_vector[2], 0.0]
 
-        #print 'Degree of packet %d is %d ' % (i, degree)
+        degree,ID,XOR = node_list[decoding_indices[i]].storage_info()  #get the useful info
 
         if degree == 0 :                       #if the pkt has degree=0 -> no pkts to decode
             isolated_storage_nodes += 1
         elif degree == 1 and hashmap[ID[0] - 1, 0]==0:                     #if the pkt has degree=1 -> immediately decoded
             hashmap[ID[0] - 1, 0] = 1             #pkt decoded
             hashmap[ID[0] - 1, 1] = num_hashmap
-            #decoded[num_hashmap][0:payload] = XOR           #copy the payload
             decoded[num_hashmap, :] = XOR
             num_hashmap += 1                                #update num_hashmap and decoded
+            print 'aggiunto un decodificato', num_hashmap, decoding_indices[i], '\nXOR', XOR
         else:                                 #if the pkt has degree>1 -> investigate if is possible to decode, or wait
             j = 0                             #temp variable for the scanning process
             not_decoded = 0                   #number of undecoded pkt, over the total in vector ID
@@ -170,44 +179,50 @@ for ii in xrange(totali):
                 hashmap[temp_ID[0] -1, 1] = num_hashmap
                 decoded[num_hashmap, :] = XOR
                 num_hashmap +=1
+                print 'aggiunto un decodificato', num_hashmap , decoding_indices[i] , '\nXOR' ,XOR
             elif not_decoded == 2:
                 decoding_indices.append(decoding_indices[i])
                 condition_vector[2] += 1
 
-                    #save the info appending it in the node_list
-                    #increase h by 1
-                    #Possible to append the info modified by this while cicle!
-                    #   In this manner we are able to do less operation in the second time
+        i += 1  # increment cycle variable
 
+    if num_hashmap < k:
+        errati2 += 1        # if we do not decode the k pkts that we make an error
 
-    #print '\nDecoded packets BEFORE :\n', decoded
-
-    #-- DEBUGGING -----------------------------------------------------------------------
-    decoded2 = np.zeros((k,payload), dtype=np.int64)
+    # -- DEBUGGING -----------------------------------------------------------------------
+    decoded2 = np.zeros((k, payload), dtype=np.int64)
 
     for i in xrange(len(sensors_indexes)):
-        if hashmap[sensors_indexes[i],0] == 1:
-            a = hashmap[sensors_indexes[i],1]
-            decoded2[i,:] = decoded[a,:]
+        if hashmap[sensors_indexes[i], 0] == 1:
+            a = hashmap[sensors_indexes[i], 1]
+            decoded2[i, :] = decoded[a, :]
 
-    #print '\nDecoded packets: REORDERED \n', decoded2
-
-    aa=source_pkt - decoded2
     diff = sum(sum(source_pkt - decoded2))
-    if diff !=0:
-        errati +=1
-
-    #print '\nDifferenza tra matrice di pkt generati e matrice di pacchetti decodificati', diff ,'\n',aa
-
-    #print '\nHash table:\n', hashmap
+    if diff != 0:
+        errati += 1
+        print  decoded2, '\n\n'
 
 
+# ----- FUORI DAL CICLO ----------
 
-elapsed = time.time()-t
+elapsed = time.time() - t
 print 'Time taken by reiterated decoding procedure', elapsed
-decoding_prob = (totali-errati)/totali
-failure_prob = errati/totali
-print 'errorors' ,errati
+
+#print 'Sensor ID is %d and its position is (x=%d, y=%d) ' % (self.ID, self.X, self.Y)
+print '\n errati metodo matrici  %d  mentre errati metodo somma semplice  %d' % (errati, errati2)
+
+decoding_prob = (M - errati) / M
+failure_prob = errati / M
+print 'errorors', errati
 print '\nThe decoding probability is ', decoding_prob
 print '\nThe failure probability is ', failure_prob
+
+decoding_prob = (M - errati2) / M
+failure_prob = errati2 / M
+print 'errorors', errati
+print '\nThe decoding probability is ', decoding_prob
+print '\nThe failure probability is ', failure_prob
+
+
+
 
