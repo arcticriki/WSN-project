@@ -5,258 +5,243 @@ import time as time
 from Node import *
 import cProfile
 from RSD import *
-from math import factorial
 
 
+empiric_sim=np.zeros(50)
+decoding_prob=np.zeros(15)
+
+for simulation in xrange(50):
+
+    t1 = time.time()                                 # initial timestamp
+
+    # -- PARAMETER INITIALIZATION SECTION --------------------------------------------------------------
 
 
-t1 = time.time()                                 # initial timestamp
+    payload=10
 
-# -- PARAMETER INITIALIZATION SECTION --------------------------------------------------------------
+    n = 100                                          # number of nodes
+    k = 10                                          # number of sensors
+    L = 5                                          # square dimension
+    c0= 0.2                                         # parameter for RSD
+    delta = 0.05                                    # Prob['we're not able to recover the K pkts']<=delta
 
+    positions = np.zeros((n, 2))                    # matrix containing info on all node positions
+    node_list = []                                  # list of references to node objects
+    dmax = 5                                        # maximum distance for communication
+    dmax2 = dmax * dmax                             # square of maximum distance for communication
+    sensors_indexes = rnd.sample(range(0, n), k)    # generation of random indices for sensors
 
-payload=10
+    # -- DEGREE INITIALIZATION --
 
-n = 1000                                          # number of nodes
-k = 400                                           # number of sensors
-L = 10                                          # square dimension
-c0= 0.1                                         # parameter for RSD
-delta = 0.5                                    # Prob['we're not able to recover the K pkts']<=delta
+    d = Robust_Soliton_Distribution(n, k, c0, delta) #See RSD doc
+    to_be_encoded = np.sum(d)                        #use to check how many pkts we should encode ***OPEN PROBLEM***
 
-positions = np.zeros((n, 2))                    # matrix containing info on all node positions
-node_list = []                                  # list of references to node objects
-dmax = 5                                        # maximum distance for communication
-dmax2 = dmax * dmax                             # square of maximum distance for communication
-sensors_indexes = rnd.sample(range(0, n), k)    # generation of random indices for sensors
+    # -- NETWORK INITIALIZATION --
+    # Generation of storage nodes
+    for i in xrange(n):                             # for on 0 to n indices
+        x = rnd.uniform(0.0, L)                     # generation of random coordinate x
+        y = rnd.uniform(0.0, L)                     # generation of random coordinate y
+        node_list.append(Storage(i + 1, x, y, d[i], n, k))      # creation of Storage node
+        positions[i, :] = [x, y]
 
-# -- DEGREE INITIALIZATION --
+    # Generation of sensor nodes
+    for i in sensors_indexes:                       # for on sensors position indices
+        x = rnd.uniform(0.0, L)                     # generation of random coordinate x
+        y = rnd.uniform(0.0, L)                     # generation of random coordinate y
+        node_list[i] = Sensor(i + 1, x, y, d[i], n, k)    # creation of sensor node, function Sensor(), extend Storage class
+        positions[i, :] = [x, y]                    # support variable for positions info, used for comp. optim. reasons
 
-d ,pdf = Robust_Soliton_Distribution(n, k, c0, delta) #See RSD doc
-to_be_encoded = np.sum(d)                        #use to check how many pkts we should encode ***OPEN PROBLEM***
+    t = time.time()
+    # Find nearest neighbours using euclidean distance
+    nearest_neighbor = []                           #simplifying assumption, if no neighbors exist withing the range
+    # we consider the nearest neighbor
+    nn_distance = 2*L*L                             # maximum distance square equal the diagonal of the square [L,L]
+    for i in xrange(n):                             # cycle on all nodes
+        checker = False                             # boolean variable used to check if neighbors are found (false if not)
+        for j in xrange(n):                         # compare each node with all the others
+            x = positions[i, 0] - positions[j, 0]   # compute x distance between node i and node j
+            y = positions[i, 1] - positions[j, 1]   # compute y distance between node i and node j
+            dist2 = x * x + y * y                   # compute distance square, avoid comp. of sqrt for comp. optim. reasons
+            if dist2 <= dmax2:                      # check if distance square is less or equal the max coverage dist
+                if dist2 != 0:                      # avoid considering self node as neighbor
+                    node_list[i].neighbor_write(node_list[j])   # append operation on node's neighbor list
+                    checker = True                              # at least one neighbor has been founded
+            if not checker and dist2 <= nn_distance and dist2 != 0: # in order to be sure that the graph is connected
+                # we determine the nearest neighbor
+                # even if its distance is greater than the max distance
+                nn_distance = dist2                 # if distance of new NN is less than distance of previous NN, update it
+                nearest_neighbor = node_list[i]     # save NN reference, to use only if no neighbors are found
 
-# -- NETWORK INITIALIZATION --
-# Generation of storage nodes
-for i in xrange(n):                             # for on 0 to n indices
-    x = rnd.uniform(0.0, L)                     # generation of random coordinate x
-    y = rnd.uniform(0.0, L)                     # generation of random coordinate y
-    node_list.append(Storage(i + 1, x, y, d[i], n, k))      # creation of Storage node
-    positions[i, :] = [x, y]
+        if not checker:                             # if no neighbors are found withing max dist, use NN
+            print 'Node %d has no neighbors within the range, the nearest neighbor is chosen.' % i
+            node_list[i].neighbor_write(nearest_neighbor)   # Connect node with NN
 
-# Generation of sensor nodes
-for i in sensors_indexes:                       # for on sensors position indices
-    x = rnd.uniform(0.0, L)                     # generation of random coordinate x
-    y = rnd.uniform(0.0, L)                     # generation of random coordinate y
-    node_list[i] = Sensor(i + 1, x, y, d[i], n, k)    # creation of sensor node, function Sensor(), extend Storage class
-    positions[i, :] = [x, y]                    # support variable for positions info, used for comp. optim. reasons
+    elapsed = time.time() - t
+    print 'Tempo di determinazione dei vicini:', elapsed
 
-t = time.time()
-# Find nearest neighbours using euclidean distance
-nearest_neighbor = []                           #simplifying assumption, if no neighbors exist withing the range
-# we consider the nearest neighbor
-nn_distance = 2*L*L                             # maximum distance square equal the diagonal of the square [L,L]
-for i in xrange(n):                             # cycle on all nodes
-    checker = False                             # boolean variable used to check if neighbors are found (false if not)
-    for j in xrange(n):                         # compare each node with all the others
-        x = positions[i, 0] - positions[j, 0]   # compute x distance between node i and node j
-        y = positions[i, 1] - positions[j, 1]   # compute y distance between node i and node j
-        dist2 = x * x + y * y                   # compute distance square, avoid comp. of sqrt for comp. optim. reasons
-        if dist2 <= dmax2:                      # check if distance square is less or equal the max coverage dist
-            if dist2 != 0:                      # avoid considering self node as neighbor
-                node_list[i].neighbor_write(node_list[j])   # append operation on node's neighbor list
-                checker = True                              # at least one neighbor has been founded
-        if not checker and dist2 <= nn_distance and dist2 != 0: # in order to be sure that the graph is connected
-            # we determine the nearest neighbor
-            # even if its distance is greater than the max distance
-            nn_distance = dist2                 # if distance of new NN is less than distance of previous NN, update it
-            nearest_neighbor = node_list[i]     # save NN reference, to use only if no neighbors are found
+    # -- PKT GENERATION  --------------------------------------------------------------------------------------------------
+    source_pkt = np.zeros((k,payload), dtype=np.int64)
+    for i in xrange(k):
+        source_pkt[i, :] = node_list[sensors_indexes[i]].pkt_gen()
 
-    if not checker:                             # if no neighbors are found withing max dist, use NN
-        print 'Node %d has no neighbors within the range, the nearest neighbor is chosen.' % i
-        node_list[i].neighbor_write(nearest_neighbor)   # Connect node with NN
-
-elapsed = time.time() - t
-print 'Tempo di determinazione dei vicini:', elapsed
-
-# -- PKT GENERATION  --------------------------------------------------------------------------------------------------
-source_pkt = np.zeros((k,payload), dtype=np.int64)
-for i in xrange(k):
-    source_pkt[i, :] = node_list[sensors_indexes[i]].pkt_gen()
-
-#print '\nPacchetti generati \n', source_pkt
+    #print '\nPacchetti generati \n', source_pkt
 
 
-# -- PKT  DISSEMINATION -----------------------------------------------------------------------------------------------
-j = 0
-while j < k:
+    # -- PKT  DISSEMINATION -----------------------------------------------------------------------------------------------
+    j = 0
+    while j < k:
+        for i in xrange(n):
+            if node_list[i].dim_buffer != 0:
+                j += node_list[i].send_pkt(0)
+            if j == k:
+                break
+    tot = 0
     for i in xrange(n):
-        if node_list[i].dim_buffer != 0:
-            j += node_list[i].send_pkt(0)
-        if j == k:
-            break
-tot = 0
-distribution_post_dissemination = np.zeros(k)
-for i in xrange(n):
-    index = node_list[i].num_encoded
-    print index
-    distribution_post_dissemination[index] += 1.0/n
-    tot += node_list[i].num_encoded
-print '\nNumero di pacchetti codificati:', tot, 'su un totale di:', to_be_encoded, '\n'
+        tot += node_list[i].num_encoded
+    print '\nNumero di pacchetti codificati:', tot, 'su un totale di:', to_be_encoded, '\n'
 
-plt.title('Post dissemination')
-y = distribution_post_dissemination
-x = np.linspace(1, k, k, endpoint=True)
-plt.axis([0, 20, 0, 0.6])
-plt.plot(x,y , label='post dissemination')
-y2 = np.zeros(k)
-y2[:len(pdf)] = pdf
-plt.plot(x, y2, color='red', label='robust soliton')
-plt.legend(loc='upper left')
-plt.grid()
-plt.show()
+    # -- DECODING PHASE ---------------------------------------------------------------------------------------------------
+    # -- Initialization -------------------------
 
+    epsilon=15                                       #we need h=(k+epsilon) over n nodes to succefully decode with high probability
+    h=k+epsilon
+    decoding_indices = rnd.sample(range(0, n), h)   #selecting h random nodes in the graph
 
-# -- DECODING PHASE ---------------------------------------------------------------------------------------------------
-# -- Initialization -------------------------
+    degrees=[0]*h
+    IDs=[0]*h
+    XORs=[0]*h
 
-epsilon=2*k                                       #we need h=(k+epsilon) over n nodes to succefully decode with high probability
-h=k+epsilon
-decoding_indices = rnd.sample(range(0, n), h)   #selecting h random nodes in the graph
+    for node in range(h):
+        degree, ID, XOR = node_list[decoding_indices[node]].storage_info()
+        degrees[node]=degree
+        IDs[node]=ID
+        XORs[node]=XOR
 
-degrees=[0]*h
-IDs=[0]*h
-XORs=[0]*h
+    print 'INIZIO'
+    print 'Degrees vector', degrees, len(degrees)
+    print 'IDs vector', IDs, len(IDs)
+    print 'XORs vector', XORs, len(XORs)
 
+    #-- MP. Naive approach --------------------------------
 
-for node in range(h):
-    degree, ID, XOR = node_list[decoding_indices[node]].storage_info()
+    ripple_payload=[]  #auxialiary vectors
+    ripple_IDs=[]
+    hashmap = np.zeros((n,2))         #vector nx2: pos[ID-1,0]-> "1" pkt of (ID-1) is decoded, "0" otherwise; pos[ID-1,1]->num_hashmap
+    num_hashmap = 0                 #key counter: indicates the index of the next free row in decoded matrix
 
-    degrees[node]=degree
-    IDs[node]=ID
-    XORs[node]=XOR
+    decoded = np.zeros((k,payload), dtype=np.int64)   #matrix k*payload: the i-th row stores the total XOR of the decoded pkts
+    empty_ripple = False
 
+    while(empty_ripple == False):
 
-print 'INIZIO'
-print 'Degrees vector', degrees, len(degrees)
-print 'IDs vector', IDs, len(IDs)
-print 'XORs vector', XORs, len(XORs)
+        empty_ripple = True
 
-#-- MP. Naive approach --------------------------------
+        position=0                                          #linear search of degree one nodes
+        while position < len(degrees):
+            if degrees[position] == 1:                      #if degree 1 is found
+                if hashmap[IDs[position][0]-1,0] == 0:
+                    decoded[num_hashmap,:] = XORs[position]
+                    hashmap[IDs[position][0]-1, 0] = 1
+                    hashmap[IDs[position][0]-1, 1] = num_hashmap
+                    num_hashmap += 1
 
-ripple_payload=[]  #auxialiary vectors
-ripple_IDs=[]
-hashmap = np.zeros((n,2))         #vector nx2: pos[ID-1,0]-> "1" pkt of (ID-1) is decoded, "0" otherwise; pos[ID-1,1]->num_hashmap
-num_hashmap = 0                 #key counter: indicates the index of the next free row in decoded matrix
+                empty_ripple = False
+                del degrees[position]                       #decrease degree
+                ripple_IDs.append(IDs[position])            #update ripples
+                del IDs[position]
+                ripple_payload.append(XORs[position])
+                del XORs[position]                          #update vector XORs
+            else:
+                position= position + 1
 
-decoded = np.zeros((k,payload), dtype=np.int64)   #matrix k*payload: the i-th row stores the total XOR of the decoded pkts
-empty_ripple = False
+        print
+        print 'DOPO AVER TROVATO I NODI DI DEGREE = 1'
+        print 'Degrees vector after first step', degrees      #check what happened
+        print 'IDs vector after first step', IDs
+        print 'XORs vector after first step', XORs
 
-while(empty_ripple == False):
+        print
+        print 'ID ripple status', ripple_IDs
+        print 'Payload ripple status', ripple_payload
 
-    empty_ripple = True
+        #scanning the ripple
+        for each_element in ripple_IDs:                 #prendi ogni elemento del ripple...
+            for each_node in IDs:                       #...e ogni elemento del vettore degli ID...
+                u = 0
+                while u < len(each_node):
+                    if each_element[0] == each_node[u]:
+                        indice_ID = IDs.index(each_node)
+                        degrees[indice_ID] -= 1
+                        indice_ripple = ripple_IDs.index(each_element)
+                        XORs[indice_ID] = XORs[indice_ID] ^ ripple_payload[indice_ripple]
+                        temp =  each_node
+                        del temp[u]
+                        IDs[indice_ID] = temp
+                        each_node = temp
 
-    position=0                                          #linear search of degree one nodes
-    while position < len(degrees):
-        if degrees[position] == 1:                      #if degree 1 is found
-            if hashmap[IDs[position][0]-1,0] == 0:
-                decoded[num_hashmap,:] = XORs[position]
-                hashmap[IDs[position][0]-1, 0] = 1
-                hashmap[IDs[position][0]-1, 1] = num_hashmap
-                num_hashmap += 1
+                    else:
+                        u += 1
 
-            empty_ripple = False
-            del degrees[position]                       #decrease degree
-            ripple_IDs.append(IDs[position])            #update ripples
-            del IDs[position]
-            ripple_payload.append(XORs[position])
-            del XORs[position]                          #update vector XORs
-        else:
-            position= position + 1
+        i=0
+        while i<len(IDs):
+            if degrees[i]==0:
+                IDs.remove([])
+                #XORs.remove(XORs[i])
+                del XORs[i]
+                degrees.remove(0)
+            else:
+                i += 1
 
-    print
-    print 'DOPO AVER TROVATO I NODI DI DEGREE = 1'
-    print 'Degrees vector after first step', degrees      #check what happened
-    print 'IDs vector after first step', IDs
-    print 'XORs vector after first step', XORs
+                # for u in xrange(len(each_node)):        #...e scorri per vedere each_element[0] e presente oppure no
+                #     if each_element[0]==each_node[u]:
+                #         indice_ID = IDs.index(each_node)
+                #         degrees[indice_ID] -= 1
+                #         indice_ripple = ripple_IDs.index(each_element)
+                #         XORs[indice_ID] = XORs[indice_ID] ^ ripple_payload[indice_ripple]
+        #
+        # for element in ripple_IDs:                            #aggiornamento delle variabili
+        #     for vector in IDs:                               #questo ciclo serve per passare da [1,4,5] a [1,5] qualora l'elemento
+        #         for z in xrange(len(vector)):                # [4] fosse nel ripple. Va fatto per forza fuori dallo scan
+        #             if element[0] == vector[z]:
+        #                 vector.remove(element[0])
 
-    print
-    print 'ID ripple status', ripple_IDs
-    print 'Payload ripple status', ripple_payload
+        # IDs = [x for x in IDs if x != []]               #rimuove la eventualita di liste vuote
 
-    #scanning the ripple
-    for each_element in ripple_IDs:                 #prendi ogni elemento del ripple...
-        for each_node in IDs:                       #...e ogni elemento del vettore degli ID...
-            u = 0
-            while u < len(each_node):
-                if each_element[0] == each_node[u]:
-                    indice_ID = IDs.index(each_node)
-                    degrees[indice_ID] -= 1
-                    indice_ripple = ripple_IDs.index(each_element)
-                    XORs[indice_ID] = XORs[indice_ID] ^ ripple_payload[indice_ripple]
-                    temp =  each_node
-                    del temp[u]
-                    IDs[indice_ID] = temp
-                    each_node = temp
-
-                else:
-                    u += 1
-
-    i=0
-    while i<len(IDs):
-        if degrees[i]==0:
-            IDs.remove([])
-            #XORs.remove(XORs[i])
-            del XORs[i]
-            degrees.remove(0)
-        else:
-            i += 1
-
-            # for u in xrange(len(each_node)):        #...e scorri per vedere each_element[0] e presente oppure no
-            #     if each_element[0]==each_node[u]:
-            #         indice_ID = IDs.index(each_node)
-            #         degrees[indice_ID] -= 1
-            #         indice_ripple = ripple_IDs.index(each_element)
-            #         XORs[indice_ID] = XORs[indice_ID] ^ ripple_payload[indice_ripple]
-    #
-    # for element in ripple_IDs:                            #aggiornamento delle variabili
-    #     for vector in IDs:                               #questo ciclo serve per passare da [1,4,5] a [1,5] qualora l'elemento
-    #         for z in xrange(len(vector)):                # [4] fosse nel ripple. Va fatto per forza fuori dallo scan
-    #             if element[0] == vector[z]:
-    #                 vector.remove(element[0])
-
-    # IDs = [x for x in IDs if x != []]               #rimuove la eventualita di liste vuote
-
-    ripple_IDs=[]                                    #riazzera il ripple
-    ripple_payload=[]
+        ripple_IDs=[]                                    #riazzera il ripple
+        ripple_payload=[]
 
 
 
-print 'Decodificati',len(decoded),'\n' ,decoded
-print 'AGGIORNATO'
-print 'Degrees vector', degrees
-print 'IDs vector', IDs
-print 'XORs vector', XORs
+    print 'Decodificati',len(decoded),'\n' ,decoded
+    print 'AGGIORNATO'
+    print 'Degrees vector', degrees
+    print 'IDs vector', IDs
+    print 'XORs vector', XORs
 
-decoded2 = np.zeros((k,payload), dtype=np.int64)
+    decoded2 = np.zeros((k,payload), dtype=np.int64)
 
-for i in xrange(len(sensors_indexes)):
-    if hashmap[sensors_indexes[i],0] == 1:
-        a = hashmap[sensors_indexes[i],1]
-        decoded2[i,:] = decoded[a,:]
+    for i in xrange(len(sensors_indexes)):
+        if hashmap[sensors_indexes[i],0] == 1:
+            a = hashmap[sensors_indexes[i],1]
+            decoded2[i,:] = decoded[a,:]
 
-#print '\nDecoded packets: REORDERED \n', decoded2
-errati=0
-aa=source_pkt - decoded2
-diff = sum(sum(source_pkt - decoded2))
-if diff !=0:
-    errati +=1
+    #print '\nDecoded packets: REORDERED \n', decoded2
+    errati=0
+    aa=source_pkt - decoded2
+    diff = sum(sum(source_pkt - decoded2))
+    if diff !=0:
+        errati +=1
 
-print 'errorors' ,errati
+    print 'errorors' ,errati
 
-#CASI PATOLOGICI IDs vector=[[17], [17], [20, 17], [], [12], [16, 17]] viene mappato nel ripple come:
-#ID ripple status [[17], [17], [12]]
-#e quindi facciamo la XOR 2 volte...
+    empiric_sim[simulation]=errati
 
+    #CASI PATOLOGICI IDs vector=[[17], [17], [20, 17], [], [12], [16, 17]] viene mappato nel ripple come:
+    #ID ripple status [[17], [17], [12]]
+    #e quindi facciamo la XOR 2 volte...
 
+decoding_prob[0]=1-(sum(empiric_sim)/len(empiric_sim))
+print decoding_prob
 
 
 
