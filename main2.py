@@ -106,7 +106,7 @@ def main(n0,k0):
         M = factorial(n) / (
         10 * factorial(h) * factorial(n - h))  # Computation of the number of iterations to perform, see paper 2
 
-        num_iterazioni = 5000  # True number of iterations
+        num_iterazioni = 50  # True number of iterations
 
         for ii in xrange(num_iterazioni):
             degrees = [0] * h
@@ -120,21 +120,14 @@ def main(n0,k0):
                 IDs[node] = ID
                 XORs[node] = XOR
 
-            print 'INIZIO'
-            print 'Degrees vector', degrees, len(degrees)
-            print 'IDs vector', IDs, len(IDs)
-            print 'XORs vector', XORs, len(XORs)
-
             # -- MP. Naive approach --------------------------------
 
             ripple_payload = []  # auxialiary vectors
             ripple_IDs = []
-            hashmap = np.zeros(
-                (n, 2))  # vector nx2: pos[ID-1,0]-> "1" pkt of (ID-1) is decoded, "0" otherwise; pos[ID-1,1]->num_hashmap
+            hashmap = np.zeros((n, 2))  # vector nx2: pos[ID-1,0]-> "1" pkt of (ID-1) is decoded, "0" otherwise; pos[ID-1,1]->num_hashmap
             num_hashmap = 0  # key counter: indicates the index of the next free row in decoded matrix
 
-            decoded = np.zeros((k, payload),
-                               dtype=np.int64)  # matrix k*payload: the i-th row stores the total XOR of the decoded pkts
+            decoded = np.zeros((k, payload), dtype=np.int64)  # matrix k*payload: the i-th row stores the total XOR of the decoded pkts
             empty_ripple = False
 
             while (empty_ripple == False):
@@ -149,7 +142,6 @@ def main(n0,k0):
                             hashmap[IDs[position][0] - 1, 0] = 1
                             hashmap[IDs[position][0] - 1, 1] = num_hashmap
                             num_hashmap += 1
-
                         empty_ripple = False
                         del degrees[position]  # decrease degree
                         ripple_IDs.append(IDs[position])  # update ripples
@@ -158,16 +150,6 @@ def main(n0,k0):
                         del XORs[position]  # update vector XORs
                     else:
                         position = position + 1
-
-                print
-                print 'DOPO AVER TROVATO I NODI DI DEGREE = 1'
-                print 'Degrees vector after first step', degrees  # check what happened
-                print 'IDs vector after first step', IDs
-                print 'XORs vector after first step', XORs
-
-                print
-                print 'ID ripple status', ripple_IDs
-                print 'Payload ripple status', ripple_payload
 
                 # scanning the ripple
                 for each_element in ripple_IDs:  # prendi ogni elemento del ripple...
@@ -199,20 +181,25 @@ def main(n0,k0):
 
             decoded2 = np.zeros((k, payload), dtype=np.int64)
 
-            for i in xrange(len(sensors_indexes)):
-                if hashmap[sensors_indexes[i], 0] == 1:
-                    a = hashmap[sensors_indexes[i], 1]
-                    decoded2[i, :] = decoded[a, :]
+            for iiii in xrange(len(sensors_indexes)):
+                if hashmap[sensors_indexes[iiii], 0] == 1:
+                    a = hashmap[sensors_indexes[iiii], 1]
+                    decoded2[iiii, :] = decoded[a, :]
 
             diff = sum(sum(source_pkt - decoded2))
             if diff != 0:
                 errati += 1
 
+        print errati
         decoding_performance[iii] = (num_iterazioni - errati) / num_iterazioni
 
+    print decoding_performance
     return decoding_performance
+
+
+
 if __name__ == "__main__":
-    iteration_to_mediate = 10
+    iteration_to_mediate = 1
     y0 = np.zeros((iteration_to_mediate,16))
     y1 = y0
     y2 = y0
