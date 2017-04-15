@@ -194,46 +194,46 @@ def main(n0,k0):
 
 
 if __name__ == "__main__":
-    # y0 = np.zeros((5,16))
-    # y1 = np.zeros((5,16))
-    # y2 = np.zeros((5,16))
-    # y3 = np.zeros((5,16))
-    #
-    # # -- Iterazione su diversi sistemi --
-    # for i in xrange(5):
-    #     t = time.time()
-    #     y0[i,:] = main(n0=100, k0=10)
-    #     y1[i,:] = main(n0=100, k0=20)
-    #     y2[i,:] = main(n0=200, k0=20)
-    #     y3[i,:] = main(n0=200, k0=40)
-    #     print time.time()-t
-    #
-    # y0 = y0.mean(0)     # calcolo delle prestazioni medie
-    # y1 = y1.mean(0)
-    # y2 = y2.mean(0)
-    # y3 = y3.mean(0)
-    #
-    #
-    # # -- Salvataggio su file --
-    # with open('Primo Print','wb') as file:
-    #     wr=csv.writer(file,quoting=csv.QUOTE_ALL)
-    #     wr.writerow(y0)
-    #     wr.writerow(y1)
-    #     wr.writerow(y2)
-    #     wr.writerow(y3)
-    #
-    # # -- Plot --
-    # plt.title('Decoding performances')
-    # x = np.linspace(1, 2.5, 16, endpoint=True)
-    # plt.axis([1, 2.5, 0, 1])
-    # plt.plot(x, y0, label='100 nodes and 10 sources',color='blue'   ,linewidth=2)
-    # plt.plot(x, y1, label='100 nodes and 20 sources',color='red'    ,linewidth=2)
-    # plt.plot(x, y2, label='200 nodes and 20 sources',color='grey'   ,linewidth=2)
-    # plt.plot(x, y3, label='200 nodes and 40 sources',color='magenta',linewidth=2)
-    # plt.legend(loc=4)
-    # plt.grid()
-    # plt.show()
+    y0 = np.zeros((5,16))
+    y1 = np.zeros((5,16))
+    y2 = np.zeros((5,16))
+    y3 = np.zeros((5,16))
+
+    # -- Iterazione su diversi sistemi --
+    for i in xrange(10):
+        t = time.time()
+        y0[i,:] = main(n0=100, k0=10)
+        y1[i,:] = main(n0=100, k0=20)
+        y2[i,:] = main(n0=200, k0=20)
+        y3[i,:] = main(n0=200, k0=40)
+        print time.time()-t
+
+    y0 = y0.mean(0)     # calcolo delle prestazioni medie
+    y1 = y1.mean(0)
+    y2 = y2.mean(0)
+    y3 = y3.mean(0)
+
+
+    # -- Salvataggio su file --
+    with open('Primo Print','wb') as file:
+        wr=csv.writer(file,quoting=csv.QUOTE_ALL)
+        wr.writerow(y0)
+        wr.writerow(y1)
+        wr.writerow(y2)
+        wr.writerow(y3)
+
+    # -- Plot --
+    plt.title('Decoding performances')
+    x = np.linspace(1, 2.5, 16, endpoint=True)
+    plt.axis([1, 2.5, 0, 1])
+    plt.plot(x, y0, label='100 nodes and 10 sources',color='blue'   ,linewidth=2)
+    plt.plot(x, y1, label='100 nodes and 20 sources',color='red'    ,linewidth=2)
+    plt.plot(x, y2, label='200 nodes and 20 sources',color='grey'   ,linewidth=2)
+    plt.plot(x, y3, label='200 nodes and 40 sources',color='magenta',linewidth=2)
+    plt.legend(loc=4)
+    plt.grid()
+    plt.show()
 
 
 
-   cProfile.run('main(n0=200, k0=40)')
+   #cProfile.run('main(n0=200, k0=40)')
