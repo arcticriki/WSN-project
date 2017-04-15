@@ -101,7 +101,7 @@ for simulation in xrange(50):
     print '\nNumero di pacchetti codificati:', tot, 'su un totale di:', to_be_encoded, '\n'
 
     # -- DECODING PHASE ---------------------------------------------------------------------------------------------------
-    # -- Initialization -------------------------
+    # -- Initialization  -------------------------
 
     epsilon=15                                       #we need h=(k+epsilon) over n nodes to succefully decode with high probability
     h=k+epsilon
