@@ -194,13 +194,14 @@ def main(n0,k0):
 
 
 if __name__ == "__main__":
-    y0 = np.zeros((5,16))
-    y1 = np.zeros((5,16))
-    y2 = np.zeros((5,16))
-    y3 = np.zeros((5,16))
+    iteration_to_mediate = 10
+    y0 = np.zeros((iteration_to_mediate, 16))
+    y1 = y0
+    y2 = y0
+    y3 = y0
 
     # -- Iterazione su diversi sistemi --
-    for i in xrange(10):
+    for i in xrange(iteration_to_mediate):
         t = time.time()
         y0[i,:] = main(n0=100, k0=10)
         y1[i,:] = main(n0=100, k0=20)
