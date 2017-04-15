@@ -6,6 +6,7 @@ from Node import *
 import cProfile
 from RSD import *
 from math import factorial
+import csv
 
 
 def main(n0,k0):
@@ -113,7 +114,6 @@ def main(n0,k0):
     # -- DECODING PHASE ---------------------------------------------------------------------------------------------------
     passo = 0.1                                 # incremental step of the epsilon variable
     decoding_performance = np.zeros(16)         # ancillary variable which contains the decoding probability values
-    tt = time.time()
     for iii in xrange(16):
 
         epsilon = int(passo * iii * k)          # computation of epsilon
@@ -122,8 +122,7 @@ def main(n0,k0):
         errati2 = 0.0                           # Number of iteration in which we do not decode
         M = factorial(n) / (10 * factorial(h) * factorial(n - h))  # Computation of the number of iterations to perform, see paper 2
 
-        t = time.time()
-        num_iterazioni = 10000                  # True number of iterations
+        num_iterazioni = 5000                 # True number of iterations
         for ii in xrange(num_iterazioni):
 
             # -- parameters initialization phase --------------------
@@ -190,31 +189,51 @@ def main(n0,k0):
 
         decoding_performance[iii] = (num_iterazioni - errati2) / num_iterazioni
 
-    #print decoding_performance
-    elapsed = time.time() - tt
-    print elapsed
     return decoding_performance
 
 
 
 if __name__ == "__main__":
-    y0 = main(100, 10)
-    y1 = main(100, 10)
-    y2 = main(200, 20)
-    y3 = main(200, 40)
+    # y0 = np.zeros((5,16))
+    # y1 = np.zeros((5,16))
+    # y2 = np.zeros((5,16))
+    # y3 = np.zeros((5,16))
+    #
+    # # -- Iterazione su diversi sistemi --
+    # for i in xrange(5):
+    #     t = time.time()
+    #     y0[i,:] = main(n0=100, k0=10)
+    #     y1[i,:] = main(n0=100, k0=20)
+    #     y2[i,:] = main(n0=200, k0=20)
+    #     y3[i,:] = main(n0=200, k0=40)
+    #     print time.time()-t
+    #
+    # y0 = y0.mean(0)     # calcolo delle prestazioni medie
+    # y1 = y1.mean(0)
+    # y2 = y2.mean(0)
+    # y3 = y3.mean(0)
+    #
+    #
+    # # -- Salvataggio su file --
+    # with open('Primo Print','wb') as file:
+    #     wr=csv.writer(file,quoting=csv.QUOTE_ALL)
+    #     wr.writerow(y0)
+    #     wr.writerow(y1)
+    #     wr.writerow(y2)
+    #     wr.writerow(y3)
+    #
+    # # -- Plot --
+    # plt.title('Decoding performances')
+    # x = np.linspace(1, 2.5, 16, endpoint=True)
+    # plt.axis([1, 2.5, 0, 1])
+    # plt.plot(x, y0, label='100 nodes and 10 sources',color='blue'   ,linewidth=2)
+    # plt.plot(x, y1, label='100 nodes and 20 sources',color='red'    ,linewidth=2)
+    # plt.plot(x, y2, label='200 nodes and 20 sources',color='grey'   ,linewidth=2)
+    # plt.plot(x, y3, label='200 nodes and 40 sources',color='magenta',linewidth=2)
+    # plt.legend(loc=4)
+    # plt.grid()
+    # plt.show()
 
-    plt.title('Decoding performances')
-    x = np.linspace(0, 2.5, 16, endpoint=True)
-    plt.axis([0, 2.5, 0, 1])
-
-    plt.plot(x, y0, label='100 nodes and 10 sources',color='blue'   ,linewidth=2)
-    plt.plot(x, y1, label='100 nodes and 20 sources',color='red'    ,linewidth=2)
-    plt.plot(x, y2, label='200 nodes and 20 sources',color='grey'   ,linewidth=2)
-    plt.plot(x, y3, label='200 nodes and 40 sources',color='magenta',linewidth=2)
-    plt.legend(loc=4)
-    plt.grid()
-    plt.show()
 
 
-
-   #cProfile.run('main()')
+   cProfile.run('main(n0=200, k0=40)')
