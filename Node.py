@@ -81,6 +81,7 @@ class Storage(object):
                                                     # the node! That is to say: if pkt x has visited node v before
                                                     # BUT c(x)<C1nlog(n), v accepts it with Prob=0, BUT it forwards it
 
+
     # def receive_pkt(self, pkt):                     # define what to do on pkt receiving
     #     self.visits[pkt.ID-1] += 1                  # increase number of visits this pkt has done in this very node
     #     # CODING PROCEDURE ------------------------------
@@ -109,7 +110,7 @@ class Storage(object):
     #             self.dim_buffer += 1
     #             return 0                            # NOTE: this procedure has to be done even if the pkt has already visited
     #                                                 # the node! That is to say: if pkt x has visited node v before
-    #                                                 # BUT c(x)<C1nlog(n), v accepts it with Prob=0, BUT it forwards it
+                                                    # BUT c(x)<C1nlog(n), v accepts it with Prob=0, BUT it forwards it
 
 
     def storage_info(self):
