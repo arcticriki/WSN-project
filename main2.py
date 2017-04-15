@@ -234,7 +234,7 @@ if __name__ == "__main__":
 
 
     # -- Salvataggio su file --
-    with open('Primo Print','wb') as file:
+    with open('Secondo Print','wb') as file:
         wr=csv.writer(file,quoting=csv.QUOTE_ALL)
         wr.writerow(y0)
         wr.writerow(y1)
