@@ -103,14 +103,12 @@ Ps=np.zeros(len(decoding_ratio))
 
 for xx in xrange(len(decoding_ratio)):
 
-    epsilon=decoding_ratio[xx] * k - k                      #we need h=(k+epsilon) over n nodes...
+    epsilon=int(decoding_ratio[xx] * k - k)                     #we need h=(k+epsilon) over n nodes...
     h=k+epsilon                                             #...to succefully decode with high probability
 
     decoding_indices = rnd.sample(range(0, n), h)  #selecting h random nodes in the graph
 
-    degrees=[0]*h               #initialize vectors: degrees, e.g : (1,2,1,3...)
-    IDs=[0]*h                   #IDS, e.g: ([57],[57,12],[12],[57,4,3]...)
-    XORs=[0]*h                  #XORs, e.g: ((010...0), (110..1) ..)
+
 
     M = factorial(n)/(10*factorial(h)*factorial(n-h))       #see pag.179, paper [2]
     M=10
@@ -118,6 +116,10 @@ for xx in xrange(len(decoding_ratio)):
     number_decoding_err=np.zeros(M)
 
     for ii in xrange(M):
+
+        degrees = [0] * h  # initialize vectors: degrees, e.g : (1,2,1,3...)
+        IDs = [0] * h  # IDS, e.g: ([57],[57,12],[12],[57,4,3]...)
+        XORs = [0] * h  # XORs, e.g: ((010...0), (110..1) ..)
 
         for node in range(h):
             degree, ID, XOR = node_list[decoding_indices[node]].storage_info()
@@ -232,6 +234,6 @@ for xx in xrange(len(decoding_ratio)):
 
         number_decoding_err[ii] = decoding_error
 
-    Ps[xx] = 1 - (sum(number_decoding_err)/len(decoding_error))
+    Ps[xx] = 1 - (sum(number_decoding_err)/len(number_decoding_err))
 
 print Ps
