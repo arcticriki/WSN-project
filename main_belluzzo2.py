@@ -210,7 +210,7 @@ for ii in xrange(10):
             a = hashmap[sensors_indexes[i],1]
             decoded2[i,:] = decoded[a,:]
 
-    #print '\nDecoded packets: REORDERED \n', decoded2
+    #print '\nDecoded packets: R EORDERED \n', decoded2
     errati=0
     aa=source_pkt - decoded2
     diff = sum(sum(source_pkt - decoded2))
