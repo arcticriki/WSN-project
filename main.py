@@ -15,7 +15,7 @@ def main(n0,k0):
 
     n = n0                                   # number of nodes
     k = k0                                   # number of sensors
-    L = 5                                    # square dimension
+    L = 5                                     # square dimension
     c0 = 0.1                                 # parameter for RSD
     delta = 0.5                              # Prob['we're not able to recover the K pkts']<=delta
 
