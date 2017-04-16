@@ -109,6 +109,9 @@ def main(n0,k0):
         num_iterazioni = 50  # True number of iterations
 
         for ii in xrange(num_iterazioni):
+
+            print 'iterazione ',ii
+
             degrees = [0] * h
             IDs = [0] * h
             XORs = [0] * h
@@ -201,9 +204,9 @@ def main(n0,k0):
 if __name__ == "__main__":
     iteration_to_mediate = 1
     y0 = np.zeros((iteration_to_mediate,16))
-    y1 = y0
-    y2 = y0
-    y3 = y0
+    y1 = np.zeros((iteration_to_mediate,16))
+    y2 = np.zeros((iteration_to_mediate,16))
+    y3 = np.zeros((iteration_to_mediate,16))
 
     # -- Iterazione su diversi sistemi --
     for i in xrange(iteration_to_mediate):
