@@ -7,6 +7,7 @@ import cProfile
 from RSD import *
 from math import factorial
 import csv
+import copy
 
 
 def main(n0,k0):
@@ -103,25 +104,24 @@ def main(n0,k0):
         decoding_indices = rnd.sample(range(0, n), h)  # selecting h random nodes in the graph
 
         errati = 0.0  # Number of iteration in which we do not decode
-        M = factorial(n) / (
-        10 * factorial(h) * factorial(n - h))  # Computation of the number of iterations to perform, see paper 2
+        M = factorial(n) / (10 * factorial(h) * factorial(n - h))  # Computation of the number of iterations to perform, see paper 2
 
-        num_iterazioni = 50  # True number of iterations
+        num_iterazioni = 1  # True number of iterations
 
         for ii in xrange(num_iterazioni):
 
-            print 'iterazione ',ii
+            #print 'iterazione ',ii
 
             degrees = [0] * h
-            IDs = [0] * h
+            IDs = [0]*h
             XORs = [0] * h
 
             for node in range(h):
                 degree, ID, XOR = node_list[decoding_indices[node]].storage_info()
 
                 degrees[node] = degree
-                IDs[node] = ID
-                XORs[node] = XOR
+                IDs[node] = copy.deepcopy(ID)
+                XORs[node] = copy.deepcopy(XOR)
 
             # -- MP. Naive approach --------------------------------
 
@@ -138,8 +138,11 @@ def main(n0,k0):
                 empty_ripple = True
 
                 position = 0  # linear search of degree one nodes
+
                 while position < len(degrees):
+
                     if degrees[position] == 1:  # if degree 1 is found
+
                         if hashmap[IDs[position][0] - 1, 0] == 0:
                             decoded[num_hashmap, :] = XORs[position]
                             hashmap[IDs[position][0] - 1, 0] = 1
@@ -193,16 +196,16 @@ def main(n0,k0):
             if diff != 0:
                 errati += 1
 
-        print errati
+        #print errati
         decoding_performance[iii] = (num_iterazioni - errati) / num_iterazioni
 
-    print decoding_performance
+    #print decoding_performance
     return decoding_performance
 
 
 
 if __name__ == "__main__":
-    iteration_to_mediate = 1
+    iteration_to_mediate = 10000
     y0 = np.zeros((iteration_to_mediate,16))
     y1 = np.zeros((iteration_to_mediate,16))
     y2 = np.zeros((iteration_to_mediate,16))
@@ -210,12 +213,13 @@ if __name__ == "__main__":
 
     # -- Iterazione su diversi sistemi --
     for i in xrange(iteration_to_mediate):
-        t = time.time()
+        #t = time.time()
+        print i
         y0[i,:] = main(n0=100, k0=10)
         y1[i,:] = main(n0=100, k0=20)
         y2[i,:] = main(n0=200, k0=20)
         y3[i,:] = main(n0=200, k0=40)
-        print time.time()-t
+        #print time.time()-t
 
     y0 = y0.mean(0)     # calcolo delle prestazioni medie
     y1 = y1.mean(0)

@@ -122,7 +122,7 @@ def main(n0,k0):
         errati2 = 0.0                           # Number of iteration in which we do not decode
         M = factorial(n) / (10 * factorial(h) * factorial(n - h))  # Computation of the number of iterations to perform, see paper 2
 
-        num_iterazioni = 5000                 # True number of iterations
+        num_iterazioni = 50                 # True number of iterations
         for ii in xrange(num_iterazioni):
 
             # -- parameters initialization phase --------------------
@@ -194,11 +194,11 @@ def main(n0,k0):
 
 
 if __name__ == "__main__":
-    iteration_to_mediate = 10
+    iteration_to_mediate = 1
     y0 = np.zeros((iteration_to_mediate, 16))
     y1 = np.zeros((iteration_to_mediate, 16))
     y2 = np.zeros((iteration_to_mediate, 16))
-    #y3 = np.zeros((iteration_to_mediate, 16))
+    y3 = np.zeros((iteration_to_mediate, 16))
 
     # -- Iterazione su diversi sistemi --
     for i in xrange(iteration_to_mediate):
@@ -206,13 +206,13 @@ if __name__ == "__main__":
         y0[i,:] = main(n0=200, k0=20)
         y1[i,:] = main(n0=500, k0=50)
         y2[i,:] = main(n0=1000, k0=100)
-        #y3[i,:] = main(n0=200, k0=40)
+        y3[i,:] = main(n0=200, k0=40)
         print time.time()-t
 
     y0 = y0.mean(0)     # calcolo delle prestazioni medie
     y1 = y1.mean(0)
     y2 = y2.mean(0)
-    #y3 = y3.mean(0)
+    y3 = y3.mean(0)
 
 
     # -- Salvataggio su file --
@@ -221,7 +221,7 @@ if __name__ == "__main__":
         wr.writerow(y0)
         wr.writerow(y1)
         wr.writerow(y2)
-        #wr.writerow(y3)
+        wr.writerow(y3)
 
     # -- Plot --
     plt.title('Decoding performances')
@@ -230,7 +230,7 @@ if __name__ == "__main__":
     plt.plot(x, y0, label='100 nodes and 10 sources',color='blue'   ,linewidth=2)
     plt.plot(x, y1, label='100 nodes and 20 sources',color='red'    ,linewidth=2)
     plt.plot(x, y2, label='200 nodes and 20 sources',color='grey'   ,linewidth=2)
-    #plt.plot(x, y3, label='200 nodes and 40 sources',color='magenta',linewidth=2)
+    plt.plot(x, y3, label='200 nodes and 40 sources',color='magenta',linewidth=2)
     plt.legend(loc=4)
     plt.grid()
     plt.show()
