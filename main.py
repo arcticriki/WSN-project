@@ -122,7 +122,7 @@ def main(n0,k0):
         errati2 = 0.0                           # Number of iteration in which we do not decode
         M = factorial(n) / (10 * factorial(h) * factorial(n - h))  # Computation of the number of iterations to perform, see paper 2
 
-        num_iterazioni = 50                 # True number of iterations
+        num_iterazioni = 5000                 # True number of iterations
         for ii in xrange(num_iterazioni):
 
             # -- parameters initialization phase --------------------
@@ -194,7 +194,7 @@ def main(n0,k0):
 
 
 if __name__ == "__main__":
-    iteration_to_mediate = 1
+    iteration_to_mediate = 20
     y0 = np.zeros((iteration_to_mediate, 16))
     y1 = np.zeros((iteration_to_mediate, 16))
     y2 = np.zeros((iteration_to_mediate, 16))
