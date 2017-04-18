@@ -7,7 +7,8 @@ from email.mime.multipart import MIMEMultipart
 
 def send_mail(names):
     fromaddr = 'team.wsn2@gmail.com'
-    toaddrs  = 'mattia.soldan.ms@gmail.com'+'riccardo.belluzzo@gmail.com'+'nardi.giosue@gmail.com'
+    #toaddrs  = 'mattia.soldan.ms@gmail.com'+'riccardo.belluzzo@gmail.com'+'nardi.giosue@gmail.com'
+    toaddrs = ''
 
     msg = MIMEMultipart('alternative')
     msg['Subject'] = 'Risultatiti simulazioni Wireless.'
