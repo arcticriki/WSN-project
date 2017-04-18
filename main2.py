@@ -9,11 +9,11 @@ from math import factorial
 import csv
 import copy
 
-
-def main(n0,k0):
+def main(n0,k0,eta0,C1):
     # -- PARAMETER INITIALIZATION SECTION --------------------------------------------------------------
     payload = 10
-
+    C1 = C1
+    eta = eta0
     n = n0                                   # number of nodes
     k = k0                                   # number of sensors
     L = 10                                   # square dimension
@@ -36,15 +36,14 @@ def main(n0,k0):
     for i in xrange(n):  # for on 0 to n indices
         x = rnd.uniform(0.0, L)  # generation of random coordinate x
         y = rnd.uniform(0.0, L)  # generation of random coordinate y
-        node_list.append(Storage(i + 1, x, y, d[i], n, k))  # creation of Storage node
+        node_list.append(Storage(i + 1, x, y, d[i], n, k, C1))  # creation of Storage node
         positions[i, :] = [x, y]
 
     # Generation of sensor nodes
     for i in sensors_indexes:  # for on sensors position indices
         x = rnd.uniform(0.0, L)  # generation of random coordinate x
         y = rnd.uniform(0.0, L)  # generation of random coordinate y
-        node_list[i] = Sensor(i + 1, x, y, d[i], n,
-                              k)  # creation of sensor node, function Sensor(), extend Storage class
+        node_list[i] = Sensor(i + 1, x, y, d[i], n,k, C1)  # creation of sensor node, function Sensor(), extend Storage class
         positions[i, :] = [x, y]  # support variable for positions info, used for comp. optim. reasons
 
     # t = time.time()
@@ -96,10 +95,9 @@ def main(n0,k0):
     # -- Initialization -------------------------
 
     passo = 0.1  # incremental step of the epsilon variable
-    decoding_performance = np.zeros(16)  # ancillary variable which contains the decoding probability values
-    for iii in xrange(16):
-        epsilon = int(passo * iii * k)  # computation of epsilon
-        h = k + epsilon  # to succefully decode with high probability
+    decoding_performance = np.zeros(len(eta))  # ancillary variable which contains the decoding probability values
+    for iii in xrange(len(eta)):
+        h = int(k * eta[iii])
         errati = 0.0  # Number of iteration in which we do not decode
         errati2 = 0.0
         M = factorial(n) / (10 * factorial(h) * factorial(n - h))  # Computation of the number of iterations to perform, see paper 2
@@ -206,19 +204,20 @@ def main(n0,k0):
 
 if __name__ == "__main__":
     iteration_to_mediate = 3
-    y0 = np.zeros((iteration_to_mediate,16))
-    y1 = np.zeros((iteration_to_mediate,16))
-    y2 = np.zeros((iteration_to_mediate,16))
-    y3 = np.zeros((iteration_to_mediate,16))
+    eta = [1,1.1,1.2,1.3,1.4,1.5,1.7,1.8,1.9,2,2.1,2.2,2.3,2.4,2.5]
+    y0 = np.zeros((iteration_to_mediate,len(eta)))
+    y1 = np.zeros((iteration_to_mediate,len(eta)))
+    y2 = np.zeros((iteration_to_mediate,len(eta)))
+    y3 = np.zeros((iteration_to_mediate,len(eta)))
 
     # -- Iterazione su diversi sistemi --
     for i in xrange(iteration_to_mediate):
         t = time.time()
         print i
-        y0[i,:] = main(n0=100, k0=10)
-        y1[i,:] = main(n0=100, k0=20)
-        y2[i,:] = main(n0=200, k0=20)
-        y3[i,:] = main(n0=200, k0=40)
+        y0[i,:] = main(n0=100, k0=10, eta0=eta, C1=3)
+        y1[i,:] = main(n0=100, k0=20, eta0=eta, C1=3)
+        y2[i,:] = main(n0=200, k0=20, eta0=eta, C1=3)
+        y3[i,:] = main(n0=200, k0=40, eta0=eta, C1=3)
         print time.time()-t
 
     y0 = y0.mean(0)     # calcolo delle prestazioni medie

@@ -9,9 +9,10 @@ from math import factorial
 import csv
 
 
-def main(n0,k0, eta0):
+def main(n0,k0,eta0,C1):
     # -- PARAMETER INITIALIZATION SECTION --------------------------------------------------------------
     payload = 10
+    C1 = C1
     eta = eta0
     n = n0                                   # number of nodes
     k = k0                                   # number of sensors
@@ -35,14 +36,14 @@ def main(n0,k0, eta0):
     for i in xrange(n):                     # for on 0 to n indices
         x = rnd.uniform(0.0, L)             # generation of random coordinate x
         y = rnd.uniform(0.0, L)             # generation of random coordinate y
-        node_list.append(Storage(i + 1, x, y, d[i], n, k))  # creation of Storage node
+        node_list.append(Storage(i + 1, x, y, d[i], n, k,C1))  # creation of Storage node
         positions[i, :] = [x, y]
 
     # -- Generation of sensor nodes --
     for i in sensors_indexes:               # for on sensors position indices
         x = rnd.uniform(0.0, L)             # generation of random coordinate x
         y = rnd.uniform(0.0, L)             # generation of random coordinate y
-        node_list[i] = Sensor(i + 1, x, y, d[i], n,k)  # creation of sensor node, function Sensor(), extend Storage class
+        node_list[i] = Sensor(i + 1, x, y, d[i], n,k, C1)  # creation of sensor node, function Sensor(), extend Storage class
         positions[i, :] = [x, y]            # support variable for positions info, used for comp. optim. reasons
 
     t = time.time()
@@ -90,25 +91,25 @@ def main(n0,k0, eta0):
                                                 # forward the pkt. 1 means Metropolis algorithm
             if j == k:
                 break
-    tot = 0
-    distribution_post_dissemination = np.zeros(k + 1)       # ancillary variable used to compute the distribution post dissemination
-    for i in xrange(n):
-        index = node_list[i].num_encoded                    # retrive the actual encoded degree
-        distribution_post_dissemination[index] += 1.0 / n   # augment the prob. value of the related degree
-        tot += node_list[i].num_encoded                     # compute the total degree reached
-    print '\nNumero di pacchetti codificati:', tot, 'su un totale di:', to_be_encoded, '\n'    #print the total degree reached
-
-    plt.title('Post dissemination')
-    y = distribution_post_dissemination[1:]
-    x = np.linspace(1, k, k, endpoint=True)
-    plt.axis([0, k, 0, 0.6])
-    plt.plot(x,y , label='post dissemination')              # plot the robust pdf vs the obtained distribution after dissemination
-    y2 = np.zeros(k)
-    y2[:len(pdf)] = pdf
-    plt.plot(x, y2, color='red', label='robust soliton')
-    plt.legend(loc='upper left')
-    plt.grid()
-    plt.show()
+    # tot = 0
+    # distribution_post_dissemination = np.zeros(k + 1)       # ancillary variable used to compute the distribution post dissemination
+    # for i in xrange(n):
+    #     index = node_list[i].num_encoded                    # retrive the actual encoded degree
+    #     distribution_post_dissemination[index] += 1.0 / n   # augment the prob. value of the related degree
+    #     tot += node_list[i].num_encoded                     # compute the total degree reached
+    # print '\nNumero di pacchetti codificati:', tot, 'su un totale di:', to_be_encoded, '\n'    #print the total degree reached
+    #
+    # plt.title('Post dissemination')
+    # y = distribution_post_dissemination[1:]
+    # x = np.linspace(1, k, k, endpoint=True)
+    # plt.axis([0, k, 0, 0.6])
+    # plt.plot(x,y , label='post dissemination')              # plot the robust pdf vs the obtained distribution after dissemination
+    # y2 = np.zeros(k)
+    # y2[:len(pdf)] = pdf
+    # plt.plot(x, y2, color='red', label='robust soliton')
+    # plt.legend(loc='upper left')
+    # plt.grid()
+    # plt.show()
 
 
     # -- DECODING PHASE ---------------------------------------------------------------------------------------------------
@@ -187,7 +188,6 @@ def main(n0,k0, eta0):
                 i += 1  # increment cycle variable
 
             if num_hashmap < k:
-                print num_hashmap
                 errati2 += 1  # if we do not decode the k pkts that we make an error
 
         decoding_performance[iii] = (num_iterazioni - errati2) / num_iterazioni
@@ -213,14 +213,14 @@ if __name__ == "__main__":
         print 'iterazione',i+1,'di', iteration_to_mediate
         for ii in xrange(number_of_points_in_x_axis):
             t = time.time()
-            y0[i, ii] = main(n0=500*(ii+1), k0=50*(ii+1), eta0=[1.4])
+            y0[i, ii] = main(n0=500*(ii+1), k0=50*(ii+1), eta0=[1.4], C1=3)
             elalpsed = time.time() - t
             tempi1[i, ii] = elalpsed
             print 'Caso eta = 1.4 e n =',500*(ii+1),'eseguito in',elalpsed,'secondi'
 
         for ii in xrange(number_of_points_in_x_axis):
             t = time.time()
-            y1[i, ii] = main(n0=500*(ii+1), k0=50*(ii+1), eta0=[1.7])
+            y1[i, ii] = main(n0=500*(ii+1), k0=50*(ii+1), eta0=[1.7], C1=3)
             elalpsed = time.time() - t
             tempi2[i, ii] = elalpsed
             print 'Caso eta = 1.7 e n =', 500 * (ii + 1), 'eseguito in', elalpsed, 'secondi'

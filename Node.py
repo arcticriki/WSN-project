@@ -3,7 +3,6 @@ import numpy as np
 import time as time
 
 payload = 10
-C1 = 5
 
 # -- We conceptually divide the nodes into 2 categories:
 #    - STORAGE NODE: generic node that can only store and forward pkts
@@ -13,7 +12,8 @@ C1 = 5
 #-- STORAGE NODE SPECIFICATIONS ---------------------------------------------------------------------------------
 class Storage(object):
 
-    def __init__(self, ID, X, Y, d, n, k):
+    def __init__(self, ID, X, Y, d, n, k, c1):
+        self.C1 = c1                                # parameter C1
         self.ID = ID                                # ID of the node
         self.X = X                                  # position
         self.Y = Y                                  # position
@@ -121,7 +121,8 @@ class Storage(object):
 # -- SENSOR NODE SPECIFICATIONS ---------------------------------------------------------------------------------------
 class Sensor(Storage):
 
-    def __init__(self, ID, X, Y, d, n, k):
+    def __init__(self, ID, X, Y, d, n, k, c1):
+        self.C1 = c1                                # parameter C1
         self.ID = ID                                # ID of the node
         self.X = X                                  # position
         self.Y = Y                                  # position
