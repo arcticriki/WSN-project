@@ -108,7 +108,7 @@ y9 = y[1, :]
 # -- Plot --
 plt.title('Decoding performances')
 x = np.linspace(0.5, 5, number_of_points_in_x_axis, endpoint=True)
-plt.axis([0, 5, 0, 1])
+plt.axis([0, 5, 0.5, 1])
 plt.plot(x, y8, label='500 nodes and 50 souces', color='blue', linewidth=2)
 plt.plot(x, y9, label='1000 nodes and 100 souces', color='red', linewidth=2)
 plt.legend(loc=4)

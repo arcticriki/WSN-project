@@ -7,10 +7,7 @@ from email.mime.multipart import MIMEMultipart
 
 def send_mail(names):
     fromaddr = 'team.wsn2@gmail.com'
-    toaddrs  = 'mattia.soldan.ms@gmail.com' + 'riccardo.belluzzo@gmail.com' + 'nardi.giosue@gmail.com'
-    # toaddrs2 = 'riccardo.belluzzo@gmail.com'
-    # toaddrs3 = 'nardi.giosue@gmail.com'
-
+    toaddrs  = 'mattia.soldan.ms@gmail.com'+'riccardo.belluzzo@gmail.com'+'nardi.giosue@gmail.com'
 
     msg = MIMEMultipart('alternative')
     msg['Subject'] = 'Risultatiti simulazioni Wireless.'
@@ -29,24 +26,13 @@ def send_mail(names):
     # Credentials (if needed)
     username = 'team.wsn2'
     password = 'siamoforti'
+
     # The actual mail send
     server = smtplib.SMTP('smtp.gmail.com:587')
     server.starttls()
     server.login(username, password)
     server.sendmail(fromaddr, toaddrs,  msg.as_string())
     server.quit()
-
-    # server = smtplib.SMTP('smtp.gmail.com:587')
-    # server.starttls()
-    # server.login(username, password)
-    # server.sendmail(fromaddr, toaddrs2, msg.as_string())
-    # server.quit()
-    #
-    # server = smtplib.SMTP('smtp.gmail.com:587')
-    # server.starttls()
-    # server.login(username, password)
-    # server.sendmail(fromaddr, toaddrs3,  msg.as_string())
-    # server.quit()
 
     print 'Email sent!'
 

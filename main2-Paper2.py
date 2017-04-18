@@ -10,14 +10,14 @@ from math import factorial
 import csv
 import copy
 
-def main(n0, k0, eta0, C1, num_MP):
+def main(n0, k0, eta0, C1, num_MP,L):
     # -- PARAMETER INITIALIZATION SECTION --------------------------------------------------------------
     payload = 10
     C1 = C1
     eta = eta0
     n = n0                                   # number of nodes
     k = k0                                   # number of sensors
-    L = 6                                    # square dimension
+    #L = L                                    # square dimension
     c0 = 0.1                                 # parameter for RSD
     delta = 0.5                              # Prob['we're not able to recover the K pkts']<=delta
 
@@ -192,113 +192,113 @@ def main(n0, k0, eta0, C1, num_MP):
 
 if __name__ == "__main__":
 
-    # ----------- FIGURE 3 AND 4 -------------------
-    print 'Figure 3 and 4. \n'
+    # # ----------- FIGURE 3 AND 4 -------------------
+    # print 'Figure 3 and 4. \n'
     iteration_to_mediate = 10
-    eta = [1,1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,1.9,2,2.1,2.2,2.3,2.4,2.5]
-
-    y0 = np.zeros((iteration_to_mediate, len(eta)))
-    y1 = np.zeros((iteration_to_mediate, len(eta)))
-    y2 = np.zeros((iteration_to_mediate, len(eta)))
-    y3 = np.zeros((iteration_to_mediate, len(eta)))
-    y4 = np.zeros((iteration_to_mediate, len(eta)))
-    y5 = np.zeros((iteration_to_mediate, len(eta)))
-
-    # -- Iterazione su diversi sistemi --
-    for i in xrange(iteration_to_mediate):
-        t = time.time()
-        tt= time.time()
-        y0[i, :] = main(n0=100, k0=10, eta0=eta, C1=5, num_MP= 5000)
-        elapsed= time.time()-tt
-        print elapsed
-        tt = time.time()
-        y1[i, :] = main(n0=100, k0=20, eta0=eta, C1=5, num_MP= 5000)
-        elapsed = time.time() - tt
-        print elapsed
-        tt = time.time()
-        y2[i, :] = main(n0=200, k0=20, eta0=eta, C1=5, num_MP= 5000)
-        elapsed = time.time() - tt
-        print elapsed
-        tt = time.time()
-        y3[i, :] = main(n0=200, k0=40, eta0=eta, C1=5, num_MP= 3000)
-        elapsed = time.time() - tt
-        print elapsed
-        tt = time.time()
-        y4[i, :] = main(n0=500, k0=50, eta0=eta, C1=5, num_MP= 3000)
-        elapsed = time.time() - tt
-        print elapsed
-        tt = time.time()
-        y5[i, :] = main(n0=1000, k0=100, eta0=eta, C1=5, num_MP= 3000)
-        elapsed = time.time() - tt
-        print elapsed
-        tt = time.time()
-        elapsed = time.time()-t
-        print 'Iterazione',i+1, 'di', iteration_to_mediate, 'eseguita in', elapsed, 'secondi'
-
-
-
-    y0 = y0.mean(0)     # calcolo delle prestazioni medie
-    y1 = y1.mean(0)
-    y2 = y2.mean(0)
-    y3 = y3.mean(0)
-    y4 = y4.mean(0)
-    y5 = y5.mean(0)
-
-
-    # -- Salvataggio su file --
-    with open('Figure 3','wb') as file:
-        wr=csv.writer(file,quoting=csv.QUOTE_ALL)
-        wr.writerow(y0)
-        wr.writerow(y1)
-        wr.writerow(y2)
-        wr.writerow(y3)
-
-
-    with open('Figure 4', 'wb') as file:
-        wr = csv.writer(file, quoting=csv.QUOTE_ALL)
-        wr.writerow(y2)
-        wr.writerow(y4)
-        wr.writerow(y5)
-
-    names = ['Figure 3', 'Figure 4']
-    #send_mail(names)
-
-    # # ----------- FIGURE 6 -------------------
+    # eta = [1,1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,1.9,2,2.1,2.2,2.3,2.4,2.5]
     #
-    # print 'Figure 6. \n'
+    # y0 = np.zeros((iteration_to_mediate, len(eta)))
+    # y1 = np.zeros((iteration_to_mediate, len(eta)))
+    # y2 = np.zeros((iteration_to_mediate, len(eta)))
+    # y3 = np.zeros((iteration_to_mediate, len(eta)))
+    # y4 = np.zeros((iteration_to_mediate, len(eta)))
+    # y5 = np.zeros((iteration_to_mediate, len(eta)))
     #
-    # number_of_points_in_x_axis = 10
-    # y8 = np.zeros((iteration_to_mediate, number_of_points_in_x_axis))
-    # y9 = np.zeros((iteration_to_mediate, number_of_points_in_x_axis))
-    #
-    #
+    # # -- Iterazione su diversi sistemi --
     # for i in xrange(iteration_to_mediate):
+    #     t = time.time()
+    #     tt= time.time()
+    #     y0[i, :] = main(n0=100, k0=10, eta0=eta, C1=5, num_MP= 3000, L=5)
+    #     elapsed= time.time()-tt
+    #     print elapsed
     #     tt = time.time()
-    #     print 'Iteration', i + 1, 'of', iteration_to_mediate
-    #     for ii in xrange(number_of_points_in_x_axis):
-    #         t = time.time()
-    #         y8[i, ii] = main(n0=500, k0=50, eta0=[1.8], C1=0.5 * (ii + 1), num_MP=5)
-    #         elalpsed = time.time() - t
-    #         print 'Caso n = 500 e C1 =', 0.5 * (ii + 1), 'eseguito in', elalpsed, 'secondi'
+    #     y1[i, :] = main(n0=100, k0=20, eta0=eta, C1=5, num_MP= 3000, L=5)
+    #     elapsed = time.time() - tt
+    #     print elapsed
+    #     tt = time.time()
+    #     y2[i, :] = main(n0=200, k0=20, eta0=eta, C1=5, num_MP= 3000, L=5)
+    #     elapsed = time.time() - tt
+    #     print elapsed
+    #     tt = time.time()
+    #     y3[i, :] = main(n0=200, k0=40, eta0=eta, C1=5, num_MP= 2500, L=5)
+    #     elapsed = time.time() - tt
+    #     print elapsed
+    #     tt = time.time()
+    #     y4[i, :] = main(n0=500, k0=50, eta0=eta, C1=5, num_MP= 3000, L=5)
+    #     elapsed = time.time() - tt
+    #     print elapsed
+    #     tt = time.time()
+    #     y5[i, :] = main(n0=1000, k0=100, eta0=eta, C1=5, num_MP= 2500, L=5)
+    #     elapsed = time.time() - tt
+    #     print elapsed
+    #     tt = time.time()
+    #     elapsed = time.time()-t
+    #     print 'Iterazione',i+1, 'di', iteration_to_mediate, 'eseguita in', elapsed, 'secondi'
     #
-    #     for ii in xrange(number_of_points_in_x_axis):
-    #         t = time.time()
-    #         y9[i, ii] = main(n0=1000, k0=100, eta0=[1.6], C1=0.5 * (ii + 1), num_MP=5)
-    #         elalpsed = time.time() - t
-    #         print 'Caso n = 1000 e C1 =', 0.5 * (ii + 1), 'eseguito in', elalpsed, 'secondi'
-    #     print '\nTempo totale di ciclo =', time.time() - tt, '\n'
     #
     #
-    # y8 = y8.mean(0)  # calcolo delle prestazioni medie
-    # y9 = y9.mean(0)
+    # y0 = y0.mean(0)     # calcolo delle prestazioni medie
+    # y1 = y1.mean(0)
+    # y2 = y2.mean(0)
+    # y3 = y3.mean(0)
+    # y4 = y4.mean(0)
+    # y5 = y5.mean(0)
+    #
     #
     # # -- Salvataggio su file --
-    # with open('Figure 6', 'wb') as file:
+    # with open('Figure 3','wb') as file:
+    #     wr=csv.writer(file,quoting=csv.QUOTE_ALL)
+    #     wr.writerow(y0)
+    #     wr.writerow(y1)
+    #     wr.writerow(y2)
+    #     wr.writerow(y3)
+    #
+    #
+    # with open('Figure 4', 'wb') as file:
     #     wr = csv.writer(file, quoting=csv.QUOTE_ALL)
-    #     wr.writerow(y8)
-    #     wr.writerow(y9)
+    #     wr.writerow(y2)
+    #     wr.writerow(y4)
+    #     wr.writerow(y5)
     #
-    #
+    # names = ['Figure 3', 'Figure 4']
+    # send_mail(names)
+
+    # ----------- FIGURE 6 -------------------
+
+    print 'Figure 6. \n'
+
+    number_of_points_in_x_axis = 10
+    y8 = np.zeros((iteration_to_mediate, number_of_points_in_x_axis))
+    y9 = np.zeros((iteration_to_mediate, number_of_points_in_x_axis))
+
+
+    for i in xrange(iteration_to_mediate):
+        tt = time.time()
+        print 'Iteration', i + 1, 'of', iteration_to_mediate
+        for ii in xrange(number_of_points_in_x_axis):
+            t = time.time()
+            y8[i, ii] = main(n0=500, k0=50, eta0=[1.8], C1=0.5 * (ii + 1), num_MP=2500, L=15)
+            elalpsed = time.time() - t
+            print 'Caso n = 500 e C1 =', 0.5 * (ii + 1), 'eseguito in', elalpsed, 'secondi'
+        print '\n'
+        for ii in xrange(number_of_points_in_x_axis):
+            t = time.time()
+            y9[i, ii] = main(n0=1000, k0=100, eta0=[1.6], C1=0.5 * (ii + 1), num_MP=2500, L=15)
+            elalpsed = time.time() - t
+            print 'Caso n = 1000 e C1 =', 0.5 * (ii + 1), 'eseguito in', elalpsed, 'secondi'
+        print '\nTempo totale di ciclo =', time.time() - tt, '\n'
+
+
+    y8 = y8.mean(0)  # calcolo delle prestazioni medie
+    y9 = y9.mean(0)
+
+    # -- Salvataggio su file --
+    with open('Figure 6', 'wb') as file:
+        wr = csv.writer(file, quoting=csv.QUOTE_ALL)
+        wr.writerow(y8)
+        wr.writerow(y9)
+
+
     # ----------- FIGURE 5 -------------------
     # print '\n\nFigure 5. \n'
     #
@@ -312,13 +312,13 @@ if __name__ == "__main__":
     #     print 'Iteration', i + 1, 'of', iteration_to_mediate
     #     for ii in xrange(number_of_points_in_x_axis):
     #         t = time.time()
-    #         y6[i, ii] = main(n0=500 * (ii + 1), k0=50 * (ii + 1), eta0=[1.4], C1=3, num_MP= 5)
+    #         y6[i, ii] = main(n0=500 * (ii + 1), k0=50 * (ii + 1), eta0=[1.4], C1=3, num_MP= 5, L=5)
     #         elalpsed = time.time() - t
     #         print 'Caso eta = 1.4 e n =', 500 * (ii + 1), 'eseguito in', elalpsed, 'secondi'
     #
     #     for ii in xrange(number_of_points_in_x_axis):
     #         t = time.time()
-    #         y7[i, ii] = main(n0=500 * (ii + 1), k0=50 * (ii + 1), eta0=[1.7], C1=3,  num_MP= 5)
+    #         y7[i, ii] = main(n0=500 * (ii + 1), k0=50 * (ii + 1), eta0=[1.7], C1=3,  num_MP= 5, L=5)
     #         elalpsed = time.time() - t
     #         print 'Caso eta = 1.7 e n =', 500 * (ii + 1), 'eseguito in', elalpsed, 'secondi'
     #     print '\nTempo totale di ciclo =', time.time() - tt, '\n'
