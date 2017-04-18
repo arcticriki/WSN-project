@@ -9,6 +9,7 @@ from math import factorial
 import csv
 import copy
 
+
 def main(n0,k0,eta0,C1):
     # -- PARAMETER INITIALIZATION SECTION --------------------------------------------------------------
     payload = 10
@@ -16,7 +17,7 @@ def main(n0,k0,eta0,C1):
     eta = eta0
     n = n0                                   # number of nodes
     k = k0                                   # number of sensors
-    L = 10                                   # square dimension
+    L = 15                                   # square dimension
     c0 = 0.1                                 # parameter for RSD
     delta = 0.5                              # Prob['we're not able to recover the K pkts']<=delta
 
@@ -43,7 +44,7 @@ def main(n0,k0,eta0,C1):
     for i in sensors_indexes:  # for on sensors position indices
         x = rnd.uniform(0.0, L)  # generation of random coordinate x
         y = rnd.uniform(0.0, L)  # generation of random coordinate y
-        node_list[i] = Sensor(i + 1, x, y, d[i], n,k, C1)  # creation of sensor node, function Sensor(), extend Storage class
+        node_list[i] = Sensor(i + 1, x, y, d[i], n, k, C1)  # creation of sensor node, function Sensor(), extend Storage class
         positions[i, :] = [x, y]  # support variable for positions info, used for comp. optim. reasons
 
     # t = time.time()
@@ -98,11 +99,10 @@ def main(n0,k0,eta0,C1):
     decoding_performance = np.zeros(len(eta))  # ancillary variable which contains the decoding probability values
     for iii in xrange(len(eta)):
         h = int(k * eta[iii])
-        errati = 0.0  # Number of iteration in which we do not decode
-        errati2 = 0.0
-        M = factorial(n) / (10 * factorial(h) * factorial(n - h))  # Computation of the number of iterations to perform, see paper 2
 
-        num_iterazioni = 500  # True number of iterations
+        errati2 = 0.0
+        #M = factorial(n) / (10 * factorial(h) * factorial(n - h))  # Computation of the number of iterations to perform, see paper 2
+        num_iterazioni = 200  # True number of iterations
 
         for ii in xrange(num_iterazioni):
             decoding_indices = rnd.sample(range(0, n), h)  # selecting h random nodes in the graph
@@ -203,49 +203,68 @@ def main(n0,k0,eta0,C1):
 
 
 if __name__ == "__main__":
-    iteration_to_mediate = 3
-    eta = [1,1.1,1.2,1.3,1.4,1.5,1.7,1.8,1.9,2,2.1,2.2,2.3,2.4,2.5]
-    y0 = np.zeros((iteration_to_mediate,len(eta)))
-    y1 = np.zeros((iteration_to_mediate,len(eta)))
-    y2 = np.zeros((iteration_to_mediate,len(eta)))
-    y3 = np.zeros((iteration_to_mediate,len(eta)))
+
+    iteration_to_mediate = 1
+    number_of_points_in_x_axis = 10
+    y0 = np.zeros((iteration_to_mediate, number_of_points_in_x_axis))
+    y1 = np.zeros((iteration_to_mediate, number_of_points_in_x_axis))
 
     # -- Iterazione su diversi sistemi --
-    for i in xrange(iteration_to_mediate):
-        t = time.time()
-        print i
-        y0[i,:] = main(n0=100, k0=10, eta0=eta, C1=3)
-        y1[i,:] = main(n0=100, k0=20, eta0=eta, C1=3)
-        y2[i,:] = main(n0=200, k0=20, eta0=eta, C1=3)
-        y3[i,:] = main(n0=200, k0=40, eta0=eta, C1=3)
-        print time.time()-t
+    tempi1 = np.zeros((iteration_to_mediate, number_of_points_in_x_axis))
+    tempi2 = np.zeros((iteration_to_mediate, number_of_points_in_x_axis))
 
-    y0 = y0.mean(0)     # calcolo delle prestazioni medie
+    for i in xrange(iteration_to_mediate):
+        tt = time.time()
+        print 'iterazione', i + 1, 'di', iteration_to_mediate
+        for ii in xrange(number_of_points_in_x_axis):
+            t = time.time()
+            y0[i, ii] = main(n0=500, k0=50, eta0=[1.8], C1=0.5*(ii+1))
+            elalpsed = time.time() - t
+            tempi1[i, ii] = elalpsed
+            print 'Caso n = 500 e C1 =', 0.5*(ii+1), 'eseguito in', elalpsed, 'secondi'
+
+        for ii in xrange(number_of_points_in_x_axis):
+            t = time.time()
+            y1[i, ii] = main(n0=1000, k0=100, eta0=[1.6], C1=0.5*(ii+1))
+            elalpsed = time.time() - t
+            tempi2[i, ii] = elalpsed
+            print 'Caso n = 1000 e C1 =', 0.5 * (ii + 1), 'eseguito in', elalpsed, 'secondi'
+        print '\nTempo totale di ciclo =', time.time() - tt, '\n'
+
+    tempi1 = tempi1.mean(0)
+    tempi2 = tempi2.mean(0)
+
+    plt.title('Tempi di esecuzione')
+    x = np.linspace(0, 10, number_of_points_in_x_axis, endpoint=True)
+    plt.axis([0, 10, 0, tempi2[9]])
+    plt.plot(x, tempi1, label='500 nodes and 50 souces', color='blue', linewidth=2)
+    plt.plot(x, tempi2, label='1000 nodes and 100 souces', color='red', linewidth=2)
+    plt.legend(loc=4)
+    plt.grid()
+    plt.show()
+
+    y0 = y0.mean(0)  # calcolo delle prestazioni medie
     y1 = y1.mean(0)
-    y2 = y2.mean(0)
-    y3 = y3.mean(0)
+    # y2 = y2.mean(0)
+    # y3 = y3.mean(0)
 
 
     # -- Salvataggio su file --
-    with open('Prova','wb') as file:
-        wr=csv.writer(file,quoting=csv.QUOTE_ALL)
+    with open('Figura 6', 'wb') as file:
+        wr = csv.writer(file, quoting=csv.QUOTE_ALL)
         wr.writerow(y0)
         wr.writerow(y1)
-        wr.writerow(y2)
-        wr.writerow(y3)
 
     # -- Plot --
     plt.title('Decoding performances')
-    x = np.linspace(1, 2.5, 16, endpoint=True)
-    plt.axis([1, 2.5, 0, 1])
-    plt.plot(x, y0, label='100 nodes and 10 sources',color='blue'   ,linewidth=2)
-    plt.plot(x, y1, label='100 nodes and 20 sources',color='red'    ,linewidth=2)
-    plt.plot(x, y2, label='200 nodes and 20 sources',color='grey'   ,linewidth=2)
-    plt.plot(x, y3, label='200 nodes and 40 sources',color='magenta',linewidth=2)
+    x = np.linspace(0.5, 5, number_of_points_in_x_axis, endpoint=True)
+    plt.axis([0, 5, 0, 1])
+    plt.plot(x, y0, label='500 nodes and 50 souces', color='blue', linewidth=2)
+    plt.plot(x, y1, label='1000 nodes and 100 souces', color='red', linewidth=2)
     plt.legend(loc=4)
     plt.grid()
     plt.show()
 
 
 
-   #cProfile.run('main(n0=200, k0=40)')
+    # cProfile.run('main(n0=200, k0=40)')
