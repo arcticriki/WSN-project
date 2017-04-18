@@ -1,14 +1,13 @@
-
-import csv
-import numpy as np
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
 def send_mail(names):
     fromaddr = 'team.wsn2@gmail.com'
-    #toaddrs  = 'mattia.soldan.ms@gmail.com'+'riccardo.belluzzo@gmail.com'+'nardi.giosue@gmail.com'
-    toaddrs = ''
+    toaddrs2  = 'mattia.soldan.ms@gmail.com'
+    toaddrs = 'riccardo.belluzzo@gmail.com'
+    toaddrs3 = 'nardi.giosue@gmail.com'
+
 
     msg = MIMEMultipart('alternative')
     msg['Subject'] = 'Risultatiti simulazioni Wireless.'
@@ -33,10 +32,11 @@ def send_mail(names):
     server.starttls()
     server.login(username, password)
     server.sendmail(fromaddr, toaddrs,  msg.as_string())
+    server.sendmail(fromaddr, toaddrs2,  msg.as_string())
+    server.sendmail(fromaddr, toaddrs3,  msg.as_string())
     server.quit()
 
     print 'Email sent!'
-
 
 
 
