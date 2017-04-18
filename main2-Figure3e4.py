@@ -206,7 +206,7 @@ if __name__ == "__main__":
     # -- Iterazione su diversi sistemi --
     for i in xrange(iteration_to_mediate):
         t = time.time()
-        print i
+        print 'Iteration',i+1, 'of', iteration_to_mediate
         y0[i, :] = main(n0=100, k0=10, eta0=eta, C1=5)
         y1[i, :] = main(n0=100, k0=20, eta0=eta, C1=5)
         y2[i, :] = main(n0=200, k0=20, eta0=eta, C1=5)
