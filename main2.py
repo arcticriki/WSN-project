@@ -100,26 +100,25 @@ def main(n0,k0):
     for iii in xrange(16):
         epsilon = int(passo * iii * k)  # computation of epsilon
         h = k + epsilon  # to succefully decode with high probability
-
-        decoding_indices = rnd.sample(range(0, n), h)  # selecting h random nodes in the graph
-
         errati = 0.0  # Number of iteration in which we do not decode
+        errati2 = 0.0
         M = factorial(n) / (10 * factorial(h) * factorial(n - h))  # Computation of the number of iterations to perform, see paper 2
 
-        num_iterazioni = 1  # True number of iterations
+        num_iterazioni = 500  # True number of iterations
 
         for ii in xrange(num_iterazioni):
+            decoding_indices = rnd.sample(range(0, n), h)  # selecting h random nodes in the graph
 
             #print 'iterazione ',ii
 
             degrees = [0] * h
-            IDs = [0]*h
-            XORs = [0] * h
+            IDs     = [0] * h
+            XORs    = [0] * h
 
             for node in range(h):
                 degree, ID, XOR = node_list[decoding_indices[node]].storage_info()
 
-                degrees[node] = degree
+                degrees[node] = copy.deepcopy(degree)
                 IDs[node] = copy.deepcopy(ID)
                 XORs[node] = copy.deepcopy(XOR)
 
@@ -185,27 +184,28 @@ def main(n0,k0):
                     else:
                         i += 1
 
-            decoded2 = np.zeros((k, payload), dtype=np.int64)
+            # decoded2 = np.zeros((k, payload), dtype=np.int64)
+            #
+            # for iiii in xrange(len(sensors_indexes)):
+            #     if hashmap[sensors_indexes[iiii], 0] == 1:
+            #         a = hashmap[sensors_indexes[iiii], 1]
+            #         decoded2[iiii, :] = decoded[a, :]
+            #
+            # diff = sum(sum(source_pkt - decoded2))
+            # if diff != 0:
+            #     errati += 1
 
-            for iiii in xrange(len(sensors_indexes)):
-                if hashmap[sensors_indexes[iiii], 0] == 1:
-                    a = hashmap[sensors_indexes[iiii], 1]
-                    decoded2[iiii, :] = decoded[a, :]
+            if num_hashmap < k:
+                errati2 += 1  # if we do not decode the k pkts that we make an error
 
-            diff = sum(sum(source_pkt - decoded2))
-            if diff != 0:
-                errati += 1
+        decoding_performance[iii] = (num_iterazioni - errati2) / num_iterazioni
 
-        #print errati
-        decoding_performance[iii] = (num_iterazioni - errati) / num_iterazioni
-
-    #print decoding_performance
     return decoding_performance
 
 
 
 if __name__ == "__main__":
-    iteration_to_mediate = 10000
+    iteration_to_mediate = 3
     y0 = np.zeros((iteration_to_mediate,16))
     y1 = np.zeros((iteration_to_mediate,16))
     y2 = np.zeros((iteration_to_mediate,16))
@@ -213,13 +213,13 @@ if __name__ == "__main__":
 
     # -- Iterazione su diversi sistemi --
     for i in xrange(iteration_to_mediate):
-        #t = time.time()
+        t = time.time()
         print i
         y0[i,:] = main(n0=100, k0=10)
         y1[i,:] = main(n0=100, k0=20)
         y2[i,:] = main(n0=200, k0=20)
         y3[i,:] = main(n0=200, k0=40)
-        #print time.time()-t
+        print time.time()-t
 
     y0 = y0.mean(0)     # calcolo delle prestazioni medie
     y1 = y1.mean(0)
@@ -228,7 +228,7 @@ if __name__ == "__main__":
 
 
     # -- Salvataggio su file --
-    with open('Secondo Print','wb') as file:
+    with open('Prova','wb') as file:
         wr=csv.writer(file,quoting=csv.QUOTE_ALL)
         wr.writerow(y0)
         wr.writerow(y1)

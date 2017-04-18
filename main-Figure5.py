@@ -9,10 +9,10 @@ from math import factorial
 import csv
 
 
-def main(n0,k0):
+def main(n0,k0, eta0):
     # -- PARAMETER INITIALIZATION SECTION --------------------------------------------------------------
     payload = 10
-
+    eta = eta0
     n = n0                                   # number of nodes
     k = k0                                   # number of sensors
     L = 5                                     # square dimension
@@ -90,39 +90,41 @@ def main(n0,k0):
                                                 # forward the pkt. 1 means Metropolis algorithm
             if j == k:
                 break
-    # tot = 0
-    # distribution_post_dissemination = np.zeros(k + 1)       # ancillary variable used to compute the distribution post dissemination
-    # for i in xrange(n):
-    #     index = node_list[i].num_encoded                    # retrive the actual encoded degree
-    #     distribution_post_dissemination[index] += 1.0 / n   # augment the prob. value of the related degree
-    #     tot += node_list[i].num_encoded                     # compute the total degree reached
-    #print '\nNumero di pacchetti codificati:', tot, 'su un totale di:', to_be_encoded, '\n'    #print the total degree reached
+    tot = 0
+    distribution_post_dissemination = np.zeros(k + 1)       # ancillary variable used to compute the distribution post dissemination
+    for i in xrange(n):
+        index = node_list[i].num_encoded                    # retrive the actual encoded degree
+        distribution_post_dissemination[index] += 1.0 / n   # augment the prob. value of the related degree
+        tot += node_list[i].num_encoded                     # compute the total degree reached
+    print '\nNumero di pacchetti codificati:', tot, 'su un totale di:', to_be_encoded, '\n'    #print the total degree reached
 
-    # plt.title('Post dissemination')
-    # y = distribution_post_dissemination[1:]
-    # x = np.linspace(1, k, k, endpoint=True)
-    # plt.axis([0, k, 0, 0.6])
-    # plt.plot(x,y , label='post dissemination')              # plot the robust pdf vs the obtained distribution after dissemination
-    # y2 = np.zeros(k)
-    # y2[:len(pdf)] = pdf
-    # plt.plot(x, y2, color='red', label='robust soliton')
-    # plt.legend(loc='upper left')
-    # plt.grid()
-    # plt.show()
+    plt.title('Post dissemination')
+    y = distribution_post_dissemination[1:]
+    x = np.linspace(1, k, k, endpoint=True)
+    plt.axis([0, k, 0, 0.6])
+    plt.plot(x,y , label='post dissemination')              # plot the robust pdf vs the obtained distribution after dissemination
+    y2 = np.zeros(k)
+    y2[:len(pdf)] = pdf
+    plt.plot(x, y2, color='red', label='robust soliton')
+    plt.legend(loc='upper left')
+    plt.grid()
+    plt.show()
 
 
     # -- DECODING PHASE ---------------------------------------------------------------------------------------------------
     passo = 0.1                                 # incremental step of the epsilon variable
-    decoding_performance = np.zeros(16)         # ancillary variable which contains the decoding probability values
-    for iii in xrange(16):
+    decoding_performance = np.zeros(len(eta))         # ancillary variable which contains the decoding probability values
+    for iii in xrange(len(eta)):
 
-        epsilon = int(passo * iii * k)          # computation of epsilon
-        h = k + epsilon                         # to succefully decode with high probability
+        #epsilon = int(passo * iii * k)          # computation of epsilon
+        #h = k + epsilon                         # to succefully decode with high probability
+
+        h = int(k * eta[0])
 
         errati2 = 0.0                           # Number of iteration in which we do not decode
         M = factorial(n) / (10 * factorial(h) * factorial(n - h))  # Computation of the number of iterations to perform, see paper 2
 
-        num_iterazioni = 5000                 # True number of iterations
+        num_iterazioni = 200                 # True number of iterations
         for ii in xrange(num_iterazioni):
 
             # -- parameters initialization phase --------------------
@@ -185,6 +187,7 @@ def main(n0,k0):
                 i += 1  # increment cycle variable
 
             if num_hashmap < k:
+                print num_hashmap
                 errati2 += 1  # if we do not decode the k pkts that we make an error
 
         decoding_performance[iii] = (num_iterazioni - errati2) / num_iterazioni
@@ -194,43 +197,72 @@ def main(n0,k0):
 
 
 if __name__ == "__main__":
-    iteration_to_mediate = 20
-    y0 = np.zeros((iteration_to_mediate, 16))
-    y1 = np.zeros((iteration_to_mediate, 16))
-    y2 = np.zeros((iteration_to_mediate, 16))
-    y3 = np.zeros((iteration_to_mediate, 16))
+    iteration_to_mediate = 10
+    number_of_points_in_x_axis = 10
+    y0 = np.zeros((iteration_to_mediate, number_of_points_in_x_axis))
+    y1 = np.zeros((iteration_to_mediate, number_of_points_in_x_axis))
+    #y2 = np.zeros((iteration_to_mediate, number_of_points_in_x_axis))
+    #y3 = np.zeros((iteration_to_mediate, number_of_points_in_x_axis))
 
     # -- Iterazione su diversi sistemi --
+    tempi1 = np.zeros((iteration_to_mediate,number_of_points_in_x_axis))
+    tempi2 = np.zeros((iteration_to_mediate,number_of_points_in_x_axis))
+
     for i in xrange(iteration_to_mediate):
-        t = time.time()
-        y0[i,:] = main(n0=200, k0=20)
-        y1[i,:] = main(n0=500, k0=50)
-        y2[i,:] = main(n0=1000, k0=100)
-        y3[i,:] = main(n0=200, k0=40)
-        print time.time()-t
+        tt = time.time()
+        print 'iterazione',i+1,'di', iteration_to_mediate
+        for ii in xrange(number_of_points_in_x_axis):
+            t = time.time()
+            y0[i, ii] = main(n0=500*(ii+1), k0=50*(ii+1), eta0=[1.4])
+            elalpsed = time.time() - t
+            tempi1[i, ii] = elalpsed
+            print 'Caso eta = 1.4 e n =',500*(ii+1),'eseguito in',elalpsed,'secondi'
+
+        for ii in xrange(number_of_points_in_x_axis):
+            t = time.time()
+            y1[i, ii] = main(n0=500*(ii+1), k0=50*(ii+1), eta0=[1.7])
+            elalpsed = time.time() - t
+            tempi2[i, ii] = elalpsed
+            print 'Caso eta = 1.7 e n =', 500 * (ii + 1), 'eseguito in', elalpsed, 'secondi'
+        print '\nTempo totale di ciclo =',time.time()-tt, '\n'
+
+
+    tempi1 = tempi1.mean(0)
+    tempi2 = tempi2.mean(0)
+
+    plt.title('Tempi di esecuzione')
+    x = np.linspace(0, 10, number_of_points_in_x_axis, endpoint=True)
+    plt.axis([0, 10, 0, tempi2[9]])
+    plt.plot(x, tempi1, label='eta 1.4', color='blue', linewidth=2)
+    plt.plot(x, tempi2, label='eta 1.7', color='red', linewidth=2)
+    # plt.plot(x, y2, label='200 nodes and 20 sources',color='grey'   ,linewidth=2)
+    # plt.plot(x, y3, label='200 nodes and 40 sources',color='magenta',linewidth=2)
+    plt.legend(loc=4)
+    plt.grid()
+    plt.show()
 
     y0 = y0.mean(0)     # calcolo delle prestazioni medie
     y1 = y1.mean(0)
-    y2 = y2.mean(0)
-    y3 = y3.mean(0)
+    #y2 = y2.mean(0)
+    #y3 = y3.mean(0)
 
 
     # -- Salvataggio su file --
-    with open('Primo Print 2','wb') as file:
+    with open('Figura 5','wb') as file:
         wr=csv.writer(file,quoting=csv.QUOTE_ALL)
         wr.writerow(y0)
         wr.writerow(y1)
-        wr.writerow(y2)
-        wr.writerow(y3)
+        #wr.writerow(y2)
+        #wr.writerow(y3)
 
     # -- Plot --
     plt.title('Decoding performances')
-    x = np.linspace(1, 2.5, 16, endpoint=True)
-    plt.axis([1, 2.5, 0, 1])
-    plt.plot(x, y0, label='100 nodes and 10 sources',color='blue'   ,linewidth=2)
-    plt.plot(x, y1, label='100 nodes and 20 sources',color='red'    ,linewidth=2)
-    plt.plot(x, y2, label='200 nodes and 20 sources',color='grey'   ,linewidth=2)
-    plt.plot(x, y3, label='200 nodes and 40 sources',color='magenta',linewidth=2)
+    x = np.linspace(500, 5000, number_of_points_in_x_axis , endpoint=True)
+    plt.axis([500, 5000, 0, 1])
+    plt.plot(x, y0, label='eta 1.4',color='blue'   ,linewidth=2)
+    plt.plot(x, y1, label='eta 1.7',color='red'    ,linewidth=2)
+    #plt.plot(x, y2, label='200 nodes and 20 sources',color='grey'   ,linewidth=2)
+    #plt.plot(x, y3, label='200 nodes and 40 sources',color='magenta',linewidth=2)
     plt.legend(loc=4)
     plt.grid()
     plt.show()
