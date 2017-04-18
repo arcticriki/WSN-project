@@ -207,14 +207,35 @@ if __name__ == "__main__":
     # -- Iterazione su diversi sistemi --
     for i in xrange(iteration_to_mediate):
         t = time.time()
-        print 'Iteration',i+1, 'of', iteration_to_mediate
-        y0[i, :] = main(n0=100, k0=10, eta0=eta, C1=5, num_MP= 50)
-        y1[i, :] = main(n0=100, k0=20, eta0=eta, C1=5, num_MP= 50)
-        y2[i, :] = main(n0=200, k0=20, eta0=eta, C1=5, num_MP= 50)
-        y3[i, :] = main(n0=200, k0=40, eta0=eta, C1=5, num_MP= 50)
-        y4[i, :] = main(n0=500, k0=50, eta0=eta, C1=5, num_MP= 50)
-        y5[i, :] = main(n0=1000, k0=100, eta0=eta, C1=5, num_MP= 50)
-        print time.time()-t
+        tt= time.time()
+        y0[i, :] = main(n0=100, k0=10, eta0=eta, C1=5, num_MP= 5000)
+        elapsed= time.time()-tt
+        print elapsed
+        tt = time.time()
+        y1[i, :] = main(n0=100, k0=20, eta0=eta, C1=5, num_MP= 5000)
+        elapsed = time.time() - tt
+        print elapsed
+        tt = time.time()
+        y2[i, :] = main(n0=200, k0=20, eta0=eta, C1=5, num_MP= 5000)
+        elapsed = time.time() - tt
+        print elapsed
+        tt = time.time()
+        y3[i, :] = main(n0=200, k0=40, eta0=eta, C1=5, num_MP= 3000)
+        elapsed = time.time() - tt
+        print elapsed
+        tt = time.time()
+        y4[i, :] = main(n0=500, k0=50, eta0=eta, C1=5, num_MP= 3000)
+        elapsed = time.time() - tt
+        print elapsed
+        tt = time.time()
+        y5[i, :] = main(n0=1000, k0=100, eta0=eta, C1=5, num_MP= 3000)
+        elapsed = time.time() - tt
+        print elapsed
+        tt = time.time()
+        elapsed = time.time()-t
+        print 'Iterazione',i+1, 'di', iteration_to_mediate, 'eseguita in', elapsed, 'secondi'
+
+
 
     y0 = y0.mean(0)     # calcolo delle prestazioni medie
     y1 = y1.mean(0)
@@ -240,7 +261,7 @@ if __name__ == "__main__":
         wr.writerow(y5)
 
     names = ['Figure 3', 'Figure 4']
-    send_mail(names)
+    #send_mail(names)
 
     # # ----------- FIGURE 6 -------------------
     #

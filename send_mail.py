@@ -5,11 +5,11 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
-def send_mail(name):
-#def inoltro_mail():
+def send_mail(names):
     fromaddr = 'team.wsn2@gmail.com'
-    toaddrs  = 'mattia.soldan.ms@gmail.com'
-    toaddrs2 = 'riccardo.belluzzo@gmail.com'
+    toaddrs  = 'mattia.soldan.ms@gmail.com' + 'riccardo.belluzzo@gmail.com' + 'nardi.giosue@gmail.com'
+    # toaddrs2 = 'riccardo.belluzzo@gmail.com'
+    # toaddrs3 = 'nardi.giosue@gmail.com'
 
 
     msg = MIMEMultipart('alternative')
@@ -17,7 +17,7 @@ def send_mail(name):
     msg['From'] = fromaddr
     body = 'File della simulazione'
 
-    for n in name:
+    for n in names:
         f = file(n)
         attachment = MIMEText(f.read())
         attachment.add_header('Content-Disposition', 'attachment', filename=n)
@@ -33,9 +33,21 @@ def send_mail(name):
     server = smtplib.SMTP('smtp.gmail.com:587')
     server.starttls()
     server.login(username, password)
-    server.sendmail(fromaddr, toaddrs, msg.as_string())
-    server.sendmail(fromaddr, toaddrs2, msg)
+    server.sendmail(fromaddr, toaddrs,  msg.as_string())
     server.quit()
+
+    # server = smtplib.SMTP('smtp.gmail.com:587')
+    # server.starttls()
+    # server.login(username, password)
+    # server.sendmail(fromaddr, toaddrs2, msg.as_string())
+    # server.quit()
+    #
+    # server = smtplib.SMTP('smtp.gmail.com:587')
+    # server.starttls()
+    # server.login(username, password)
+    # server.sendmail(fromaddr, toaddrs3,  msg.as_string())
+    # server.quit()
+
     print 'Email sent!'
 
 
