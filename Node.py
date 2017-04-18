@@ -70,7 +70,7 @@ class Storage(object):
                                                     # the node! That is to say: if pkt x has visited node v before
                                                     # BUT c(x)<C1nlog(n), v accepts it with Prob=0, BUT it forwards it
         if self.visits[pkt.ID-1] > 1:
-            if pkt.counter >= C1 * self.n * np.log10(self.n):  # if packet already visited the node
+            if pkt.counter >= self.C1 * self.n * np.log10(self.n):  # if packet already visited the node
                                                     # and its counter is greater than C1nlog10(n) then, discard it
                 return 1                            # pkt dropped
             else:
@@ -101,7 +101,7 @@ class Storage(object):
     #                                                 # the node! That is to say: if pkt x has visited node v before
     #                                                 # BUT c(x)<C1nlog(n), v accepts it with Prob=0, BUT it forwards it
     #     else: #if self.visits[pkt.ID-1] > 1:
-    #         if pkt.counter >= C1 * self.n * np.log10(self.n):  # if packet already visited the node
+    #         if pkt.counter >= self.C1 * self.n * np.log10(self.n):  # if packet already visited the node
     #                                                 # and its counter is greater than C1nlog10(n) then, discard it
     #             return 1                            # pkt dropped
     #         else:

@@ -3,6 +3,7 @@ import random as rnd  # import of package random for homonym tools
 import matplotlib.pyplot as plt  # import of package matplotlib.pyplot for plottools
 import time as time
 from Node import *
+from send_mail import *
 import cProfile
 from RSD import *
 from math import factorial
@@ -102,7 +103,7 @@ def main(n0,k0,eta0,C1):
         errati2 = 0.0
         M = factorial(n) / (10 * factorial(h) * factorial(n - h))  # Computation of the number of iterations to perform, see paper 2
 
-        num_iterazioni = 500  # True number of iterations
+        num_iterazioni = 5  # True number of iterations
 
         for ii in xrange(num_iterazioni):
             decoding_indices = rnd.sample(range(0, n), h)  # selecting h random nodes in the graph
@@ -194,6 +195,7 @@ def main(n0,k0,eta0,C1):
 if __name__ == "__main__":
     iteration_to_mediate = 3
     eta = [1,1.1,1.2,1.3,1.4,1.5,1.7,1.8,1.9,2,2.1,2.2,2.3,2.4,2.5]
+
     y0 = np.zeros((iteration_to_mediate,len(eta)))
     y1 = np.zeros((iteration_to_mediate,len(eta)))
     y2 = np.zeros((iteration_to_mediate,len(eta)))
@@ -222,14 +224,22 @@ if __name__ == "__main__":
 
 
     # -- Salvataggio su file --
-    with open('Prova','wb') as file:
+    with open('Figure 3','wb') as file:
         wr=csv.writer(file,quoting=csv.QUOTE_ALL)
         wr.writerow(y0)
         wr.writerow(y1)
         wr.writerow(y2)
         wr.writerow(y3)
+
+    send_mail(name='Figure 3',dimension=[4,16])
+
+    with open('Figure 4', 'wb') as file:
+        wr = csv.writer(file, quoting=csv.QUOTE_ALL)
+        wr.writerow(y2)
         wr.writerow(y4)
         wr.writerow(y5)
+
+    send_mail(name='Figure 4', dimension=[3, 16])
 
     # -- Plot --
     plt.title('Decoding performances')

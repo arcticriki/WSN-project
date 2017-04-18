@@ -102,7 +102,7 @@ def main(n0,k0,eta0,C1):
 
         errati2 = 0.0
         #M = factorial(n) / (10 * factorial(h) * factorial(n - h))  # Computation of the number of iterations to perform, see paper 2
-        num_iterazioni = 200  # True number of iterations
+        num_iterazioni = 50  # True number of iterations
 
         for ii in xrange(num_iterazioni):
             decoding_indices = rnd.sample(range(0, n), h)  # selecting h random nodes in the graph
@@ -241,25 +241,18 @@ if __name__ == "__main__":
     plt.axis([0, 10, 0, tempi2[9]])
     plt.plot(x, tempi1, label='eta 1.4', color='blue', linewidth=2)
     plt.plot(x, tempi2, label='eta 1.7', color='red', linewidth=2)
-    # plt.plot(x, y2, label='200 nodes and 20 sources',color='grey'   ,linewidth=2)
-    # plt.plot(x, y3, label='200 nodes and 40 sources',color='magenta',linewidth=2)
     plt.legend(loc=4)
     plt.grid()
     plt.show()
 
     y0 = y0.mean(0)  # calcolo delle prestazioni medie
     y1 = y1.mean(0)
-    # y2 = y2.mean(0)
-    # y3 = y3.mean(0)
-
 
     # -- Salvataggio su file --
     with open('Figura 5', 'wb') as file:
         wr = csv.writer(file, quoting=csv.QUOTE_ALL)
         wr.writerow(y0)
         wr.writerow(y1)
-        # wr.writerow(y2)
-        # wr.writerow(y3)
 
     # -- Plot --
     plt.title('Decoding performances')
@@ -267,8 +260,6 @@ if __name__ == "__main__":
     plt.axis([500, 5000, 0, 1])
     plt.plot(x, y0, label='eta 1.4', color='blue', linewidth=2)
     plt.plot(x, y1, label='eta 1.7', color='red', linewidth=2)
-    # plt.plot(x, y2, label='200 nodes and 20 sources',color='grey'   ,linewidth=2)
-    # plt.plot(x, y3, label='200 nodes and 40 sources',color='magenta',linewidth=2)
     plt.legend(loc=4)
     plt.grid()
     plt.show()
