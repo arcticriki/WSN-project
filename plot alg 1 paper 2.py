@@ -90,7 +90,9 @@ plt.show()
 
 # ----------- FIGURE 6 -------------------
 
-number_of_points_in_x_axis = 10
+
+C_list = [0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1,1.5,2,2.5,3,3.5,4,4.5,5]
+number_of_points_in_x_axis = len(C_list)
 y8 = np.zeros(number_of_points_in_x_axis)
 y9 = np.zeros(number_of_points_in_x_axis)
 
@@ -104,10 +106,13 @@ with open('Figure 6', 'rb') as csvfile:
 
 y8 = y[0, :]
 y9 = y[1, :]
+print y8
+print y9
 
 # -- Plot --
 plt.title('Decoding performances')
-x = np.linspace(0.5, 5, number_of_points_in_x_axis, endpoint=True)
+x = C_list
+#x = np.linspace(0.5, 5, number_of_points_in_x_axis, endpoint=True)
 plt.axis([0, 5, 0.5, 1])
 plt.plot(x, y8, label='500 nodes and 50 souces', color='blue', linewidth=2)
 plt.plot(x, y9, label='1000 nodes and 100 souces', color='red', linewidth=2)
