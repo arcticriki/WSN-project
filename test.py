@@ -92,27 +92,6 @@ def main(n0, k0, eta0, C1, num_MP,L):
             if j == k:
                 break
 
-    tot = 0
-    distribution_post_dissemination = np.zeros(k + 1)       # ancillary variable used to compute the distribution post dissemination
-    for i in xrange(n):
-        index = node_list[i].num_encoded                    # retrive the actual encoded degree
-        distribution_post_dissemination[index] += 1.0 / n   # augment the prob. value of the related degree
-        tot += node_list[i].num_encoded                     # compute the total degree reached
-
-
-    return  distribution_post_dissemination[1:] , pdf
-    plt.title('Post dissemination')
-    y = distribution_post_dissemination[1:]
-    x = np.linspace(1, k, k, endpoint=True)
-    plt.axis([0, k, 0, 0.6])
-    plt.plot(x,y , label='post dissemination')              # plot the robust pdf vs the obtained distribution after dissemination
-    y2 = np.zeros(k)
-    y2[:len(pdf)] = pdf
-    plt.plot(x, y2, color='red', label='robust soliton')
-    plt.legend(loc='upper left')
-    plt.grid()
-    plt.show()
-
     # -- DECODING PHASE ---------------------------------------------------------------------------------------------------
     # -- Initialization -------------------------
 
@@ -214,7 +193,6 @@ def main(n0, k0, eta0, C1, num_MP,L):
 if __name__ == "__main__":
 
     # # ----------- FIGURE 3 AND 4 -------------------
-
     # print 'Figure 3 and 4. \n'
     # iteration_to_mediate = 10
     # eta = [1,1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,1.9,2,2.1,2.2,2.3,2.4,2.5]
@@ -285,9 +263,9 @@ if __name__ == "__main__":
 
     print 'Figure 6. \n'
 
-    iteration_to_mediate = 50
+    iteration_to_mediate = 1
 
-    C_list = [0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.5, 2.0, 2.5, 3, 3.5, 4.0, 4.5, 5.0]
+    C_list = [0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0]
     number_of_points_in_x_axis = len(C_list)
     y8 = np.zeros((iteration_to_mediate, number_of_points_in_x_axis))
     y9 = np.zeros((iteration_to_mediate, number_of_points_in_x_axis))
@@ -297,13 +275,13 @@ if __name__ == "__main__":
         print 'Iteration', i + 1, 'of', iteration_to_mediate
         for ii in xrange(number_of_points_in_x_axis):
             t = time.time()
-            y8[i, ii] = main(n0=500, k0=50, eta0=[1.8], C1=C_list[ii], num_MP=10, L=15)
+            y8[i, ii] = main(n0=500, k0=50, eta0=[1.8], C1=C_list[ii], num_MP=500, L=15)
             elalpsed = time.time() - t
             print 'Caso n = 500 e C1 =', C_list[ii], 'eseguito in', elalpsed, 'secondi'
         print '\n'
         for ii in xrange(number_of_points_in_x_axis):
             t = time.time()
-            y9[i, ii] = main(n0=1000, k0=100, eta0=[1.6], C1=C_list[ii], num_MP=10, L=15)
+            y9[i, ii] = main(n0=1000, k0=100, eta0=[1.6], C1=C_list[ii], num_MP=500, L=15)
             elalpsed = time.time() - t
             print 'Caso n = 1000 e C1 =', C_list[ii], 'eseguito in', elalpsed, 'secondi'
         print '\nTempo totale di ciclo =', time.time() - tt, '\n'
