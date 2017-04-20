@@ -92,6 +92,27 @@ def main(n0, k0, eta0, C1, num_MP,L):
             if j == k:
                 break
 
+    tot = 0
+    distribution_post_dissemination = np.zeros(k + 1)       # ancillary variable used to compute the distribution post dissemination
+    for i in xrange(n):
+        index = node_list[i].num_encoded                    # retrive the actual encoded degree
+        distribution_post_dissemination[index] += 1.0 / n   # augment the prob. value of the related degree
+        tot += node_list[i].num_encoded                     # compute the total degree reached
+
+
+    return  distribution_post_dissemination[1:] , pdf
+    plt.title('Post dissemination')
+    y = distribution_post_dissemination[1:]
+    x = np.linspace(1, k, k, endpoint=True)
+    plt.axis([0, k, 0, 0.6])
+    plt.plot(x,y , label='post dissemination')              # plot the robust pdf vs the obtained distribution after dissemination
+    y2 = np.zeros(k)
+    y2[:len(pdf)] = pdf
+    plt.plot(x, y2, color='red', label='robust soliton')
+    plt.legend(loc='upper left')
+    plt.grid()
+    plt.show()
+
     # -- DECODING PHASE ---------------------------------------------------------------------------------------------------
     # -- Initialization -------------------------
 
@@ -193,77 +214,100 @@ def main(n0, k0, eta0, C1, num_MP,L):
 if __name__ == "__main__":
 
     # # ----------- FIGURE 3 AND 4 -------------------
-    print 'Figure 3 and 4. \n'
-    iteration_to_mediate = 10
-    eta = [1,1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,1.9,2,2.1,2.2,2.3,2.4,2.5]
+    num=100
+    eta = [1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2, 2.1, 2.2, 2.3, 2.4, 2.5]
+    y0 = np.zeros((num, 40))
+    t=time.time()
+    for i in xrange(num):
+        print i
+        y0[i, :] , pdf = main(n0=100, k0=40, eta0=eta, C1=10, num_MP=1, L=5)
+    print time.time()-t
+    y0 = y0.mean(0)
 
-    y0 = np.zeros((iteration_to_mediate, len(eta)))
-    y1 = np.zeros((iteration_to_mediate, len(eta)))
-    y2 = np.zeros((iteration_to_mediate, len(eta)))
-    y3 = np.zeros((iteration_to_mediate, len(eta)))
-    y4 = np.zeros((iteration_to_mediate, len(eta)))
-    y5 = np.zeros((iteration_to_mediate, len(eta)))
+    plt.title('Post dissemination')
+    y2 = np.zeros(40)
+    y2[:len(pdf)] = pdf
+    x = np.linspace(1, 40, 40, endpoint=True)
+    plt.bar(x, y2, color='red', label='robust soliton')
+    plt.axis([0, 20, 0, 0.4])
+    plt.bar(x, y0, label='post dissemination')  # plot the robust pdf vs the obtained distribution after dissemination
+    plt.legend(loc=1)
+    plt.grid()
+    plt.show()
 
-    # -- Iterazione su diversi sistemi --
-    for i in xrange(iteration_to_mediate):
-        t = time.time()
-        tt= time.time()
-        y0[i, :] = main(n0=100, k0=10, eta0=eta, C1=5, num_MP= 3000, L=5)
-        elapsed= time.time()-tt
-        print elapsed
-        tt = time.time()
-        y1[i, :] = main(n0=100, k0=20, eta0=eta, C1=5, num_MP= 3000, L=5)
-        elapsed = time.time() - tt
-        print elapsed
-        tt = time.time()
-        y2[i, :] = main(n0=200, k0=20, eta0=eta, C1=5, num_MP= 3000, L=5)
-        elapsed = time.time() - tt
-        print elapsed
-        tt = time.time()
-        y3[i, :] = main(n0=200, k0=40, eta0=eta, C1=5, num_MP= 2500, L=5)
-        elapsed = time.time() - tt
-        print elapsed
-        tt = time.time()
-        y4[i, :] = main(n0=500, k0=50, eta0=eta, C1=5, num_MP= 3000, L=5)
-        elapsed = time.time() - tt
-        print elapsed
-        tt = time.time()
-        y5[i, :] = main(n0=1000, k0=100, eta0=eta, C1=5, num_MP= 2500, L=5)
-        elapsed = time.time() - tt
-        print elapsed
-        tt = time.time()
-        elapsed = time.time()-t
-        print 'Iterazione',i+1, 'di', iteration_to_mediate, 'eseguita in', elapsed, 'secondi'
-
-    y0 = y0.mean(0)     # calcolo delle prestazioni medie
-    y1 = y1.mean(0)
-    y2 = y2.mean(0)
-    y3 = y3.mean(0)
-    y4 = y4.mean(0)
-    y5 = y5.mean(0)
-
-    # -- Salvataggio su file --
-    with open('Figure 3','wb') as file:
-        wr=csv.writer(file,quoting=csv.QUOTE_ALL)
-        wr.writerow(y0)
-        wr.writerow(y1)
-        wr.writerow(y2)
-        wr.writerow(y3)
-
-
-    with open('Figure 4', 'wb') as file:
-        wr = csv.writer(file, quoting=csv.QUOTE_ALL)
-        wr.writerow(y2)
-        wr.writerow(y4)
-        wr.writerow(y5)
-
-
+    # print 'Figure 3 and 4. \n'
+    # iteration_to_mediate = 10
+    # eta = [1,1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,1.9,2,2.1,2.2,2.3,2.4,2.5]
+    #
+    # y0 = np.zeros((iteration_to_mediate, len(eta)))
+    # y1 = np.zeros((iteration_to_mediate, len(eta)))
+    # y2 = np.zeros((iteration_to_mediate, len(eta)))
+    # y3 = np.zeros((iteration_to_mediate, len(eta)))
+    # y4 = np.zeros((iteration_to_mediate, len(eta)))
+    # y5 = np.zeros((iteration_to_mediate, len(eta)))
+    #
+    # # -- Iterazione su diversi sistemi --
+    # for i in xrange(iteration_to_mediate):
+    #     t = time.time()
+    #     tt= time.time()
+    #     y0[i, :] = main(n0=100, k0=10, eta0=eta, C1=5, num_MP= 3000, L=5)
+    #     elapsed= time.time()-tt
+    #     print elapsed
+    #     tt = time.time()
+    #     y1[i, :] = main(n0=100, k0=20, eta0=eta, C1=5, num_MP= 3000, L=5)
+    #     elapsed = time.time() - tt
+    #     print elapsed
+    #     tt = time.time()
+    #     y2[i, :] = main(n0=200, k0=20, eta0=eta, C1=5, num_MP= 3000, L=5)
+    #     elapsed = time.time() - tt
+    #     print elapsed
+    #     tt = time.time()
+    #     y3[i, :] = main(n0=200, k0=40, eta0=eta, C1=5, num_MP= 2500, L=5)
+    #     elapsed = time.time() - tt
+    #     print elapsed
+    #     tt = time.time()
+    #     y4[i, :] = main(n0=500, k0=50, eta0=eta, C1=5, num_MP= 3000, L=5)
+    #     elapsed = time.time() - tt
+    #     print elapsed
+    #     tt = time.time()
+    #     y5[i, :] = main(n0=1000, k0=100, eta0=eta, C1=5, num_MP= 2500, L=5)
+    #     elapsed = time.time() - tt
+    #     print elapsed
+    #     tt = time.time()
+    #     elapsed = time.time()-t
+    #     print 'Iterazione',i+1, 'di', iteration_to_mediate, 'eseguita in', elapsed, 'secondi'
+    #
+    # y0 = y0.mean(0)     # calcolo delle prestazioni medie
+    # y1 = y1.mean(0)
+    # y2 = y2.mean(0)
+    # y3 = y3.mean(0)
+    # y4 = y4.mean(0)
+    # y5 = y5.mean(0)
+    #
+    # # -- Salvataggio su file --
+    # with open('Figure 3','wb') as file:
+    #     wr=csv.writer(file,quoting=csv.QUOTE_ALL)
+    #     wr.writerow(y0)
+    #     wr.writerow(y1)
+    #     wr.writerow(y2)
+    #     wr.writerow(y3)
+    #
+    #
+    # with open('Figure 4', 'wb') as file:
+    #     wr = csv.writer(file, quoting=csv.QUOTE_ALL)
+    #     wr.writerow(y2)
+    #     wr.writerow(y4)
+    #     wr.writerow(y5)
+    #
+    #
 
     # ----------- FIGURE 6 -------------------
 
     print 'Figure 6. \n'
 
-    C_list = [0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5]
+    iteration_to_mediate = 50
+
+    C_list = [0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.5, 2.0, 2.5, 3, 3.5, 4.0, 4.5, 5.0]
     number_of_points_in_x_axis = len(C_list)
     y8 = np.zeros((iteration_to_mediate, number_of_points_in_x_axis))
     y9 = np.zeros((iteration_to_mediate, number_of_points_in_x_axis))
@@ -273,13 +317,13 @@ if __name__ == "__main__":
         print 'Iteration', i + 1, 'of', iteration_to_mediate
         for ii in xrange(number_of_points_in_x_axis):
             t = time.time()
-            y8[i, ii] = main(n0=500, k0=50, eta0=[1.8], C1=C_list[ii], num_MP=5000, L=15)
+            y8[i, ii] = main(n0=500, k0=50, eta0=[1.8], C1=C_list[ii], num_MP=10, L=15)
             elalpsed = time.time() - t
             print 'Caso n = 500 e C1 =', C_list[ii], 'eseguito in', elalpsed, 'secondi'
         print '\n'
         for ii in xrange(number_of_points_in_x_axis):
             t = time.time()
-            y9[i, ii] = main(n0=1000, k0=100, eta0=[1.6], C1=C_list[ii], num_MP=5000, L=15)
+            y9[i, ii] = main(n0=1000, k0=100, eta0=[1.6], C1=C_list[ii], num_MP=10, L=15)
             elalpsed = time.time() - t
             print 'Caso n = 1000 e C1 =', C_list[ii], 'eseguito in', elalpsed, 'secondi'
         print '\nTempo totale di ciclo =', time.time() - tt, '\n'
@@ -294,46 +338,47 @@ if __name__ == "__main__":
         wr.writerow(y8)
         wr.writerow(y9)
 
-    names = ['Figure 3', 'Figure 4', 'Figure 6']
+    #names = ['Figure 3', 'Figure 4', 'Figure 6']
+    names = ['Figure 6']
     send_mail(names)
 
     # ----------- FIGURE 5 -------------------
-    print '\n\nFigure 5. \n'
-
-    number_of_points_in_x_axis = 10
-    y6 = np.zeros((iteration_to_mediate, number_of_points_in_x_axis))
-    y7 = np.zeros((iteration_to_mediate, number_of_points_in_x_axis))
-
-
-    for i in xrange(iteration_to_mediate):
-        tt = time.time()
-        print 'Iteration', i + 1, 'of', iteration_to_mediate
-        for ii in xrange(number_of_points_in_x_axis):
-            t = time.time()
-            y6[i, ii] = main(n0=500 * (ii + 1), k0=50 * (ii + 1), eta0=[1.4], C1=3, num_MP= 1000, L=5)
-            elalpsed = time.time() - t
-            print 'Caso eta = 1.4 e n =', 500 * (ii + 1), 'eseguito in', elalpsed, 'secondi'
-
-        for ii in xrange(number_of_points_in_x_axis):
-            t = time.time()
-            y7[i, ii] = main(n0=500 * (ii + 1), k0=50 * (ii + 1), eta0=[1.7], C1=3,  num_MP= 1000, L=5)
-            elalpsed = time.time() - t
-            print 'Caso eta = 1.7 e n =', 500 * (ii + 1), 'eseguito in', elalpsed, 'secondi'
-        print '\nTempo totale di ciclo =', time.time() - tt, '\n'
-
-
-    y6 = y6.mean(0)  # calcolo delle prestazioni medie
-    y7 = y7.mean(0)
-
-    # -- Salvataggio su file --
-    with open('Figure 5', 'wb') as file:
-        wr = csv.writer(file, quoting=csv.QUOTE_ALL)
-        wr.writerow(y6)
-        wr.writerow(y7)
-
-
-    names = ['Figure 3','Figure 4','Figure 5','Figure 6']
-    send_mail(names)
+    # print '\n\nFigure 5. \n'
+    #
+    # number_of_points_in_x_axis = 10
+    # y6 = np.zeros((iteration_to_mediate, number_of_points_in_x_axis))
+    # y7 = np.zeros((iteration_to_mediate, number_of_points_in_x_axis))
+    #
+    #
+    # for i in xrange(iteration_to_mediate):
+    #     tt = time.time()
+    #     print 'Iteration', i + 1, 'of', iteration_to_mediate
+    #     for ii in xrange(number_of_points_in_x_axis):
+    #         t = time.time()
+    #         y6[i, ii] = main(n0=500 * (ii + 1), k0=50 * (ii + 1), eta0=[1.4], C1=3, num_MP= 1000, L=5)
+    #         elalpsed = time.time() - t
+    #         print 'Caso eta = 1.4 e n =', 500 * (ii + 1), 'eseguito in', elalpsed, 'secondi'
+    #
+    #     for ii in xrange(number_of_points_in_x_axis):
+    #         t = time.time()
+    #         y7[i, ii] = main(n0=500 * (ii + 1), k0=50 * (ii + 1), eta0=[1.7], C1=3,  num_MP= 1000, L=5)
+    #         elalpsed = time.time() - t
+    #         print 'Caso eta = 1.7 e n =', 500 * (ii + 1), 'eseguito in', elalpsed, 'secondi'
+    #     print '\nTempo totale di ciclo =', time.time() - tt, '\n'
+    #
+    #
+    # y6 = y6.mean(0)  # calcolo delle prestazioni medie
+    # y7 = y7.mean(0)
+    #
+    # # -- Salvataggio su file --
+    # with open('Figure 5', 'wb') as file:
+    #     wr = csv.writer(file, quoting=csv.QUOTE_ALL)
+    #     wr.writerow(y6)
+    #     wr.writerow(y7)
+    #
+    #
+    # names = ['Figure 3','Figure 4','Figure 5','Figure 6']
+    # send_mail(names)
 
 
 

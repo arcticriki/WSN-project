@@ -10,7 +10,7 @@ def send_mail(names):
 
 
     msg = MIMEMultipart('alternative')
-    msg['Subject'] = 'Risultatiti simulazioni Wireless.'
+    msg['Subject'] = 'Risultati simulazioni Wireless.'
     msg['From'] = fromaddr
     body = 'File della simulazione'
 

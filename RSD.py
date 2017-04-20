@@ -11,21 +11,21 @@ def Robust_Soliton_Distribution(n, k, c0, delta):
 
     #Tau Function
     tau = np.zeros(k)  # initialization of tau
-    for i in range(1, k + 1):  # computation of tau, it follows the formula on the papers
-        if i <= round((k / R) - 1):
-            tau[i - 1] = (float(R) / (i * k))
-        elif i >= round((k / R) + 1):
-            break
-        else:  # case i == (k/R), since K/R is not integer equality is never
-            tau[i - 1] = (float(R) * np.log(float(R) / delta)) / k  # verified, so ve use >= <= instead
-
     # for i in range(1, k + 1):  # computation of tau, it follows the formula on the papers
-    #     if i < k / R:
-    #             tau[i - 1] = (float(R) / (i * k))
-    #     elif i > k / R:
-    #             break
+    #     if i <= round((k / R) - 1):
+    #         tau[i - 1] = (float(R) / (i * k))
+    #     elif i >= round((k / R) + 1):
+    #         break
     #     else:  # case i == (k/R), since K/R is not integer equality is never
-    #             tau[i - 1] = (float(R) * np.log(float(R) / delta)) / k  # verified, so ve use >= <= instead
+    #         tau[i - 1] = (float(R) * np.log(float(R) / delta)) / k  # verified, so ve use >= <= instead
+
+    for i in range(1, k + 1):  # computation of tau, it follows the formula on the papers
+        if i < k / R:
+                tau[i - 1] = (float(R) / (i * k))
+        elif i > k / R:
+                break
+        else:  # case i == (k/R), since K/R is not integer equality is never
+                tau[i - 1] = (float(R) * np.log(float(R) / delta)) / k  # verified, so ve use >= <= instead
 
     # Ideal Soliton Distribution
     sd = [1.0 / k]                                          # initialization of soliton distribution with first value
