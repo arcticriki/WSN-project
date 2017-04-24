@@ -263,7 +263,7 @@ if __name__ == "__main__":
 
     print 'Figure 6. \n'
 
-    iteration_to_mediate = 1
+    iteration_to_mediate = 100
 
     C_list = [0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0]
     number_of_points_in_x_axis = len(C_list)
@@ -329,13 +329,13 @@ if __name__ == "__main__":
     # y7 = y7.mean(0)
     #
     # # -- Salvataggio su file --
-    # with open('Figure 5.txt', 'wb') as file:
+    # with open('Figure 5.txt.txt', 'wb') as file:
     #     wr = csv.writer(file, quoting=csv.QUOTE_ALL)
     #     wr.writerow(y6)
     #     wr.writerow(y7)
     #
     #
-    # names = ['Figure 3.txt','Figure 4.txt','Figure 5.txt','Figure 6.txt']
+    # names = ['Figure 3.txt','Figure 4.txt','Figure 5.txt.txt','Figure 6.txt']
     # send_mail(names)
 
 

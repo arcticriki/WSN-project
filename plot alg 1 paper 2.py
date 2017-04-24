@@ -81,7 +81,7 @@ y7 = y[1, :]
 # -- Plot --
 plt.title('Decoding performances')
 x = np.linspace(500, 5000, number_of_points_in_x_axis, endpoint=True)
-plt.axis([500, 5000, 0, 1])
+plt.axis([500, 5000, 0.5, 1])
 plt.plot(x, y6, label='eta 1.4', color='blue', linewidth=2)
 plt.plot(x, y7, label='eta 1.7', color='red', linewidth=2)
 plt.legend(loc=4)
@@ -106,8 +106,6 @@ with open('Figure 6.txt', 'rb') as csvfile:
 
 y8 = y[0, :]
 y9 = y[1, :]
-print y8
-print y9
 
 # -- Plot --
 plt.title('Decoding performances')
