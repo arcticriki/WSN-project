@@ -71,4 +71,4 @@ def Robust_Soliton_Distribution(n, k, c0, delta):
     for i in xrange(n):
         d[i] = custm.rvs()                          # randomly sample n elements from custm, following the
                                                     # distribution of custm
-    return d,pdf                                        # return sampled degree
+    return d,pdf,R                                        # return sampled degree

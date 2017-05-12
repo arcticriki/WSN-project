@@ -8,8 +8,8 @@ payload = 10
 n = 100                                   # number of nodes
 k = 20                                   # number of sensors
 L = 5                                     # square dimension
-c0 = 0.1                                 # parameter for RSD
-delta = 0.5                              # Prob['we're not able to recover the K pkts']<=delta
+c0 = 0.01                                 # parameter for RSD
+delta = 0.01                              # Prob['we're not able to recover the K pkts']<=delta
 
 positions = np.zeros((n, 2))             # matrix containing info on all node positions
 node_list = []                           # list of references to node objects
@@ -19,7 +19,7 @@ sensors_indexes = rnd.sample(range(0, n), k)  # generation of random indices for
 
 # -- DEGREE INITIALIZATION --
 
-d, pdf = Robust_Soliton_Distribution(n, k, c0, delta)  # See RSD doc
+d, pdf, R = Robust_Soliton_Distribution(n, k, c0, delta)  # See RSD doc
 to_be_encoded = np.sum(d)                              # use to check how many pkts we should encode ***OPEN PROBLEM***
 
 # -- NETWORK INITIALIZATION --
@@ -70,7 +70,9 @@ for i in xrange(n):                     # cycle on all nodes
 #   - mu(d) : fraction of nodes in the network with code degree = d -> equals to RSD pdf
 
 mu_d = pdf
-print type(mu_d)
+
+print 'mu:',(mu_d)
+print 'R:',R
 # mu_d can be computed empirically, uncommenting the following lines --> it holds asymptotically
 #_, counts = np.unique(d, return_counts=True)
 #empiric_mu = [float(i)/n for i in counts]
@@ -80,7 +82,9 @@ with open('mu', 'wb') as myfile:
     wr = csv.writer(myfile, quoting=csv.QUOTE_ALL)
     wr.writerow(mu_d)
 
-
+# with open('R', 'wb') as myfile:
+#     wr = csv.writer(myfile, quoting=csv.QUOTE_ALL)
+#     wr.writerow(R)
 
 
 
