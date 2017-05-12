@@ -351,13 +351,13 @@ if __name__ == "__main__":
     # y7 = y7.mean(0)
     #
     # # -- Salvataggio su file --
-    # with open('Figure 5.txt', 'wb') as file:
+    # with open('Figure 5.txt.txt', 'wb') as file:
     #     wr = csv.writer(file, quoting=csv.QUOTE_ALL)
     #     wr.writerow(y6)
     #     wr.writerow(y7)
     #
     #
-    # names = ['Figure 3.txt','Figure 4.txt','Figure 5.txt','Figure 6.txt']
+    # names = ['Figure 3.txt','Figure 4.txt','Figure 5.txt.txt','Figure 6.txt']
     # send_mail(names)
 
 
