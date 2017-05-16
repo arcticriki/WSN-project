@@ -201,6 +201,10 @@ class Sensor(Storage):
         return pkt.payload                                  # return the pkt payload
 
 
+    def pkt_gen3(self):
+        pkt = Pkt(self.ID, payload)         # generate a PKT object
+        self.storage = pkt.payload
+        return pkt.payload
 
 # -- PKT SPECIFICATIONS -----------------------------------------------------------------------------------------------
 class Pkt(object):
