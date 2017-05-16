@@ -207,7 +207,7 @@ if __name__ == "__main__":
 
 
     print 'Figure 3 and 4. \n'
-    iteration_to_mediate = 2
+    iteration_to_mediate = 10
     eta = [1,1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,1.9,2,2.1,2.2,2.3,2.4,2.5]
 
     y0 = np.zeros((iteration_to_mediate, len(eta)))
@@ -221,30 +221,29 @@ if __name__ == "__main__":
     for i in xrange(iteration_to_mediate):
         t = time.time()
         tt= time.time()
-        y0[i, :] = main(n0=100, k0=10, eta0=eta, C1=5, num_MP= 100, L=5)
+        y0[i, :] = main(n0=100, k0=10, eta0=eta, C1=5, num_MP= 1000, L=5)
         elapsed= time.time()-tt
         print elapsed
         tt = time.time()
-        y1[i, :] = main(n0=100, k0=20, eta0=eta, C1=5, num_MP= 100, L=5)
+        y1[i, :] = main(n0=100, k0=20, eta0=eta, C1=5, num_MP= 1000, L=5)
         elapsed = time.time() - tt
         print elapsed
         tt = time.time()
-        y2[i, :] = main(n0=200, k0=20, eta0=eta, C1=5, num_MP= 100, L=5)
+        y2[i, :] = main(n0=200, k0=20, eta0=eta, C1=5, num_MP= 1000, L=5)
         elapsed = time.time() - tt
         print elapsed
         tt = time.time()
-        y3[i, :] = main(n0=200, k0=40, eta0=eta, C1=5, num_MP= 100, L=5)
+        y3[i, :] = main(n0=200, k0=40, eta0=eta, C1=5, num_MP= 1000, L=5)
         elapsed = time.time() - tt
         print elapsed
-        tt = time.time()
-        y4[i, :] = main(n0=500, k0=50, eta0=eta, C1=5, num_MP= 100, L=5)
-        elapsed = time.time() - tt
-        print elapsed
-        tt = time.time()
-        y5[i, :] = main(n0=1000, k0=100, eta0=eta, C1=5, num_MP= 100, L=5)
-        elapsed = time.time() - tt
-        print elapsed
-        tt = time.time()
+        #tt = time.time()
+        #y4[i, :] = main(n0=500, k0=50, eta0=eta, C1=5, num_MP= 1000, L=5)
+        #elapsed = time.time() - tt
+        #print elapsed
+        #tt = time.time()
+        #y5[i, :] = main(n0=1000, k0=100, eta0=eta, C1=5, num_MP= 1000, L=5)
+        #elapsed = time.time() - tt
+        #print elapsed
         elapsed = time.time()-t
         print 'Iterazione',i+1, 'di', iteration_to_mediate, 'eseguita in', elapsed, 'secondi'
 
@@ -252,8 +251,8 @@ if __name__ == "__main__":
     y1 = y1.mean(0)
     y2 = y2.mean(0)
     y3 = y3.mean(0)
-    y4 = y4.mean(0)
-    y5 = y5.mean(0)
+    #y4 = y4.mean(0)
+    #y5 = y5.mean(0)
 
     # # -- Salvataggio su file --
     # with open('Figure 3-Paper1.txt','wb') as file:
@@ -284,12 +283,12 @@ if __name__ == "__main__":
     plt.grid()
     plt.show()
 
-    plt.title('Decoding performances')
-    x = np.linspace(1, 2.5, 16, endpoint=True)
-    plt.axis([1, 2.5, 0, 1])
-    plt.plot(x, y2, label='200 nodes and 20 sources', color='blue', linewidth=2)
-    plt.plot(x, y4, label='500 nodes and 50 sources', color='red', linewidth=2)
-    plt.plot(x, y5, label='1000 nodes and 100 sources', color='magenta', linewidth=2)
-    plt.legend(loc=4)
-    plt.grid()
-    plt.show()
+    # plt.title('Decoding performances')
+    # x = np.linspace(1, 2.5, 16, endpoint=True)
+    # plt.axis([1, 2.5, 0, 1])
+    # plt.plot(x, y2, label='200 nodes and 20 sources', color='blue', linewidth=2)
+    # plt.plot(x, y4, label='500 nodes and 50 sources', color='red', linewidth=2)
+    # plt.plot(x, y5, label='1000 nodes and 100 sources', color='magenta', linewidth=2)
+    # plt.legend(loc=4)
+    # plt.grid()
+    # plt.show()
