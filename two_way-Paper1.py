@@ -283,7 +283,7 @@ if __name__ == "__main__":
     plt.grid()
     plt.show()
 
-    # plt.title('Decoding performances')
+    # plt.title('Decoding performances ')
     # x = np.linspace(1, 2.5, 16, endpoint=True)
     # plt.axis([1, 2.5, 0, 1])
     # plt.plot(x, y2, label='200 nodes and 20 sources', color='blue', linewidth=2)
