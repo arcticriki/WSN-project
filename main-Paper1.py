@@ -129,10 +129,39 @@ def main(n0, k0, eta0, C1, num_MP,L):
     source_pkt = np.zeros((k, payload), dtype=np.int64)
     for i in xrange(k):
         source_pkt[i, :] = node_list[sensors_indexes[i]].pkt_gen2()
-        print '\n\n'
 
     print source_pkt
 
+
+# -- PKT  DISSEMINATION -----------------------------------------------------------------------------------------------
+    j = 0
+    while j < b * k:
+        for i in xrange(n):
+            if node_list[i].dim_buffer != 0:
+                j += node_list[i].send_pkt(1)   # 1 means we use the metropolis algoritm for dissemination
+                #print j
+            if j == b * k:
+                break
+
+    tot = 0
+    distribution_post_dissemination = np.zeros(k + 1)       # ancillary variable used to compute the distribution post dissemination
+    for i in xrange(n):
+        index = node_list[i].num_encoded                    # retrive the actual encoded degree
+        distribution_post_dissemination[index] += 1.0 / n   # augment the prob. value of the related degree
+        tot += node_list[i].num_encoded                     # compute the total degree reached
+
+    #return distribution_post_dissemination[1:], pdf
+    plt.title('Post dissemination')
+    y = distribution_post_dissemination[1:]
+    x = np.linspace(1, k, k, endpoint=True)
+    plt.axis([0, k, 0, 0.6])
+    plt.plot(x, y, label='post dissemination')  # plot the robust pdf vs the obtained distribution after dissemination
+    y2 = np.zeros(k)
+    y2[:len(pdf)] = pdf
+    plt.plot(x, y2, color='red', label='robust soliton')
+    plt.legend(loc='upper left')
+    plt.grid()
+    plt.show()
 
 if __name__ == "__main__":
 
