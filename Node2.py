@@ -36,9 +36,10 @@ class Storage(object):
         self.code_prob = self.code_degree / self.k
         self.pid = pid                              # steady state probability pi greco d, see formula 5 paper 1
         self.metropolis_prob = 0                    # variable containing the transition probabilities computed through the metropolis algorithm.
-        self.number_random_walk = 0                 # parameter b, formula 3 paper 1
+        self.num_received = 0                       # keep trace of how many pkt we received, algo 1 paper 1
         self.received_from_dissemination = []       # variable containing the pkt received from the dissemination
         self.already_received = np.zeros(n)         # keep trace of the already received pkts, in order not to save them both
+
 
 
     def get_pos(self):                              # return positions, DEPRECATED
@@ -63,7 +64,7 @@ class Storage(object):
                 neighbor = self.neighbor_list[neighbor_idx]   # computed through the metropolis algorithm
                 pkt = self.out_buffer.pop(0)        # extract one pkt from the output buffer
                 self.dim_buffer -= 1                # reduce number of queued pkts
-                return neighbor.receive_pkt2(pkt)   # pass pkt to neighbor and return 1 if blocked or 0 if not blocked
+                return neighbor.receive_pkt22(pkt)   # pass pkt to neighbor and return 1 if blocked or 0 if not blocked
 
         else:                                       # empty buffer
             return 0
@@ -75,9 +76,9 @@ class Storage(object):
                 if self.num_encoded < self.code_degree: #...and we still have to encode something
                     prob = rnd.random()             # generate a random number in the range [0,1)
                     if prob <= self.code_prob:      # if generated number less or equal to coding probability
-                      self.ID_list.append(pkt.ID)        # save ID of node who generated the coded pkt
-                      self.storage = self.storage ^ pkt.payload # code procedure(XOR)
-                      self.num_encoded += 1              # increase num of encoded pkts
+                      self.ID_list.append(pkt.ID)                   # save ID of node who generated the coded pkt
+                      self.storage = self.storage ^ pkt.payload     # code procedure(XOR)
+                      self.num_encoded += 1                         # increase num of encoded pkts
                 pkt.counter += 1                    # increase pkt counter then put it in the outgoing buffer
                 self.out_buffer.append(pkt)         # else, if pkt is at its first visit, or it haven't reached C1nlog10(n)
                 self.dim_buffer += 1
@@ -96,48 +97,63 @@ class Storage(object):
                                                     # the node! That is to say: if pkt x has visited node v before
                                                     # BUT c(x)<C1nlog(n), v accepts it with Prob=0, BUT it forwards it
 
+
+# PRIMA VERSIONE DEL RECEIVE PER ALGO 1 PAPER 1
     def receive_pkt2(self, pkt):
-        return 1
+        if self.already_received[pkt.ID-1] == 0 :
+            prob = rnd.random()
+            if prob <= self.pid:                    # if stop prob is verified, we save the pkt and stop forwarding
+                self.received_from_dissemination.append(pkt)    # use a list to keep all received pkts
+                self.already_received[pkt.ID - 1] += 1          # store the knowledge of the fact that the pkt with this
+                self.num_received += 1              # ID is already been saved in thi node
+                return 1                            # 1 means we stopped the pkt
+            else:                                   # if not, we forward
+                self.dim_buffer += 1                # increase the number of queued pkts
+                self.out_buffer.append(pkt)         # add pkt to the outgoing queue
+                return 0                            # 0 means pkt not stopped
+        else:
+            self.dim_buffer += 1                    # increase the number of queued pkts
+            self.out_buffer.append(pkt)             # add pkt to the outgoing queue
+            return 0                                # 0 means pkt not stopped
 
+# SECONDA VERSIONE DEL RECEIVE PER ALGO 1 PAPER 1
+    def receive_pkt22(self, pkt):
+        prob = rnd.random()
+        if prob <= self.pid:                    # if stop prob is verified, we save the pkt and stop forwarding
+            if self.already_received[pkt.ID - 1] == 0:          # if I haven't already received and saved the pkt
+                self.received_from_dissemination.append(pkt)    # use a list to keep all received pkts
+                self.already_received[pkt.ID - 1] += 1          # store the knowledge of the fact that the pkt with this
+                self.num_received += 1          # ID is already been saved in thi node
+            return 1                            # 1 means we stopped the pkt
+        else:                                   # if not, we forward
+            self.dim_buffer += 1                # increase the number of queued pkts
+            self.out_buffer.append(pkt)         # add pkt to the outgoing queue
+            return 0                            # 0 means pkt not stopped
 
-
-
-
-
-    # def receive_pkt(self, pkt):                     # define what to do on pkt receiving
-    #     self.visits[pkt.ID-1] += 1                  # increase number of visits this pkt has done in this very node
-    #     # CODING PROCEDURE ------------------------------
-    #     if self.already_coded[pkt.ID - 1] == 0:            # if it is the first time the pkt reaches this very node ...
-    #             if self.num_encoded < self.code_degree: #...and we still have to encode something
-    #                 prob = rnd.random()             # generate a random number in the range [0,1)
-    #                 if prob <= self.code_prob:      # if generated number less or equal to coding probability
-    #                     self.ID_list.append(pkt.ID)        # save ID of node who generated the coded pkt
-    #                     self.storage = self.storage ^ pkt.payload # code procedure(XOR)
-    #                     self.num_encoded += 1              # increase num of encoded pkts
-    #                     self.already_coded[pkt.ID - 1] +=1
-    #     if self.visits[pkt.ID-1]== 1:
-    #             pkt.counter += 1                    # increase pkt counter then put it in the outgoing buffer
-    #             self.out_buffer.append(pkt)         # else, if pkt is at its first visit, or it haven't reached C1nlog10(n)
-    #             self.dim_buffer += 1
-    #             return 0                            # NOTE: this procedure has to be done even if the pkt has already visited
-    #                                                 # the node! That is to say: if pkt x has visited node v before
-    #                                                 # BUT c(x)<C1nlog(n), v accepts it with Prob=0, BUT it forwards it
-    #     else: #if self.visits[pkt.ID-1] > 1:
-    #         if pkt.counter >= self.C1 * self.n * np.log10(self.n):  # if packet already visited the node
-    #                                                 # and its counter is greater than C1nlog10(n) then, discard it
-    #             return 1                            # pkt dropped
-    #         else:
-    #             pkt.counter += 1                    # increase pkt counter then put it in the outgoing buffer
-    #             self.out_buffer.append(pkt)         # else, if pkt is at its first visit, or it haven't reached C1nlog10(n)
-    #             self.dim_buffer += 1
-    #             return 0                            # NOTE: this procedure has to be done even if the pkt has already visited
-    #                                                 # the node! That is to say: if pkt x has visited node v before
-                                                    # BUT c(x)<C1nlog(n), v accepts it with Prob=0, BUT it forwards it
 
 
     def storage_info(self):
         return self.num_encoded, self.ID_list, self.storage       #return code degree of the node, list of ID XORed pkts
                                                                   #and the result of the XOR operation
+
+    def encoding(self):                             # procedure that encode the received pkt, algo 1 paper 1
+        if self.num_received >= self.code_degree:   # if number of received pkt >= of the node code degree
+            print 'caso ricevuti > d'
+            select_nodes = rnd.sample(range(0, self.num_received), self.code_degree) # Select d random packets among the one saved
+            self.num_encoded = self.code_degree             # number of codec pkt will match the code degree
+            for i in xrange(len(select_nodes)):             # go through the random selceted pkts
+                pkt = self.received_from_dissemination[select_nodes[i]]         # estract the pkt from the list of received ones
+                self.ID_list.append(pkt.ID)                 # save the ID
+                self.storage = self.storage ^ pkt.payload   # code procedure(XOR)
+
+        else:                                               # if number of received pkt is less than the code degree
+            print 'caso ricevuti < d '
+            self.num_encoded = self.num_received            # then the num of encoded pkt will match the number of received pkt
+            for i in xrange(self.num_received):             # go through all the received pkt
+                pkt = self.received_from_dissemination[i]   # extract the pkts
+                self.ID_list.append(pkt.ID)                 # save the ID
+                self.storage = self.storage ^ pkt.payload   # code procedure(XOR)
+
 
 
 # -- SENSOR NODE SPECIFICATIONS ---------------------------------------------------------------------------------------
@@ -165,7 +181,7 @@ class Sensor(Storage):
         self.code_prob = self.code_degree / self.k
         self.pid = pid                              # steady state probability pi greco d, see formula 5 paper 1
         self.metropolis_prob = 0                    # variable containing the transition probabilities computed through the metropolis algorithm.
-        self.number_random_walk = 0                 # parameter b, formula 3 paper 1
+        self.num_received = 0                       # keep trace of how many pkt we received, algo 1 paper 1
         self.received_from_dissemination = []       # variable containing the pkt received from the dissemination
         self.already_received = np.zeros(n)         # keep trace of the already received pkts, in order not to save them both
 
@@ -173,37 +189,37 @@ class Sensor(Storage):
         print 'Sensor ID is %d and its position is (x=%d, y=%d) ' % (self.ID, self.X, self.Y)
 
     def pkt_gen(self):
-        pkt = Pkt(self.ID, payload)         # generate a PKT object
-        self.out_buffer.append(pkt)         # set generated pkt as ready to be sent adding it to the outgoing buffer
-        prob = rnd.random()                 # generate a random number in the range [0,1)
-        if prob <= self.code_prob:          # if generated number less or equal to coding probability
-            self.ID_list.append(pkt.ID)     # save ID of node who generated the coded pkt
+        pkt = Pkt(self.ID, payload)                 # generate a PKT object
+        self.out_buffer.append(pkt)                 # set generated pkt as ready to be sent adding it to the outgoing buffer
+        prob = rnd.random()                         # generate a random number in the range [0,1)
+        if prob <= self.code_prob:                  # if generated number less or equal to coding probability
+            self.ID_list.append(pkt.ID)             # save ID of node who generated the coded pkt
             self.storage = self.storage ^ pkt.payload  # code procedure(XOR)
-            self.num_encoded += 1           # increase num of encoded pkts
-            self.already_coded[pkt.ID - 1] += 1 #store the knowledge of the fact that the pkt with this ID is already been coded in thi node
+            self.num_encoded += 1                   # increase num of encoded pkts
+            self.already_coded[pkt.ID - 1] += 1     #store the knowledge of the fact that the pkt with this ID is already been coded in thi node
         self.dim_buffer = 1
         return pkt.payload
 
     def pkt_gen2(self):
-        pkt = Pkt(self.ID, payload)         # generate a PKT object
+        pkt = Pkt(self.ID, payload)                 # generate a PKT object
         for i in xrange(self.number_random_walk):   # mette in coda lo stesso pacchetto tante quante sono le random walk che deve generare
-            self.out_buffer.append(pkt)     # set generated pkt as ready to be sent adding it to the outgoing buffer
+            self.out_buffer.append(pkt)             # set generated pkt as ready to be sent adding it to the outgoing buffer
         self.dim_buffer = self.number_random_walk   # set the dim of the buffer to the number of queued pkts = number of random walk
 
-        prob = rnd.random()                 # generate a random numener [0,1]
+        prob = rnd.random()                         # generate a random numener [0,1]
         if prob <= self.pid:
-            self.ID_list.append(pkt.ID)     # save ID of node who generated the coded pkt [node itself]
             self.received_from_dissemination.append(pkt)    # use a list to keep all received pkts
-            self.already_received[pkt.ID - 1] += 1          # store the knowledge of the fact that the pkt with this
-                                                            # ID is already been coded in thi node
-            self.dim_buffer -= 1                            # decrease the number of queued pkts
-            self.out_buffer.pop(0)                          # remove an instance of the generated pkt
-        return pkt.payload                                  # return the pkt payload
+            self.already_received[pkt.ID - 1] += 1  # store the knowledge of the fact that the pkt with this
+                                                    # ID is already been coded in thi node
+            self.dim_buffer -= 1                    # decrease the number of queued pkts
+            self.out_buffer.pop(0)                  # remove an instance of the generated pkt
+            self.num_received += 1
+        return pkt.payload                          # return the pkt payload
 
 
     def pkt_gen3(self):
-        pkt = Pkt(self.ID, payload)         # generate a PKT object
-        self.storage = pkt.payload
+        pkt = Pkt(self.ID, payload)                 # generate a PKT object
+        self.storage = pkt.payload                  #
         return pkt.payload
 
 # -- PKT SPECIFICATIONS -----------------------------------------------------------------------------------------------

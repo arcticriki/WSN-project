@@ -1,6 +1,6 @@
 from RSD import *
 import csv
-
+from matplotlib.pyplot import show, plot
 
 # ----------- FIGURE 3 AND 4 -------------------
 
@@ -15,7 +15,7 @@ y5 = np.zeros(len(eta))
 
 i = 0
 y = np.zeros((4, len(eta)))
-with open('Figure 3', 'rb') as csvfile:
+with open('Figure 3.txt', 'rb') as csvfile:
     reader = csv.reader(csvfile, delimiter=',')#, quotechar='|')
     for row in reader:
         y[i, :] = row
@@ -29,7 +29,7 @@ y3 = y[3, :]
 
 y = np.zeros((3,len(eta)))
 i = 0
-with open('Figure 4', 'rb') as csvfile:
+with open('Figure 4.txt', 'rb') as csvfile:
     reader = csv.reader(csvfile, delimiter=',')#, quotechar='|')
     for row in reader:
         y[i, :] = row
@@ -69,7 +69,7 @@ y7 = np.zeros(number_of_points_in_x_axis)
 
 y = np.zeros((2, number_of_points_in_x_axis))
 i = 0
-with open('Figure 5', 'rb') as csvfile:
+with open('Figure 5.txt', 'rb') as csvfile:
     reader = csv.reader(csvfile, delimiter=',')#, quotechar='|')
     for row in reader:
         y[i, :] = row
@@ -98,7 +98,7 @@ y9 = np.zeros(number_of_points_in_x_axis)
 
 y = np.zeros((2, number_of_points_in_x_axis))
 i = 0
-with open('Figure 6', 'rb') as csvfile:
+with open('Figure 6.txt', 'rb') as csvfile:
     reader = csv.reader(csvfile, delimiter=',')  # , quotechar='|')
     for row in reader:
         y[i, :] = row

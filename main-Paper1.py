@@ -50,7 +50,7 @@ def main(n0, k0, eta0, C1, num_MP,L):
         y = rnd.uniform(0.0, L)  # generation of random coordinate y
         pid = (d[i]*Xd[d[i]-1])/denominator                 #compute steady state probability, formula 5 paper 1
                                                             # step 2 algorithm 1.
-        node_list.append(Storage(i + 1, x, y, d[i], n, k, C1, pid))  # creation of Storage node
+        node_list.append(Storage(i + 1, x, y, int(d[i]), n, k, C1, pid))  # creation of Storage node
         positions[i, :] = [x, y]
 
 
@@ -60,7 +60,7 @@ def main(n0, k0, eta0, C1, num_MP,L):
         y = rnd.uniform(0.0, L)  # generation of random coordinate y
         pid = (d[i]*Xd[d[i]-1])/denominator                 #compute steady state probability, formula 5 paper 1
                                                             # step 2 algorithm 1.
-        node_list[i] = Sensor(i + 1, x, y, d[i], n, k, C1, pid)  # creation of sensor node, function Sensor(), extend Storage class
+        node_list[i] = Sensor(i + 1, x, y, int(d[i]), n, k, C1, pid)  # creation of sensor node, function Sensor(), extend Storage class
         positions[i, :] = [x, y]  # support variable for positions info, used for comp. optim. reasons
 
 
@@ -121,7 +121,7 @@ def main(n0, k0, eta0, C1, num_MP,L):
     for d in xrange(k):
         numerator += Xd[d] * (d+1.0) * pdf[d]
     b = int(n*numerator/k)
-    print 'b =',b
+    print 'Number of random walks b =',b
     for i in sensors_indexes:
         node_list[i].number_random_walk = b
 
@@ -130,18 +130,31 @@ def main(n0, k0, eta0, C1, num_MP,L):
     for i in xrange(k):
         source_pkt[i, :] = node_list[sensors_indexes[i]].pkt_gen2()
 
-    print source_pkt
+    #print source_pkt
 
 
 # -- PKT  DISSEMINATION -----------------------------------------------------------------------------------------------
     j = 0
+    t = time.time()
+    print b*k
     while j < b * k:
         for i in xrange(n):
             if node_list[i].dim_buffer != 0:
                 j += node_list[i].send_pkt(1)   # 1 means we use the metropolis algoritm for dissemination
-                #print j
             if j == b * k:
                 break
+        print j
+    print 'Time taken by dissemination: ',time.time()-t
+
+
+# -- XORING PRCEDURE ---------------------------------------------------------------------------------------------------
+    for i in xrange(n):
+        node_list[i].encoding()
+
+
+
+
+
 
     tot = 0
     distribution_post_dissemination = np.zeros(k + 1)       # ancillary variable used to compute the distribution post dissemination
@@ -172,4 +185,5 @@ if __name__ == "__main__":
     num_MP = 10
     L = 15
 
-    main(n0, k0, eta0, C1, num_MP, L)
+    #main(n0, k0, eta0, C1, num_MP, L)
+    cProfile.run('main(n0, k0, eta0, C1, num_MP, L)')
