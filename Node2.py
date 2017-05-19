@@ -227,7 +227,8 @@ class Sensor(Storage):
             self.dim_buffer -= 1                    # decrease the number of queued pkts
             self.out_buffer.pop(0)                  # remove an instance of the generated pkt
             self.num_received += 1
-        return pkt.payload                          # return the pkt payload
+            return pkt.payload, 1                   # return the pkt payload + codificato
+        return pkt.payload, 0                       # return the pkt payload + non codificato
 
 
     def pkt_gen3(self):

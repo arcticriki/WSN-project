@@ -142,10 +142,12 @@ def main(n0, k0, eta0, C1, num_MP,L):
 
  # -- PKT GENERATION  --------------------------------------------------------------------------------------------------
     source_pkt = np.zeros((k, payload), dtype=np.int64)
+    codificati_in_partenza = 0
     for i in xrange(k):
-        source_pkt[i, :] = node_list[sensors_indexes[i]].pkt_gen2()
-
+        source_pkt[i, :], a = node_list[sensors_indexes[i]].pkt_gen2()
+        codificati_in_partenza += a
     #print source_pkt
+    print 'Codificati dai sensori ',codificati_in_partenza
 
 
 # -- PKT  DISSEMINATION -----------------------------------------------------------------------------------------------
@@ -155,7 +157,7 @@ def main(n0, k0, eta0, C1, num_MP,L):
     j = 0
     t = time.time()
     print b*k
-    while j < b * k:
+    while j < (b * k)-codificati_in_partenza:
         for i in xrange(n):
             if node_list[i].dim_buffer != 0:
                 j += node_list[i].send_pkt(1)   # 1 means we use the metropolis algoritm for dissemination
