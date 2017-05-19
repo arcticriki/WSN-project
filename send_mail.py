@@ -25,7 +25,7 @@ def send_mail(names):
 
     # Credentials (if needed)
     username = 'team.wsn2'
-    password = 'siamoforti'
+    password = 'siamoforti2'
 
     # The actual mail send
     server = smtplib.SMTP('smtp.gmail.com:587')

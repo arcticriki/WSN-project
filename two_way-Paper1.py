@@ -207,15 +207,15 @@ if __name__ == "__main__":
 
 
     print 'Figure 3 and 4. \n'
-    iteration_to_mediate = 5
+    iteration_to_mediate = 1
     eta = [1,1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,1.9,2,2.1,2.2,2.3,2.4,2.5]
 
     y0 = np.zeros((iteration_to_mediate, len(eta)))
     y1 = np.zeros((iteration_to_mediate, len(eta)))
     y2 = np.zeros((iteration_to_mediate, len(eta)))
     y3 = np.zeros((iteration_to_mediate, len(eta)))
-    y4 = np.zeros((iteration_to_mediate, len(eta)))
-    y5 = np.zeros((iteration_to_mediate, len(eta)))
+    #y4 = np.zeros((iteration_to_mediate, len(eta)))
+    #y5 = np.zeros((iteration_to_mediate, len(eta)))
 
     # -- Iterazione su diversi sistemi --
     for i in xrange(iteration_to_mediate):

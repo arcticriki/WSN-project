@@ -18,8 +18,8 @@ def main(n0, k0, eta0, C1, num_MP,L):
     n = n0                                   # number of nodes
     k = k0                                   # number of sensors
     #L = L                                    # square dimension
-    c0 = 0.1                                 # parameter for RSD
-    delta = 0.5                              # Prob['we're not able to recover the K pkts']<=delta
+    c0 = 0.01                                 # parameter for RSD
+    delta = 0.01                              # Prob['we're not able to recover the K pkts']<=delta
 
     positions = np.zeros((n, 2))  # matrix containing info on all node positions
     node_list = []  # list of references to node objects
@@ -34,7 +34,9 @@ def main(n0, k0, eta0, C1, num_MP,L):
 
 # -- X_d INITIALIZATION --
     #THIS PARAMETER MUST BE COMPUTED THROUGH THE OPTIMIZATION PROBLEM
-    Xd = np.ones(k)*4
+    Xd = np.ones(k)*3
+    #Xd = [2.99573, 2.43482,  2.21432,  2.10541,  2.05016,  2.0268,  2.02545,  2.04131, 2.07213,  2.11726,  2.17724,  2.2538,
+    #      2.35006,  2.47121,  2.62574, 2.82823,  3.106, 3.51784,  4.22502, 5.96721]
     # compute denomitator of formula 5
     partial = 0
     for i in xrange(k):
@@ -48,7 +50,7 @@ def main(n0, k0, eta0, C1, num_MP,L):
     for i in xrange(n):  # for on 0 to n indices
         x = rnd.uniform(0.0, L)  # generation of random coordinate x
         y = rnd.uniform(0.0, L)  # generation of random coordinate y
-        pid = (d[i]*Xd[d[i]-1])/denominator                 #compute steady state probability, formula 5 paper 1
+        pid = (d[i]*Xd[int(d[i])-1])/denominator                 #compute steady state probability, formula 5 paper 1
                                                             # step 2 algorithm 1.
         node_list.append(Storage(i + 1, x, y, int(d[i]), n, k, C1, pid))  # creation of Storage node
         positions[i, :] = [x, y]
@@ -73,7 +75,7 @@ def main(n0, k0, eta0, C1, num_MP,L):
     for i in sensors_indexes:  # for on sensors position indices
         x = rnd.uniform(0.0, L)  # generation of random coordinate x
         y = rnd.uniform(0.0, L)  # generation of random coordinate y
-        pid = (d[i]*Xd[d[i]-1])/denominator                 #compute steady state probability, formula 5 paper 1
+        pid = (d[i]*Xd[int(d[i])-1])/denominator                 #compute steady state probability, formula 5 paper 1
                                                             # step 2 algorithm 1.
         node_list[i] = Sensor(i + 1, x, y, int(d[i]), n, k, C1, pid)  # creation of sensor node, function Sensor(), extend Storage class
         positions[i, :] = [x, y]  # support variable for positions info, used for comp. optim. reasons
@@ -135,8 +137,8 @@ def main(n0, k0, eta0, C1, num_MP,L):
     numerator = 0
     for d in xrange(k):
         numerator += Xd[d] * (d+1.0) * pdf[d]
-    b = int(n*numerator/k)
-    print 'Number of random walks b =',b
+    b = int(round(n*numerator/k))
+    #print 'Number of random walks b =',b
     for i in sensors_indexes:
         node_list[i].number_random_walk = b
 
@@ -147,7 +149,7 @@ def main(n0, k0, eta0, C1, num_MP,L):
         source_pkt[i, :], a = node_list[sensors_indexes[i]].pkt_gen2()
         codificati_in_partenza += a
     #print source_pkt
-    print 'Codificati dai sensori ',codificati_in_partenza
+    #print 'Codificati dai sensori ',codificati_in_partenza
 
 
 # -- PKT  DISSEMINATION -----------------------------------------------------------------------------------------------
@@ -156,24 +158,20 @@ def main(n0, k0, eta0, C1, num_MP,L):
 
     j = 0
     t = time.time()
-    print b*k
+    #print 'Total pkt to be disseminated ',b*k
     while j < (b * k)-codificati_in_partenza:
         for i in xrange(n):
             if node_list[i].dim_buffer != 0:
                 j += node_list[i].send_pkt(1)   # 1 means we use the metropolis algoritm for dissemination
-            if j == b * k:
+            if j == (b * k)-codificati_in_partenza:
                 break
-        print j
+        #print j
     print 'Time taken by dissemination: ',time.time()-t
 
 
 # -- XORING PRCEDURE ---------------------------------------------------------------------------------------------------
     for i in xrange(n):
         node_list[i].encoding()
-
-
-
-
 
     tot = 0
     distribution_post_dissemination = np.zeros(k + 1)       # ancillary variable used to compute the distribution post dissemination
@@ -198,14 +196,179 @@ def main(n0, k0, eta0, C1, num_MP,L):
     plt.close()
 
 
+# -- DECODING PHASE ---------------------------------------------------------------------------------------------------
+# -- Initialization -------------------------
+    t = time.time()
+    passo = 0.1  # incremental step of the epsilon variable
+    decoding_performance = np.zeros(len(eta))  # ancillary variable which contains the decoding probability values
+    for iii in xrange(len(eta)):
+        h = int(k * eta[iii])
+        errati = 0.0  # Number of iteration in which we do not decode
+        errati2 = 0.0
+        M = factorial(n) / (10 * factorial(h) * factorial(n - h))  # Computation of the number of iterations to perform, see paper 2
+
+        for ii in xrange(num_MP):
+            decoding_indices = rnd.sample(range(0, n), h)  # selecting h random nodes in the graph
+
+            #print 'iterazione ',ii
+
+            degrees = [0] * h
+            IDs     = [0] * h
+            XORs    = [0] * h
+
+            for node in range(h):
+                degree, ID, XOR = node_list[decoding_indices[node]].storage_info()
+
+                degrees[node] = copy.deepcopy(degree)
+                IDs[node] = copy.deepcopy(ID)
+                XORs[node] = copy.deepcopy(XOR)
+
+            # -- MP. Naive approach --------------------------------
+
+            ripple_payload = []  # auxialiary vectors
+            ripple_IDs = []
+            hashmap = np.zeros((n, 2))  # vector nx2: pos[ID-1,0]-> "1" pkt of (ID-1) is decoded, "0" otherwise; pos[ID-1,1]->num_hashmap
+            num_hashmap = 0  # key counter: indicates the index of the next free row in decoded matrix
+
+            decoded = np.zeros((k, payload), dtype=np.int64)  # matrix k*payload: the i-th row stores the total XOR of the decoded pkts
+            empty_ripple = False
+
+            while (empty_ripple == False):
+
+                empty_ripple = True
+
+                position = 0  # linear search of degree one nodes
+
+                while position < len(degrees):
+
+                    if degrees[position] == 1:  # if degree 1 is found
+
+                        if hashmap[IDs[position][0] - 1, 0] == 0:
+                            decoded[num_hashmap, :] = XORs[position]
+                            hashmap[IDs[position][0] - 1, 0] = 1
+                            hashmap[IDs[position][0] - 1, 1] = num_hashmap
+                            num_hashmap += 1
+                        empty_ripple = False
+                        del degrees[position]  # decrease degree
+                        ripple_IDs.append(IDs[position])  # update ripples
+                        del IDs[position]
+                        ripple_payload.append(XORs[position])
+                        del XORs[position]  # update vector XORs
+                    else:
+                        position = position + 1
+
+                # scanning the ripple
+                for each_element in ripple_IDs:  # prendi ogni elemento del ripple...
+                    for each_node in IDs:  # ...e ogni elemento del vettore degli ID...
+                        u = 0
+                        while u < len(each_node):
+                            if each_element[0] == each_node[u]:
+                                indice_ID = IDs.index(each_node)
+                                degrees[indice_ID] -= 1
+                                indice_ripple = ripple_IDs.index(each_element)
+                                XORs[indice_ID] = XORs[indice_ID] ^ ripple_payload[indice_ripple]
+                                temp = each_node
+                                del temp[u]
+                                IDs[indice_ID] = temp
+                                each_node = temp
+
+                            else:
+                                u += 1
+
+                i = 0
+                while i < len(IDs):
+                    if degrees[i] == 0:
+                        IDs.remove([])
+                        # XORs.remove(XORs[i])
+                        del XORs[i]
+                        degrees.remove(0)
+                    else:
+                        i += 1
+
+            if num_hashmap < k:
+                errati2 += 1  # if we do not decode the k pkts that we make an error
+
+        decoding_performance[iii] = (num_MP - errati2) / num_MP
+
+    print 'Time taken by message passing:', time.time()-t
+
+    return decoding_performance
+
+
+
+
 if __name__ == "__main__":
-
-    n0   = 100
-    k0   = 20
-    eta0 = [1.8]
-    C1   = 5
-    num_MP = 10
-    L    = 15
-
-    main(n0, k0, eta0, C1, num_MP, L)
     #cProfile.run('main(n0, k0, eta0, C1, num_MP, L)')
+
+
+
+    print 'Figure 3 and 4. \n'
+    iteration_to_mediate = 1
+    eta = [1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2, 2.1, 2.2, 2.3, 2.4, 2.5]
+
+    y0 = np.zeros((iteration_to_mediate, len(eta)))
+    y1 = np.zeros((iteration_to_mediate, len(eta)))
+    y2 = np.zeros((iteration_to_mediate, len(eta)))
+    y3 = np.zeros((iteration_to_mediate, len(eta)))
+    #y4 = np.zeros((iteration_to_mediate, len(eta)))
+    #y5 = np.zeros((iteration_to_mediate, len(eta)))
+
+    # -- Iterazione su diversi sistemi --
+    for i in xrange(iteration_to_mediate):
+        t = time.time()
+        tt = time.time()
+        y0[i, :] = main(n0=100, k0=10, eta0=eta, C1=5, num_MP=3000, L=5)
+        #elapsed = time.time() - tt
+        #print elapsed
+        tt = time.time()
+        y1[i, :] = main(n0=100, k0=20, eta0=eta, C1=5, num_MP=3000, L=5)
+        #elapsed = time.time() - tt
+        #print elapsed
+        tt = time.time()
+        y2[i, :] = main(n0=200, k0=20, eta0=eta, C1=5, num_MP=3000, L=5)
+        #elapsed = time.time() - tt
+        #print elapsed
+        tt = time.time()
+        y3[i, :] = main(n0=200, k0=40, eta0=eta, C1=5, num_MP=3000, L=5)
+        #elapsed = time.time() - tt
+        #print elapsed
+        # tt = time.time()
+        # y4[i, :] = main(n0=500, k0=50, eta0=eta, C1=5, num_MP= 1000, L=5)
+        # elapsed = time.time() - tt
+        # print elapsed
+        # tt = time.time()
+        # y5[i, :] = main(n0=1000, k0=100, eta0=eta, C1=5, num_MP= 1000, L=5)
+        # elapsed = time.time() - tt
+        # print elapsed
+        elapsed = time.time() - t
+        print 'Iterazione', i + 1, 'di', iteration_to_mediate, 'eseguita in', elapsed, 'secondi'
+
+    y0 = y0.mean(0)  # calcolo delle prestazioni medie
+    y1 = y1.mean(0)
+    y2 = y2.mean(0)
+    y3 = y3.mean(0)
+
+    # -- Salvataggio su file --
+    with open('Figure3Paper1.txt','wb') as file:
+         wr=csv.writer(file,quoting=csv.QUOTE_ALL)
+         wr.writerow(y0)
+         wr.writerow(y1)
+         wr.writerow(y2)
+         wr.writerow(y3)
+
+    plt.title('Decoding performances')
+    x = np.linspace(1, 2.5, 16, endpoint=True)
+    plt.axis([1, 2.5, 0, 1])
+    plt.plot(x, y0, label='100 nodes and 10 sources', color='blue', linewidth=2)
+    plt.plot(x, y1, label='100 nodes and 20 sources', color='red', linewidth=2)
+    plt.plot(x, y2, label='200 nodes and 20 sources', color='grey', linewidth=2)
+    plt.plot(x, y3, label='200 nodes and 40 sources', color='magenta', linewidth=2)
+    plt.legend(loc=4)
+    plt.grid()
+    plt.savefig('Immagini/Paper1_algo1/00_Figure3_comparison.pdf', dpi=150, transparent=False)
+    plt.close()
+
+    #names = ['Figure3Paper1.txt']
+    #send_mail(names)
+
+

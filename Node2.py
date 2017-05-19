@@ -72,7 +72,7 @@ class Storage(object):
                 neighbor = self.neighbor_list[neighbor_idx]   # computed through the metropolis algorithm
                 pkt = self.out_buffer.pop(0)        # extract one pkt from the output buffer
                 self.dim_buffer -= 1                # reduce number of queued pkts
-                return neighbor.receive_pkt22(pkt)   # pass pkt to neighbor and return 1 if blocked or 0 if not blocked
+                return neighbor.receive_pkt2(pkt)   # pass pkt to neighbor and return 1 if blocked or 0 if not blocked
 
         else:                                       # empty buffer
             return 0
@@ -106,25 +106,25 @@ class Storage(object):
                                                     # BUT c(x)<C1nlog(n), v accepts it with Prob=0, BUT it forwards it
 
 
-# PRIMA VERSIONE DEL RECEIVE PER ALGO 1 PAPER 1        CAUSA CICLI INFINITI     DEPRECATED
-#     def receive_pkt2(self, pkt):
-#         if self.already_received[pkt.ID-1] == 0 :
-#             prob = rnd.random()
-#             if prob <= self.pid:                    # if stop prob is verified, we save the pkt and stop forwarding
-#                 self.received_from_dissemination.append(pkt)    # use a list to keep all received pkts
-#                 self.already_received[pkt.ID - 1] += 1          # store the knowledge of the fact that the pkt with this
-#                 self.num_received += 1              # ID is already been saved in thi node
-#                 return 1                            # 1 means we stopped the pkt
-#             else:                                   # if not, we forward
-#                 self.dim_buffer += 1                # increase the number of queued pkts
-#                 self.out_buffer.append(pkt)         # add pkt to the outgoing queue
-#                 return 0                            # 0 means pkt not stopped
-#         else:
-#             self.dim_buffer += 1                    # increase the number of queued pkts
-#             self.out_buffer.append(pkt)             # add pkt to the outgoing queue
-#             return 0                                # 0 means pkt not stopped
+# PRIMA VERSIONE DEL RECEIVE PER ALGO 1 PAPER 1
+    def receive_pkt2(self, pkt):
+        if self.already_received[pkt.ID-1] == 0 :
+            prob = rnd.random()
+            if prob <= self.pid:                    # if stop prob is verified, we save the pkt and stop forwarding
+                self.received_from_dissemination.append(pkt)    # use a list to keep all received pkts
+                self.already_received[pkt.ID - 1] += 1          # store the knowledge of the fact that the pkt with this
+                self.num_received += 1              # ID is already been saved in thi node
+                return 1                            # 1 means we stopped the pkt
+            else:                                   # if not, we forward
+                self.dim_buffer += 1                # increase the number of queued pkts
+                self.out_buffer.append(pkt)         # add pkt to the outgoing queue
+                return 0                            # 0 means pkt not stopped
+        else:
+            self.dim_buffer += 1                    # increase the number of queued pkts
+            self.out_buffer.append(pkt)             # add pkt to the outgoing queue
+            return 0                                # 0 means pkt not stopped
 
-# SECONDA VERSIONE DEL RECEIVE PER ALGO 1 PAPER 1
+# SECONDA VERSIONE DEL RECEIVE PER ALGO 1 PAPER 1    LE PRESTAZIONI SONO PEGGIORI, MA E' PIU' VELOCE
     def receive_pkt22(self, pkt):
         prob = rnd.random()
         if prob <= self.pid:                    # if stop prob is verified, we save the pkt and stop forwarding
