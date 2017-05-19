@@ -29,7 +29,7 @@ def main(n0, k0, eta0, C1, num_MP,L):
 
 # -- DEGREE INITIALIZATION --
 
-    d, pdf = Robust_Soliton_Distribution(n, k, c0, delta)  # See RSD doc
+    d, pdf, _ = Robust_Soliton_Distribution(n, k, c0, delta)  # See RSD doc
     # to_be_encoded = np.sum(d)                        #use to check how many pkts we should encode ***OPEN PROBLEM***
 
 # -- X_d INITIALIZATION --
@@ -349,7 +349,7 @@ if __name__ == "__main__":
     y3 = y3.mean(0)
 
     # -- Salvataggio su file --
-    with open('Figure3Paper1.txt','wb') as file:
+    with open('Figure3Paper1-2.txt','wb') as file:
          wr=csv.writer(file,quoting=csv.QUOTE_ALL)
          wr.writerow(y0)
          wr.writerow(y1)

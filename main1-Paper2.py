@@ -28,7 +28,7 @@ def main(n0,k0,eta0,C1):
 
     # -- DEGREE INITIALIZATION --
 
-    d, pdf = Robust_Soliton_Distribution(n, k, c0, delta)  # See RSD doc
+    d, pdf , _ = Robust_Soliton_Distribution(n, k, c0, delta)  # See RSD doc
     to_be_encoded = np.sum(d)                              # use to check how many pkts we should encode ***OPEN PROBLEM***
 
     # -- NETWORK INITIALIZATION --
