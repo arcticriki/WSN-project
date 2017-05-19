@@ -66,7 +66,7 @@ def main(n0, k0, eta0, C1, num_MP,L):
     plt.legend(loc='upper left')
     plt.grid()
     #plt.show(block=False)
-    plt.savefig('Immagini/Paper1_algo1/00_disposition.pdf', dpi=150, transparent=False)
+    plt.savefig('Immagini/Paper1_algo1/00_disposition_n='+str(n)+'_k='+str(k)+'.pdf', dpi=150, transparent=False)
     plt.close()
 
 # Generation of sensor nodes
@@ -192,18 +192,18 @@ def main(n0, k0, eta0, C1, num_MP,L):
     plt.legend(loc='upper left')
     plt.grid()
     #plt.show(block=False)
-    plt.savefig('Immagini/Paper1_algo1/00_post_diss.pdf', dpi=150, transparent=False)
+    plt.savefig('Immagini/Paper1_algo1/00_post_diss_n='+str(n)+'_k='+str(k)+'.pdf', dpi=150, transparent=False)
     plt.close()
 
 
 if __name__ == "__main__":
 
-    n0 = 100
-    k0 = 20
+    n0   = 100
+    k0   = 20
     eta0 = [1.8]
-    C1 = 5
+    C1   = 5
     num_MP = 10
-    L = 5
+    L    = 15
 
     main(n0, k0, eta0, C1, num_MP, L)
     #cProfile.run('main(n0, k0, eta0, C1, num_MP, L)')
