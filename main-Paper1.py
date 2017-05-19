@@ -34,7 +34,7 @@ def main(n0, k0, eta0, C1, num_MP,L):
 
 # -- X_d INITIALIZATION --
     #THIS PARAMETER MUST BE COMPUTED THROUGH THE OPTIMIZATION PROBLEM
-    Xd = np.ones(k)*1
+    Xd = np.ones(k)*4
     # compute denomitator of formula 5
     partial = 0
     for i in xrange(k):
@@ -54,6 +54,21 @@ def main(n0, k0, eta0, C1, num_MP,L):
         positions[i, :] = [x, y]
 
 
+    plt.title('Post dissemination')
+    y1 = positions[:,1]
+    y2 = positions[sensors_indexes,1]
+
+    x1 = positions[:,0]
+    x2 = positions[sensors_indexes,0]
+    plt.axis([0, L, 0, L])
+    plt.plot(x1, y1, linestyle='', marker='o', label='STORAGE')  # plot the robust pdf vs the obtained distribution after dissemination
+    plt.plot(x2, y2, linestyle='', marker='o', color='red', label='SENSORS')
+    plt.legend(loc='upper left')
+    plt.grid()
+    #plt.show(block=False)
+    plt.savefig('Immagini/Paper1_algo1/00_disposition.pdf', dpi=150, transparent=False)
+    plt.close()
+
 # Generation of sensor nodes
     for i in sensors_indexes:  # for on sensors position indices
         x = rnd.uniform(0.0, L)  # generation of random coordinate x
@@ -66,7 +81,7 @@ def main(n0, k0, eta0, C1, num_MP,L):
 
 
 # Find nearest neighbours using euclidean distance
-    t = time.time()
+    #t = time.time()
     nearest_neighbor = []                       # simplifying assumption, if no neighbors exist withing the range
                                                 # we consider the nearest neighbor
     nn_distance = 2 * L * L                     # maximum distance square equal the diagonal of the square [L,L]
@@ -90,8 +105,8 @@ def main(n0, k0, eta0, C1, num_MP,L):
             print 'Node %d has no neighbors within the range, the nearest neighbor is chosen.' % i
             node_list[i].neighbor_write(nearest_neighbor)  # Connect node with NN
 
-    elapsed = time.time() - t
-    print '\nTempo di determinazione dei vicini:', elapsed
+    #elapsed = time.time() - t
+    #print '\nTempo di determinazione dei vicini:', elapsed
 
 # Computation of probabilistic forwarding table
     for i in xrange(n):                         # we go through all nodes
@@ -134,6 +149,9 @@ def main(n0, k0, eta0, C1, num_MP,L):
 
 
 # -- PKT  DISSEMINATION -----------------------------------------------------------------------------------------------
+    for i in xrange(n):
+        node_list[i].funzione_ausiliaria()
+
     j = 0
     t = time.time()
     print b*k
@@ -150,7 +168,6 @@ def main(n0, k0, eta0, C1, num_MP,L):
 # -- XORING PRCEDURE ---------------------------------------------------------------------------------------------------
     for i in xrange(n):
         node_list[i].encoding()
-
 
 
 
@@ -174,7 +191,10 @@ def main(n0, k0, eta0, C1, num_MP,L):
     plt.plot(x, y2, color='red', label='robust soliton')
     plt.legend(loc='upper left')
     plt.grid()
-    plt.show()
+    #plt.show(block=False)
+    plt.savefig('Immagini/Paper1_algo1/00_post_diss.pdf', dpi=150, transparent=False)
+    plt.close()
+
 
 if __name__ == "__main__":
 
@@ -183,7 +203,7 @@ if __name__ == "__main__":
     eta0 = [1.8]
     C1 = 5
     num_MP = 10
-    L = 15
+    L = 5
 
-    #main(n0, k0, eta0, C1, num_MP, L)
-    cProfile.run('main(n0, k0, eta0, C1, num_MP, L)')
+    main(n0, k0, eta0, C1, num_MP, L)
+    #cProfile.run('main(n0, k0, eta0, C1, num_MP, L)')

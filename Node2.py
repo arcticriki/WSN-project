@@ -40,6 +40,10 @@ class Storage(object):
         self.received_from_dissemination = []       # variable containing the pkt received from the dissemination
         self.already_received = np.zeros(n)         # keep trace of the already received pkts, in order not to save them both
 
+        # Variabili ausiliarie
+        self.indicies = 0
+        self.custm = 0
+
 
 
     def get_pos(self):                              # return positions, DEPRECATED
@@ -49,6 +53,10 @@ class Storage(object):
         self.neighbor_list.append(neighbor)         # list of reference for neighbors node
         self.node_degree += 1                       # increase neighbor number at each insertion
 
+    def funzione_ausiliaria(self):
+        self.indicies = np.arange(0, self.node_degree)  # vector of indicies representing one neighbor
+        self.custm = stats.rv_discrete(name='custm', values=(self.indicies, self.metropolis_prob))
+
     def send_pkt(self, mode):                       # send function used to move messages between nodes
         if self.dim_buffer > 0:                     # if buffer non empty --> we can send something
             if mode == 0:                           # mode 0 = uniform at random selection
@@ -57,10 +65,10 @@ class Storage(object):
                 self.dim_buffer -= 1                # reduce number of queued pkts
                 return neighbor.receive_pkt(pkt)    # pass pkt to neighbor and return 1 if blocked or 0 if not blocked
             elif mode == 1:                         # mode 1 = metropolis algo (ancora da implementare per paper 1)
-                indicies = np.arange(0, self.node_degree)    # vector of indicies representing one neighbor
-                custm = stats.rv_discrete(name='custm', values=(indicies, self.metropolis_prob))
+                #ndicies = np.arange(0, self.node_degree)    # vector of indicies representing one neighbor
+                #custm = stats.rv_discrete(name='custm', values=(indicies, self.metropolis_prob))
                                                     # creation of obj custm, see documentation
-                neighbor_idx = custm.rvs()          # randomly sample element from custm, following the distribution
+                neighbor_idx = self.custm.rvs()          # randomly sample element from custm, following the distribution
                 neighbor = self.neighbor_list[neighbor_idx]   # computed through the metropolis algorithm
                 pkt = self.out_buffer.pop(0)        # extract one pkt from the output buffer
                 self.dim_buffer -= 1                # reduce number of queued pkts
@@ -98,23 +106,23 @@ class Storage(object):
                                                     # BUT c(x)<C1nlog(n), v accepts it with Prob=0, BUT it forwards it
 
 
-# PRIMA VERSIONE DEL RECEIVE PER ALGO 1 PAPER 1
-    def receive_pkt2(self, pkt):
-        if self.already_received[pkt.ID-1] == 0 :
-            prob = rnd.random()
-            if prob <= self.pid:                    # if stop prob is verified, we save the pkt and stop forwarding
-                self.received_from_dissemination.append(pkt)    # use a list to keep all received pkts
-                self.already_received[pkt.ID - 1] += 1          # store the knowledge of the fact that the pkt with this
-                self.num_received += 1              # ID is already been saved in thi node
-                return 1                            # 1 means we stopped the pkt
-            else:                                   # if not, we forward
-                self.dim_buffer += 1                # increase the number of queued pkts
-                self.out_buffer.append(pkt)         # add pkt to the outgoing queue
-                return 0                            # 0 means pkt not stopped
-        else:
-            self.dim_buffer += 1                    # increase the number of queued pkts
-            self.out_buffer.append(pkt)             # add pkt to the outgoing queue
-            return 0                                # 0 means pkt not stopped
+# PRIMA VERSIONE DEL RECEIVE PER ALGO 1 PAPER 1        CAUSA CICLI INFINITI     DEPRECATED
+#     def receive_pkt2(self, pkt):
+#         if self.already_received[pkt.ID-1] == 0 :
+#             prob = rnd.random()
+#             if prob <= self.pid:                    # if stop prob is verified, we save the pkt and stop forwarding
+#                 self.received_from_dissemination.append(pkt)    # use a list to keep all received pkts
+#                 self.already_received[pkt.ID - 1] += 1          # store the knowledge of the fact that the pkt with this
+#                 self.num_received += 1              # ID is already been saved in thi node
+#                 return 1                            # 1 means we stopped the pkt
+#             else:                                   # if not, we forward
+#                 self.dim_buffer += 1                # increase the number of queued pkts
+#                 self.out_buffer.append(pkt)         # add pkt to the outgoing queue
+#                 return 0                            # 0 means pkt not stopped
+#         else:
+#             self.dim_buffer += 1                    # increase the number of queued pkts
+#             self.out_buffer.append(pkt)             # add pkt to the outgoing queue
+#             return 0                                # 0 means pkt not stopped
 
 # SECONDA VERSIONE DEL RECEIVE PER ALGO 1 PAPER 1
     def receive_pkt22(self, pkt):
@@ -138,7 +146,7 @@ class Storage(object):
 
     def encoding(self):                             # procedure that encode the received pkt, algo 1 paper 1
         if self.num_received >= self.code_degree:   # if number of received pkt >= of the node code degree
-            print 'caso ricevuti > d'
+            #print 'caso ricevuti > d'
             select_nodes = rnd.sample(range(0, self.num_received), self.code_degree) # Select d random packets among the one saved
             self.num_encoded = self.code_degree             # number of codec pkt will match the code degree
             for i in xrange(len(select_nodes)):             # go through the random selceted pkts
@@ -147,12 +155,16 @@ class Storage(object):
                 self.storage = self.storage ^ pkt.payload   # code procedure(XOR)
 
         else:                                               # if number of received pkt is less than the code degree
-            print 'caso ricevuti < d '
+            #print 'caso ricevuti < d '
             self.num_encoded = self.num_received            # then the num of encoded pkt will match the number of received pkt
             for i in xrange(self.num_received):             # go through all the received pkt
                 pkt = self.received_from_dissemination[i]   # extract the pkts
                 self.ID_list.append(pkt.ID)                 # save the ID
                 self.storage = self.storage ^ pkt.payload   # code procedure(XOR)
+
+
+    def last_ID(self):
+        print self.ID_list
 
 
 
@@ -184,6 +196,7 @@ class Sensor(Storage):
         self.num_received = 0                       # keep trace of how many pkt we received, algo 1 paper 1
         self.received_from_dissemination = []       # variable containing the pkt received from the dissemination
         self.already_received = np.zeros(n)         # keep trace of the already received pkts, in order not to save them both
+        self.pkt_generated_gen3 = 0                 # variable containing the pkt generated from gen3, it is an ausiliary variable
 
     def spec(self):     # DEPRECATED
         print 'Sensor ID is %d and its position is (x=%d, y=%d) ' % (self.ID, self.X, self.Y)
@@ -219,7 +232,7 @@ class Sensor(Storage):
 
     def pkt_gen3(self):
         pkt = Pkt(self.ID, payload)                 # generate a PKT object
-        self.storage = pkt.payload                  #
+        self.pkt_generated_gen3 = pkt.payload                  #
         return pkt.payload
 
 # -- PKT SPECIFICATIONS -----------------------------------------------------------------------------------------------

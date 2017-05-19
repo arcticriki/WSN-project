@@ -94,7 +94,7 @@ def main(n0, k0, eta0, C1, num_MP,L):
 
         for ii in idxes:
             node_list[i].ID_list.append(ii)
-            store = store ^ node_list[ii].storage
+            store = store ^ node_list[ii].pkt_generated_gen3
         node_list[i].storage = store
         node_list[i].num_encoded = d_i
 
@@ -207,7 +207,7 @@ if __name__ == "__main__":
 
 
     print 'Figure 3 and 4. \n'
-    iteration_to_mediate = 10
+    iteration_to_mediate = 5
     eta = [1,1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,1.9,2,2.1,2.2,2.3,2.4,2.5]
 
     y0 = np.zeros((iteration_to_mediate, len(eta)))
