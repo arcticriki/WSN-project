@@ -27,6 +27,7 @@ y2 = y[2, :]
 y3 = y[3, :]
 
 
+
 y = np.zeros((3,len(eta)))
 i = 0
 with open('Figure 4.txt', 'rb') as csvfile:

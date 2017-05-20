@@ -29,7 +29,7 @@ def main(n0, k0, eta0, C1, num_MP,L):
 
 # -- DEGREE INITIALIZATION --
 
-    d, pdf = Robust_Soliton_Distribution(n, k, c0, delta)  # See RSD doc
+    d, pdf, R = Robust_Soliton_Distribution(n, k, c0, delta)  # See RSD doc
     # to_be_encoded = np.sum(d)                        #use to check how many pkts we should encode ***OPEN PROBLEM***
 
 # -- NETWORK INITIALIZATION --
@@ -207,7 +207,7 @@ if __name__ == "__main__":
 
 
     print 'Figure 3 and 4. \n'
-    iteration_to_mediate = 1
+    iteration_to_mediate = 10
     eta = [1,1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,1.9,2,2.1,2.2,2.3,2.4,2.5]
 
     y0 = np.zeros((iteration_to_mediate, len(eta)))
@@ -221,19 +221,19 @@ if __name__ == "__main__":
     for i in xrange(iteration_to_mediate):
         t = time.time()
         tt= time.time()
-        y0[i, :] = main(n0=100, k0=10, eta0=eta, C1=5, num_MP= 1000, L=5)
+        y0[i, :] = main(n0=100, k0=10, eta0=eta, C1=5, num_MP= 3000, L=5)
         elapsed= time.time()-tt
         print elapsed
         tt = time.time()
-        y1[i, :] = main(n0=100, k0=20, eta0=eta, C1=5, num_MP= 1000, L=5)
+        y1[i, :] = main(n0=100, k0=20, eta0=eta, C1=5, num_MP= 3000, L=5)
         elapsed = time.time() - tt
         print elapsed
         tt = time.time()
-        y2[i, :] = main(n0=200, k0=20, eta0=eta, C1=5, num_MP= 1000, L=5)
+        y2[i, :] = main(n0=200, k0=20, eta0=eta, C1=5, num_MP= 3000, L=5)
         elapsed = time.time() - tt
         print elapsed
         tt = time.time()
-        y3[i, :] = main(n0=200, k0=40, eta0=eta, C1=5, num_MP= 1000, L=5)
+        y3[i, :] = main(n0=200, k0=40, eta0=eta, C1=5, num_MP= 3000, L=5)
         elapsed = time.time() - tt
         print elapsed
         #tt = time.time()
@@ -281,7 +281,8 @@ if __name__ == "__main__":
     plt.plot(x, y3, label='200 nodes and 40 sources',color='magenta',linewidth=2)
     plt.legend(loc=4)
     plt.grid()
-    plt.show()
+    plt.savefig('Immagini/Paper1_algo1/00_Figure3_comparison_ottimo_two_way.pdf', dpi=150, transparent=False)
+    plt.close()
 
     # plt.title('Decoding performances ')
     # x = np.linspace(1, 2.5, 16, endpoint=True)

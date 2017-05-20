@@ -72,7 +72,7 @@ class Storage(object):
                 neighbor = self.neighbor_list[neighbor_idx]   # computed through the metropolis algorithm
                 pkt = self.out_buffer.pop(0)        # extract one pkt from the output buffer
                 self.dim_buffer -= 1                # reduce number of queued pkts
-                return neighbor.receive_pkt22(pkt)   # pass pkt to neighbor and return 1 if blocked or 0 if not blocked
+                return neighbor.receive_pkt2(pkt)   # pass pkt to neighbor and return 1 if blocked or 0 if not blocked
 
         else:                                       # empty buffer
             return 0

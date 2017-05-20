@@ -18,8 +18,8 @@ def main(n0, k0, eta0, C1, num_MP,L):
     n = n0                                   # number of nodes
     k = k0                                   # number of sensors
     #L = L                                    # square dimension
-    c0 = 0.01                                 # parameter for RSD
-    delta = 0.01                              # Prob['we're not able to recover the K pkts']<=delta
+    c0 = 0.1                                 # parameter for RSD
+    delta = 0.5                              # Prob['we're not able to recover the K pkts']<=delta
 
     positions = np.zeros((n, 2))  # matrix containing info on all node positions
     node_list = []  # list of references to node objects
@@ -34,9 +34,19 @@ def main(n0, k0, eta0, C1, num_MP,L):
 
 # -- X_d INITIALIZATION --
     #THIS PARAMETER MUST BE COMPUTED THROUGH THE OPTIMIZATION PROBLEM
-    Xd = np.ones(k)*3
-    #Xd = [2.99573, 2.43482,  2.21432,  2.10541,  2.05016,  2.0268,  2.02545,  2.04131, 2.07213,  2.11726,  2.17724,  2.2538,
-    #      2.35006,  2.47121,  2.62574, 2.82823,  3.106, 3.51784,  4.22502, 5.96721]
+    Xd = 0
+    if k == 10:
+        Xd = [2.99573, 2.50572, 2.35682, 2.33247, 2.3845, 2.50515, 2.7099, 3.04852, 3.67004, 5.27534]
+    elif k == 20:
+        Xd = [2.99573, 2.43482, 2.21432, 2.10541, 2.05016, 2.0268, 2.02545, 2.04131, 2.07213, 2.11726, 2.17724,
+              2.2538, 2.35006, 2.47121, 2.62574, 2.82823, 3.106, 3.51784, 4.22502, 5.96721]
+    elif k == 40:
+        Xd = [2.99573, 2.40245, 2.15362, 2.01611, 1.93044, 1.87385, 1.83561, 1.80991, 1.79337, 1.78385, 1.77996,
+              1.78075, 1.78559, 1.79403, 1.80578, 1.82063, 1.83849, 1.85933, 1.88316, 1.91008, 1.94024, 1.97383,
+              2.01115, 2.05255, 2.09847, 2.1495, 2.20636, 2.26997, 2.34153, 2.42259, 2.51526, 2.6224, 2.74807,
+              2.89829, 3.0824, 3.31599, 3.62779, 4.07898, 4.83623, 6.65972]
+
+
     # compute denomitator of formula 5
     partial = 0
     for i in xrange(k):
@@ -303,7 +313,7 @@ if __name__ == "__main__":
 
 
     print 'Figure 3 and 4. \n'
-    iteration_to_mediate = 1
+    iteration_to_mediate = 10
     eta = [1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2, 2.1, 2.2, 2.3, 2.4, 2.5]
 
     y0 = np.zeros((iteration_to_mediate, len(eta)))
@@ -318,20 +328,20 @@ if __name__ == "__main__":
         t = time.time()
         tt = time.time()
         y0[i, :] = main(n0=100, k0=10, eta0=eta, C1=5, num_MP=3000, L=5)
-        #elapsed = time.time() - tt
-        #print elapsed
+        elapsed = time.time() - tt
+        print 'n=100 k=10: ', elapsed
         tt = time.time()
         y1[i, :] = main(n0=100, k0=20, eta0=eta, C1=5, num_MP=3000, L=5)
-        #elapsed = time.time() - tt
-        #print elapsed
+        elapsed = time.time() - tt
+        print 'n=100 k=20: ',elapsed
         tt = time.time()
         y2[i, :] = main(n0=200, k0=20, eta0=eta, C1=5, num_MP=3000, L=5)
-        #elapsed = time.time() - tt
-        #print elapsed
+        elapsed = time.time() - tt
+        print 'n=200 k=20: ',elapsed
         tt = time.time()
         y3[i, :] = main(n0=200, k0=40, eta0=eta, C1=5, num_MP=3000, L=5)
-        #elapsed = time.time() - tt
-        #print elapsed
+        elapsed = time.time() - tt
+        print 'n=200 k=40: ',elapsed
         # tt = time.time()
         # y4[i, :] = main(n0=500, k0=50, eta0=eta, C1=5, num_MP= 1000, L=5)
         # elapsed = time.time() - tt
@@ -349,7 +359,7 @@ if __name__ == "__main__":
     y3 = y3.mean(0)
 
     # -- Salvataggio su file --
-    with open('Figure3Paper1-2.txt','wb') as file:
+    with open('Figure3Paper12.txt','wb') as file:
          wr=csv.writer(file,quoting=csv.QUOTE_ALL)
          wr.writerow(y0)
          wr.writerow(y1)
@@ -365,7 +375,7 @@ if __name__ == "__main__":
     plt.plot(x, y3, label='200 nodes and 40 sources', color='magenta', linewidth=2)
     plt.legend(loc=4)
     plt.grid()
-    plt.savefig('Immagini/Paper1_algo1/00_Figure3_comparison.pdf', dpi=150, transparent=False)
+    plt.savefig('Immagini/Paper1_algo1/00_Figure3_comparison_ottimo_diss_lenta.pdf', dpi=150, transparent=False)
     plt.close()
 
     #names = ['Figure3Paper1.txt']
