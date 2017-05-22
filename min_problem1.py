@@ -5,11 +5,11 @@ import csv
 
 C1 = 2
 payload = 10
-n = 100                                   # number of nodes
-k = 20                                   # number of sensors
+n = 20000                                   # number of nodes
+k = 10000                                  # number of sensors
 L = 5                                     # square dimension
-c0 = 0.01                                 # parameter for RSD
-delta = 0.01                              # Prob['we're not able to recover the K pkts']<=delta
+c0 = 0.2                                 # parameter for RSD
+delta = 0.05                              # Prob['we're not able to recover the K pkts']<=delta
 
 positions = np.zeros((n, 2))             # matrix containing info on all node positions
 node_list = []                           # list of references to node objects

@@ -17,14 +17,14 @@ def main(n0, k0, eta0, C1, num_MP,L):
     eta = eta0
     n = n0                                   # number of nodes
     k = k0                                   # number of sensors
-    #L = L                                    # square dimension
+    #L = L                                   # square dimension
     c0 = 0.1                                 # parameter for RSD
     delta = 0.5                              # Prob['we're not able to recover the K pkts']<=delta
 
-    positions = np.zeros((n, 2))  # matrix containing info on all node positions
-    node_list = []  # list of references to node objects
-    dmax = 5  # maximum distance for communication
-    dmax2 = dmax * dmax  # square of maximum distance for communication
+    positions = np.zeros((n, 2))             # matrix containing info on all node positions
+    node_list = []                           # list of references to node objects
+    dmax = 1.5                               # maximum distance for communication, posto a 1.5 per avere 21 neighbors medi
+    dmax2 = dmax * dmax                      # square of maximum distance for communication
     sensors_indexes = rnd.sample(range(0, n), k)  # generation of random indices for sensors
 
 # -- DEGREE INITIALIZATION --
@@ -119,6 +119,13 @@ def main(n0, k0, eta0, C1, num_MP,L):
 
     #elapsed = time.time() - t
     #print '\nTempo di determinazione dei vicini:', elapsed
+
+    medio = 0
+    for i in xrange(n):
+        medio += node_list[i].node_degree
+
+    print 'Numero medio di vicini',medio/n
+
 
 # Computation of probabilistic forwarding table
     for i in xrange(n):                         # we go through all nodes
@@ -313,7 +320,7 @@ if __name__ == "__main__":
 
 
     print 'Figure 3 and 4. \n'
-    iteration_to_mediate = 10
+    iteration_to_mediate = 2
     eta = [1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2, 2.1, 2.2, 2.3, 2.4, 2.5]
 
     y0 = np.zeros((iteration_to_mediate, len(eta)))

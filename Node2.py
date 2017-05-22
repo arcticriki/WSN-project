@@ -125,18 +125,18 @@ class Storage(object):
             return 0                                # 0 means pkt not stopped
 
 # SECONDA VERSIONE DEL RECEIVE PER ALGO 1 PAPER 1    LE PRESTAZIONI SONO PEGGIORI, MA E' PIU' VELOCE
-    def receive_pkt22(self, pkt):
-        prob = rnd.random()
-        if prob <= self.pid:                    # if stop prob is verified, we save the pkt and stop forwarding
-            if self.already_received[pkt.ID - 1] == 0:          # if I haven't already received and saved the pkt
-                self.received_from_dissemination.append(pkt)    # use a list to keep all received pkts
-                self.already_received[pkt.ID - 1] += 1          # store the knowledge of the fact that the pkt with this
-                self.num_received += 1          # ID is already been saved in thi node
-            return 1                            # 1 means we stopped the pkt
-        else:                                   # if not, we forward
-            self.dim_buffer += 1                # increase the number of queued pkts
-            self.out_buffer.append(pkt)         # add pkt to the outgoing queue
-            return 0                            # 0 means pkt not stopped
+#     def receive_pkt22(self, pkt):
+#         prob = rnd.random()
+#         if prob <= self.pid:                    # if stop prob is verified, we save the pkt and stop forwarding
+#             if self.already_received[pkt.ID - 1] == 0:          # if I haven't already received and saved the pkt
+#                 self.received_from_dissemination.append(pkt)    # use a list to keep all received pkts
+#                 self.already_received[pkt.ID - 1] += 1          # store the knowledge of the fact that the pkt with this
+#                 self.num_received += 1          # ID is already been saved in thi node
+#             return 1                            # 1 means we stopped the pkt
+#         else:                                   # if not, we forward
+#             self.dim_buffer += 1                # increase the number of queued pkts
+#             self.out_buffer.append(pkt)         # add pkt to the outgoing queue
+#             return 0                            # 0 means pkt not stopped
 
 
 
