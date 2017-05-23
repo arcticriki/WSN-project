@@ -13,7 +13,7 @@ payload = 10
 #-- STORAGE NODE SPECIFICATIONS ---------------------------------------------------------------------------------
 class Storage(object):
 
-    def __init__(self, ID, X, Y, d, n, k, c1,pid):
+    def __init__(self, ID, X, Y, d, n, k, c1,pid,length_random_walk):
         self.C1 = c1                                # parameter C1
         self.ID = ID                                # ID of the node
         self.X = X                                  # position
@@ -43,6 +43,7 @@ class Storage(object):
         # Variabili ausiliarie
         self.indicies = 0
         self.custm = 0
+        self.length_random_walk =0                  # length of random walk. tunable parameter
 
 
 
@@ -72,7 +73,7 @@ class Storage(object):
                 neighbor = self.neighbor_list[neighbor_idx]   # computed through the metropolis algorithm
                 pkt = self.out_buffer.pop(0)        # extract one pkt from the output buffer
                 self.dim_buffer -= 1                # reduce number of queued pkts
-                return neighbor.receive_pkt2(pkt)   # pass pkt to neighbor and return 1 if blocked or 0 if not blocked
+                return neighbor.receive_pkt222(pkt)   # pass pkt to neighbor and return 1 if blocked or 0 if not blocked
 
         else:                                       # empty buffer
             return 0
@@ -138,6 +139,20 @@ class Storage(object):
 #             self.out_buffer.append(pkt)         # add pkt to the outgoing queue
 #             return 0                            # 0 means pkt not stopped
 
+# TERZA VERSIONE DEL RECEIVE PER ALGO 1 PAPER 1
+    def receive_pkt222(self, pkt):
+        pkt.counter += 1                          # increase the pkt forwardin counter
+        if pkt.counter < self.length_random_walk:
+            self.dim_buffer += 1                  # increase the number of queued pkts
+            self.out_buffer.append(pkt)           # add pkt to the outgoing queue
+            return 0
+        else:
+            if self.already_received[pkt.ID - 1] == 0:          # avoid double saving of the same pkt
+                self.received_from_dissemination.append(pkt)    # use a list to keep all received pkts
+                self.already_received[pkt.ID - 1] += 1          # store the knowledge of the fact that the pkt with this
+                self.num_received += 1                          # ID is already been saved in thi node
+            return 1                                            # 1 means we stopped the pkt
+
 
 
     def storage_info(self):
@@ -171,7 +186,7 @@ class Storage(object):
 # -- SENSOR NODE SPECIFICATIONS ---------------------------------------------------------------------------------------
 class Sensor(Storage):
 
-    def __init__(self, ID, X, Y, d, n, k, c1, pid):
+    def __init__(self, ID, X, Y, d, n, k, c1, pid,length_random_walk):
         self.C1 = c1                                # parameter C1
         self.ID = ID                                # ID of the node
         self.X = X                                  # position
@@ -197,6 +212,7 @@ class Sensor(Storage):
         self.received_from_dissemination = []       # variable containing the pkt received from the dissemination
         self.already_received = np.zeros(n)         # keep trace of the already received pkts, in order not to save them both
         self.pkt_generated_gen3 = 0                 # variable containing the pkt generated from gen3, it is an ausiliary variable
+        self.length_random_walk = 0                 # length of random walk. tunable parameter
 
     def spec(self):     # DEPRECATED
         print 'Sensor ID is %d and its position is (x=%d, y=%d) ' % (self.ID, self.X, self.Y)
@@ -219,15 +235,15 @@ class Sensor(Storage):
             self.out_buffer.append(pkt)             # set generated pkt as ready to be sent adding it to the outgoing buffer
         self.dim_buffer = self.number_random_walk   # set the dim of the buffer to the number of queued pkts = number of random walk
 
-        prob = rnd.random()                         # generate a random numener [0,1]
-        if prob <= self.pid:
-            self.received_from_dissemination.append(pkt)    # use a list to keep all received pkts
-            self.already_received[pkt.ID - 1] += 1  # store the knowledge of the fact that the pkt with this
-                                                    # ID is already been coded in thi node
-            self.dim_buffer -= 1                    # decrease the number of queued pkts
-            self.out_buffer.pop(0)                  # remove an instance of the generated pkt
-            self.num_received += 1
-            return pkt.payload, 1                   # return the pkt payload + codificato
+        #prob = rnd.random()                         # generate a random numener [0,1]
+        #if prob <= self.pid:
+        #    self.received_from_dissemination.append(pkt)    # use a list to keep all received pkts
+        #    self.already_received[pkt.ID - 1] += 1  # store the knowledge of the fact that the pkt with this
+        #                                            # ID is already been coded in thi node
+        #    self.dim_buffer -= 1                    # decrease the number of queued pkts
+        #    self.out_buffer.pop(0)                  # remove an instance of the generated pkt
+        #    self.num_received += 1
+        #    return pkt.payload, 1                   # return the pkt payload + codificato
         return pkt.payload, 0                       # return the pkt payload + non codificato
 
 

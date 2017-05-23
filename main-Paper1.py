@@ -9,8 +9,10 @@ from RSD import *
 from math import factorial
 import csv
 import copy
+import networkx as nx
+from plot_grafo import *
 
-def main(n0, k0, eta0, C1, num_MP,L):
+def main(n0, k0, eta0, C1, num_MP,L,length_random_walk):
 # -- PARAMETER INITIALIZATION SECTION --------------------------------------------------------------
     payload = 10
     C1 = C1
@@ -23,9 +25,10 @@ def main(n0, k0, eta0, C1, num_MP,L):
 
     positions = np.zeros((n, 2))             # matrix containing info on all node positions
     node_list = []                           # list of references to node objects
-    dmax = 1.5                               # maximum distance for communication, posto a 1.5 per avere 21 neighbors medi
+    dmax = 1                                 # maximum distance for communication, posto a 1.5 per avere 21 neighbors medi
     dmax2 = dmax * dmax                      # square of maximum distance for communication
     sensors_indexes = rnd.sample(range(0, n), k)  # generation of random indices for sensors
+    #length_random_walk = 500
 
 # -- DEGREE INITIALIZATION --
 
@@ -62,7 +65,7 @@ def main(n0, k0, eta0, C1, num_MP,L):
         y = rnd.uniform(0.0, L)  # generation of random coordinate y
         pid = (d[i]*Xd[int(d[i])-1])/denominator                 #compute steady state probability, formula 5 paper 1
                                                             # step 2 algorithm 1.
-        node_list.append(Storage(i + 1, x, y, int(d[i]), n, k, C1, pid))  # creation of Storage node
+        node_list.append(Storage(i + 1, x, y, int(d[i]), n, k, C1, pid, length_random_walk))  # creation of Storage node
         positions[i, :] = [x, y]
 
 
@@ -87,7 +90,7 @@ def main(n0, k0, eta0, C1, num_MP,L):
         y = rnd.uniform(0.0, L)  # generation of random coordinate y
         pid = (d[i]*Xd[int(d[i])-1])/denominator                 #compute steady state probability, formula 5 paper 1
                                                             # step 2 algorithm 1.
-        node_list[i] = Sensor(i + 1, x, y, int(d[i]), n, k, C1, pid)  # creation of sensor node, function Sensor(), extend Storage class
+        node_list[i] = Sensor(i + 1, x, y, int(d[i]), n, k, C1, pid,length_random_walk)  # creation of sensor node, function Sensor(), extend Storage class
         positions[i, :] = [x, y]  # support variable for positions info, used for comp. optim. reasons
 
 
@@ -125,6 +128,8 @@ def main(n0, k0, eta0, C1, num_MP,L):
         medio += node_list[i].node_degree
 
     print 'Numero medio di vicini',medio/n
+
+    plot_grafo(node_list, n , k , sensors_indexes)
 
 
 # Computation of probabilistic forwarding table
@@ -334,27 +339,27 @@ if __name__ == "__main__":
     for i in xrange(iteration_to_mediate):
         t = time.time()
         tt = time.time()
-        y0[i, :] = main(n0=100, k0=10, eta0=eta, C1=5, num_MP=3000, L=5)
+        y0[i, :] = main(n0=100, k0=10, eta0=eta, C1=5, num_MP=3000, L=5,length_random_walk=500)
         elapsed = time.time() - tt
         print 'n=100 k=10: ', elapsed
         tt = time.time()
-        y1[i, :] = main(n0=100, k0=20, eta0=eta, C1=5, num_MP=3000, L=5)
+        y1[i, :] = main(n0=100, k0=20, eta0=eta, C1=5, num_MP=3000, L=5,length_random_walk=500)
         elapsed = time.time() - tt
         print 'n=100 k=20: ',elapsed
         tt = time.time()
-        y2[i, :] = main(n0=200, k0=20, eta0=eta, C1=5, num_MP=3000, L=5)
+        y2[i, :] = main(n0=200, k0=20, eta0=eta, C1=5, num_MP=3000, L=5,length_random_walk=500)
         elapsed = time.time() - tt
         print 'n=200 k=20: ',elapsed
         tt = time.time()
-        y3[i, :] = main(n0=200, k0=40, eta0=eta, C1=5, num_MP=3000, L=5)
+        y3[i, :] = main(n0=200, k0=40, eta0=eta, C1=5, num_MP=3000, L=5,length_random_walk=500)
         elapsed = time.time() - tt
         print 'n=200 k=40: ',elapsed
         # tt = time.time()
-        # y4[i, :] = main(n0=500, k0=50, eta0=eta, C1=5, num_MP= 1000, L=5)
+        # y4[i, :] = main(n0=500, k0=50, eta0=eta, C1=5, num_MP= 1000, L=5,length_random_walk=500)
         # elapsed = time.time() - tt
         # print elapsed
         # tt = time.time()
-        # y5[i, :] = main(n0=1000, k0=100, eta0=eta, C1=5, num_MP= 1000, L=5)
+        # y5[i, :] = main(n0=1000, k0=100, eta0=eta, C1=5, num_MP= 1000, L=5,length_random_walk=500)
         # elapsed = time.time() - tt
         # print elapsed
         elapsed = time.time() - t
