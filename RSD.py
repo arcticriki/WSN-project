@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 def Robust_Soliton_Distribution(n, k, c0, delta):
     R = c0 * np.sqrt(k) * np.log(float(k)/delta)            # computation of R parameter
     d = np.zeros(n)   # initialization of degree variable
-    print k/R
+    #print k/R
 
     #Tau Function
     tau = np.zeros(k)  # initialization of tau

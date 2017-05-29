@@ -12,6 +12,8 @@ import copy
 import networkx as nx
 from plot_grafo import *
 
+c0 = 0.01
+delta = 0.05
 def main(n0, k0, eta0, C1, num_MP,L,length_random_walk):
 # -- PARAMETER INITIALIZATION SECTION --------------------------------------------------------------
     payload = 10
@@ -20,8 +22,8 @@ def main(n0, k0, eta0, C1, num_MP,L,length_random_walk):
     n = n0                                   # number of nodes
     k = k0                                   # number of sensors
     #L = L                                   # square dimension
-    c0 = 0.1                                 # parameter for RSD
-    delta = 0.5                              # Prob['we're not able to recover the K pkts']<=delta
+    #c0 = 0.01                                 # parameter for RSD
+    #delta = 0.05                              # Prob['we're not able to recover the K pkts']<=delta
 
     positions = np.zeros((n, 2))             # matrix containing info on all node positions
     node_list = []                           # list of references to node objects
@@ -69,20 +71,20 @@ def main(n0, k0, eta0, C1, num_MP,L,length_random_walk):
         positions[i, :] = [x, y]
 
 
-    plt.title('Post dissemination')
-    y1 = positions[:,1]
-    y2 = positions[sensors_indexes,1]
-
-    x1 = positions[:,0]
-    x2 = positions[sensors_indexes,0]
-    plt.axis([0, L, 0, L])
-    plt.plot(x1, y1, linestyle='', marker='o', label='STORAGE')  # plot the robust pdf vs the obtained distribution after dissemination
-    plt.plot(x2, y2, linestyle='', marker='o', color='red', label='SENSORS')
-    plt.legend(loc='upper left')
-    plt.grid()
-    #plt.show(block=False)
-    plt.savefig('Immagini/Paper1_algo1/00_disposition_n='+str(n)+'_k='+str(k)+'.pdf', dpi=150, transparent=False)
-    plt.close()
+    # plt.title('Post dissemination')
+    # y1 = positions[:,1]
+    # y2 = positions[sensors_indexes,1]
+    #
+    # x1 = positions[:,0]
+    # x2 = positions[sensors_indexes,0]
+    # plt.axis([0, L, 0, L])
+    # plt.plot(x1, y1, linestyle='', marker='o', label='STORAGE')  # plot the robust pdf vs the obtained distribution after dissemination
+    # plt.plot(x2, y2, linestyle='', marker='o', color='red', label='SENSORS')
+    # plt.legend(loc='upper left')
+    # plt.grid()
+    # #plt.show(block=False)
+    # plt.savefig('Immagini/Paper1_algo1/00_disposition_n='+str(n)+'_k='+str(k)+'.pdf', dpi=150, transparent=False)
+    # plt.close()
 
 # Generation of sensor nodes
     for i in sensors_indexes:  # for on sensors position indices
@@ -92,7 +94,6 @@ def main(n0, k0, eta0, C1, num_MP,L,length_random_walk):
                                                             # step 2 algorithm 1.
         node_list[i] = Sensor(i + 1, x, y, int(d[i]), n, k, C1, pid,length_random_walk)  # creation of sensor node, function Sensor(), extend Storage class
         positions[i, :] = [x, y]  # support variable for positions info, used for comp. optim. reasons
-
 
 
 # Find nearest neighbours using euclidean distance
@@ -123,13 +124,12 @@ def main(n0, k0, eta0, C1, num_MP,L,length_random_walk):
     #elapsed = time.time() - t
     #print '\nTempo di determinazione dei vicini:', elapsed
 
-    medio = 0
-    for i in xrange(n):
-        medio += node_list[i].node_degree
+    #medio = 0
+    #for i in xrange(n):
+    #    medio += node_list[i].node_degree                  # compute the mean number of neighbors
+    #print 'Numero medio di vicini',medio/n
 
-    print 'Numero medio di vicini',medio/n
-
-    plot_grafo(node_list, n , k , sensors_indexes)
+    #plot_grafo(node_list, n , k , sensors_indexes)         # plot the graph representing the network
 
 
 # Computation of probabilistic forwarding table
@@ -188,7 +188,7 @@ def main(n0, k0, eta0, C1, num_MP,L,length_random_walk):
             if j == (b * k)-codificati_in_partenza:
                 break
         #print j
-    print 'Time taken by dissemination: ',time.time()-t
+    #print 'Time taken by dissemination: ',time.time()-t
 
 
 # -- XORING PRCEDURE ---------------------------------------------------------------------------------------------------
@@ -202,20 +202,20 @@ def main(n0, k0, eta0, C1, num_MP,L,length_random_walk):
         distribution_post_dissemination[index] += 1.0 / n   # augment the prob. value of the related degree
         tot += node_list[i].num_encoded                     # compute the total degree reached
 
-    #return distribution_post_dissemination[1:], pdf
-    plt.title('Post dissemination')
-    y = distribution_post_dissemination[1:]
-    x = np.linspace(1, k, k, endpoint=True)
-    plt.axis([0, k, 0, 0.6])
-    plt.plot(x, y, label='post dissemination')  # plot the robust pdf vs the obtained distribution after dissemination
-    y2 = np.zeros(k)
-    y2[:len(pdf)] = pdf
-    plt.plot(x, y2, color='red', label='robust soliton')
-    plt.legend(loc='upper left')
-    plt.grid()
-    #plt.show(block=False)
-    plt.savefig('Immagini/Paper1_algo1/00_post_diss_n='+str(n)+'_k='+str(k)+'.pdf', dpi=150, transparent=False)
-    plt.close()
+    # # return distribution_post_dissemination[1:], pdf
+    # plt.title('Post dissemination')
+    # y = distribution_post_dissemination[1:]
+    # x = np.linspace(1, k, k, endpoint=True)
+    # plt.axis([0, k, 0, 0.6])
+    # plt.plot(x, y, label='post dissemination')  # plot the robust pdf vs the obtained distribution after dissemination
+    # y2 = np.zeros(k)
+    # y2[:len(pdf)] = pdf
+    # plt.plot(x, y2, color='red', label='robust soliton')
+    # plt.legend(loc='upper left')
+    # plt.grid()
+    # #plt.show(block=False)
+    # plt.savefig('Immagini/Paper1_algo1/00_post_diss_n='+str(n)+'_k='+str(k)+'.pdf', dpi=150, transparent=False)
+    # plt.close()
 
 
 # -- DECODING PHASE ---------------------------------------------------------------------------------------------------
@@ -312,8 +312,7 @@ def main(n0, k0, eta0, C1, num_MP,L,length_random_walk):
 
         decoding_performance[iii] = (num_MP - errati2) / num_MP
 
-    print 'Time taken by message passing:', time.time()-t
-
+    #print 'Time taken by message passing:', time.time()-t
     return decoding_performance
 
 
@@ -325,70 +324,74 @@ if __name__ == "__main__":
 
 
     print 'Figure 3 and 4. \n'
-    iteration_to_mediate = 2
-    eta = [1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2, 2.1, 2.2, 2.3, 2.4, 2.5]
+    iteration_to_mediate = 1
 
-    y0 = np.zeros((iteration_to_mediate, len(eta)))
-    y1 = np.zeros((iteration_to_mediate, len(eta)))
-    y2 = np.zeros((iteration_to_mediate, len(eta)))
-    y3 = np.zeros((iteration_to_mediate, len(eta)))
-    #y4 = np.zeros((iteration_to_mediate, len(eta)))
-    #y5 = np.zeros((iteration_to_mediate, len(eta)))
+    for i in xrange(1):
+        length_random_walk = 500*(i+1)
+        eta = [1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2, 2.1, 2.2, 2.3, 2.4, 2.5]
 
-    # -- Iterazione su diversi sistemi --
-    for i in xrange(iteration_to_mediate):
-        t = time.time()
-        tt = time.time()
-        y0[i, :] = main(n0=100, k0=10, eta0=eta, C1=5, num_MP=3000, L=5,length_random_walk=500)
-        elapsed = time.time() - tt
-        print 'n=100 k=10: ', elapsed
-        tt = time.time()
-        y1[i, :] = main(n0=100, k0=20, eta0=eta, C1=5, num_MP=3000, L=5,length_random_walk=500)
-        elapsed = time.time() - tt
-        print 'n=100 k=20: ',elapsed
-        tt = time.time()
-        y2[i, :] = main(n0=200, k0=20, eta0=eta, C1=5, num_MP=3000, L=5,length_random_walk=500)
-        elapsed = time.time() - tt
-        print 'n=200 k=20: ',elapsed
-        tt = time.time()
-        y3[i, :] = main(n0=200, k0=40, eta0=eta, C1=5, num_MP=3000, L=5,length_random_walk=500)
-        elapsed = time.time() - tt
-        print 'n=200 k=40: ',elapsed
-        # tt = time.time()
-        # y4[i, :] = main(n0=500, k0=50, eta0=eta, C1=5, num_MP= 1000, L=5,length_random_walk=500)
-        # elapsed = time.time() - tt
-        # print elapsed
-        # tt = time.time()
-        # y5[i, :] = main(n0=1000, k0=100, eta0=eta, C1=5, num_MP= 1000, L=5,length_random_walk=500)
-        # elapsed = time.time() - tt
-        # print elapsed
-        elapsed = time.time() - t
-        print 'Iterazione', i + 1, 'di', iteration_to_mediate, 'eseguita in', elapsed, 'secondi'
+        y0 = np.zeros((iteration_to_mediate, len(eta)))
+        y1 = np.zeros((iteration_to_mediate, len(eta)))
+        y2 = np.zeros((iteration_to_mediate, len(eta)))
+        y3 = np.zeros((iteration_to_mediate, len(eta)))
+        #y4 = np.zeros((iteration_to_mediate, len(eta)))
+        #y5 = np.zeros((iteration_to_mediate, len(eta)))
 
-    y0 = y0.mean(0)  # calcolo delle prestazioni medie
-    y1 = y1.mean(0)
-    y2 = y2.mean(0)
-    y3 = y3.mean(0)
+        # -- Iterazione su diversi sistemi --
 
-    # -- Salvataggio su file --
-    with open('Figure3Paper12.txt','wb') as file:
-         wr=csv.writer(file,quoting=csv.QUOTE_ALL)
-         wr.writerow(y0)
-         wr.writerow(y1)
-         wr.writerow(y2)
-         wr.writerow(y3)
+        for i in xrange(iteration_to_mediate):
+            t = time.time()
+            tt = time.time()
+            y0[i, :] = main(n0=100, k0=10, eta0=eta, C1=5, num_MP=3000, L=5,length_random_walk=length_random_walk)
+            elapsed = time.time() - tt
+            print 'n=100 k=10: ', elapsed
+            tt = time.time()
+            y1[i, :] = main(n0=100, k0=20, eta0=eta, C1=5, num_MP=3000, L=5,length_random_walk=length_random_walk)
+            elapsed = time.time() - tt
+            print 'n=100 k=20: ',elapsed
+            tt = time.time()
+            y2[i, :] = main(n0=200, k0=20, eta0=eta, C1=5, num_MP=3000, L=5,length_random_walk=length_random_walk)
+            elapsed = time.time() - tt
+            print 'n=200 k=20: ',elapsed
+            tt = time.time()
+            y3[i, :] = main(n0=200, k0=40, eta0=eta, C1=5, num_MP=3000, L=5,length_random_walk=length_random_walk)
+            elapsed = time.time() - tt
+            print 'n=200 k=40: ',elapsed
+            # tt = time.time()
+            # y4[i, :] = main(n0=500, k0=50, eta0=eta, C1=5, num_MP= 1000, L=5,length_random_walk=500)
+            # elapsed = time.time() - tt
+            # print elapsed
+            # tt = time.time()
+            # y5[i, :] = main(n0=1000, k0=100, eta0=eta, C1=5, num_MP= 1000, L=5,length_random_walk=500)
+            # elapsed = time.time() - tt
+            # print elapsed
+            elapsed = time.time() - t
+            print 'Iterazione', i + 1, 'di', iteration_to_mediate, 'eseguita in', elapsed, 'secondi'
 
-    plt.title('Decoding performances')
-    x = np.linspace(1, 2.5, 16, endpoint=True)
-    plt.axis([1, 2.5, 0, 1])
-    plt.plot(x, y0, label='100 nodes and 10 sources', color='blue', linewidth=2)
-    plt.plot(x, y1, label='100 nodes and 20 sources', color='red', linewidth=2)
-    plt.plot(x, y2, label='200 nodes and 20 sources', color='grey', linewidth=2)
-    plt.plot(x, y3, label='200 nodes and 40 sources', color='magenta', linewidth=2)
-    plt.legend(loc=4)
-    plt.grid()
-    plt.savefig('Immagini/Paper1_algo1/00_Figure3_comparison_ottimo_diss_lenta.pdf', dpi=150, transparent=False)
-    plt.close()
+        y0 = y0.mean(0)  # calcolo delle prestazioni medie
+        y1 = y1.mean(0)
+        y2 = y2.mean(0)
+        y3 = y3.mean(0)
+
+        # -- Salvataggio su file --
+        with open('Figure3Paper12.txt','wb') as file:
+             wr=csv.writer(file,quoting=csv.QUOTE_ALL)
+             wr.writerow(y0)
+             wr.writerow(y1)
+             wr.writerow(y2)
+             wr.writerow(y3)
+
+        plt.title('Decoding performances')
+        x = np.linspace(1, 2.5, 16, endpoint=True)
+        plt.axis([1, 2.5, 0, 1])
+        plt.plot(x, y0, label='100 nodes and 10 sources', color='blue', linewidth=2)
+        plt.plot(x, y1, label='100 nodes and 20 sources', color='red', linewidth=2)
+        plt.plot(x, y2, label='200 nodes and 20 sources', color='grey', linewidth=2)
+        plt.plot(x, y3, label='200 nodes and 40 sources', color='magenta', linewidth=2)
+        plt.legend(loc=2)
+        plt.grid()
+        plt.savefig('Immagini/Paper1_algo1/00_Figure3_comparison_LR='+str(length_random_walk)+'c_0'+str(c0)+'delta='+str(delta)+'.pdf', dpi=150, transparent=False)
+        plt.close()
 
     #names = ['Figure3Paper1.txt']
     #send_mail(names)
