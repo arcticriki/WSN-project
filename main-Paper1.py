@@ -1,5 +1,7 @@
 import numpy as np  # import of package numpy for mathematical tools
 import random as rnd  # import of package random for homonym tools
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt  # import of package matplotlib.pyplot for plottools
 import time as time
 from Node2 import *         #importa la versione due della classe nodo
@@ -9,8 +11,7 @@ from RSD import *
 from math import factorial
 import csv
 import copy
-import networkx as nx
-from plot_grafo import *
+#from plot_grafo import *
 
 c0 = 0.01
 delta = 0.05
@@ -324,9 +325,9 @@ if __name__ == "__main__":
 
 
     print 'Figure 3 and 4. \n'
-    iteration_to_mediate = 1
+    iteration_to_mediate = 10
 
-    for i in xrange(1):
+    for i in xrange(10):
         length_random_walk = 500*(i+1)
         eta = [1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2, 2.1, 2.2, 2.3, 2.4, 2.5]
 
@@ -374,7 +375,7 @@ if __name__ == "__main__":
         y3 = y3.mean(0)
 
         # -- Salvataggio su file --
-        with open('Figure3Paper12.txt','wb') as file:
+        with open('Risultati_txt/Paper1_algo1/plot_Fig3_variazione_Random_Walk='+str(length_random_walk),'wb') as file:
              wr=csv.writer(file,quoting=csv.QUOTE_ALL)
              wr.writerow(y0)
              wr.writerow(y1)
