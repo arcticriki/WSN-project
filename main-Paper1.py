@@ -16,6 +16,7 @@ import copy
 c0 = 0.01
 delta = 0.05
 def main(n0, k0, eta0, C1, num_MP,L,length_random_walk):
+    print 'Length of random walk',length_random_walk
 # -- PARAMETER INITIALIZATION SECTION --------------------------------------------------------------
     payload = 10
     C1 = C1
@@ -31,7 +32,7 @@ def main(n0, k0, eta0, C1, num_MP,L,length_random_walk):
     dmax = 1                                 # maximum distance for communication, posto a 1.5 per avere 21 neighbors medi
     dmax2 = dmax * dmax                      # square of maximum distance for communication
     sensors_indexes = rnd.sample(range(0, n), k)  # generation of random indices for sensors
-    #length_random_walk = 500
+
 
 # -- DEGREE INITIALIZATION --
 
@@ -189,7 +190,7 @@ def main(n0, k0, eta0, C1, num_MP,L,length_random_walk):
             if j == (b * k)-codificati_in_partenza:
                 break
         #print j
-    #print 'Time taken by dissemination: ',time.time()-t
+    print 'Time taken by dissemination: ',time.time()-t
 
 
 # -- XORING PRCEDURE ---------------------------------------------------------------------------------------------------
@@ -313,7 +314,7 @@ def main(n0, k0, eta0, C1, num_MP,L,length_random_walk):
 
         decoding_performance[iii] = (num_MP - errati2) / num_MP
 
-    #print 'Time taken by message passing:', time.time()-t
+    print 'Time taken by message passing:', time.time()-t
     return decoding_performance
 
 
@@ -325,10 +326,12 @@ if __name__ == "__main__":
 
 
     print 'Figure 3 and 4. \n'
-    iteration_to_mediate = 10
+    iteration_to_mediate = 2
 
-    for i in xrange(10):
-        length_random_walk = 500*(i+1)
+    for i in xrange(1):
+        #length_random_walk = 500*(i+1)
+        length_random_walk= 1000
+
         eta = [1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2, 2.1, 2.2, 2.3, 2.4, 2.5]
 
         y0 = np.zeros((iteration_to_mediate, len(eta)))

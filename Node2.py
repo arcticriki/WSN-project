@@ -43,7 +43,7 @@ class Storage(object):
         # Variabili ausiliarie
         self.indicies = 0
         self.custm = 0
-        self.length_random_walk =0                  # length of random walk. tunable parameter
+        self.length_random_walk =length_random_walk                  # length of random walk. tunable parameter
 
 
 
@@ -212,7 +212,7 @@ class Sensor(Storage):
         self.received_from_dissemination = []       # variable containing the pkt received from the dissemination
         self.already_received = np.zeros(n)         # keep trace of the already received pkts, in order not to save them both
         self.pkt_generated_gen3 = 0                 # variable containing the pkt generated from gen3, it is an ausiliary variable
-        self.length_random_walk = 0                 # length of random walk. tunable parameter
+        self.length_random_walk = length_random_walk                 # length of random walk. tunable parameter
 
     def spec(self):     # DEPRECATED
         print 'Sensor ID is %d and its position is (x=%d, y=%d) ' % (self.ID, self.X, self.Y)
