@@ -11,12 +11,101 @@ from RSD import *
 from math import factorial
 import csv
 import copy
+import pandas as pd
+from joblib import Parallel, delayed
+import multiprocessing
+
+
+def message_passing(node_list,n, k, h):
+    decoding_indices = rnd.sample(range(0, n), h)  # selecting h random nodes in the graph
+
+
+    degrees = [0] * h
+    IDs     = [0] * h
+    XORs    = [0] * h
+
+    for node in range(h):
+        degree, ID, XOR = node_list[decoding_indices[node]].storage_info()
+
+        degrees[node] = copy.deepcopy(degree)
+        IDs[node] = copy.deepcopy(ID)
+        XORs[node] = copy.deepcopy(XOR)
+
+    # -- MP. Naive approach --------------------------------
+
+    ripple_payload = []  # auxialiary vectors
+    ripple_IDs = []
+    hashmap = np.zeros(
+        (n, 2))  # vector nx2: pos[ID-1,0]-> "1" pkt of (ID-1) is decoded, "0" otherwise; pos[ID-1,1]->num_hashmap
+    num_hashmap = 0  # key counter: indicates the index of the next free row in decoded matrix
+
+    decoded = np.zeros((k, payload),
+                       dtype=np.int64)  # matrix k*payload: the i-th row stores the total XOR of the decoded pkts
+    empty_ripple = False
+
+    while (empty_ripple == False):
+
+        empty_ripple = True
+
+        position = 0  # linear search of degree one nodes
+
+        while position < len(degrees):
+
+            if degrees[position] == 1:  # if degree 1 is found
+
+                if hashmap[IDs[position][0] - 1, 0] == 0:
+                    decoded[num_hashmap, :] = XORs[position]
+                    hashmap[IDs[position][0] - 1, 0] = 1
+                    hashmap[IDs[position][0] - 1, 1] = num_hashmap
+                    num_hashmap += 1
+                empty_ripple = False
+                del degrees[position]  # decrease degree
+                ripple_IDs.append(IDs[position])  # update ripples
+                del IDs[position]
+                ripple_payload.append(XORs[position])
+                del XORs[position]  # update vector XORs
+            else:
+                position = position + 1
+
+        # scanning the ripple
+        for each_element in ripple_IDs:  # prendi ogni elemento del ripple...
+            for each_node in IDs:  # ...e ogni elemento del vettore degli ID...
+                u = 0
+                while u < len(each_node):
+                    if each_element[0] == each_node[u]:
+                        indice_ID = IDs.index(each_node)
+                        degrees[indice_ID] -= 1
+                        indice_ripple = ripple_IDs.index(each_element)
+                        XORs[indice_ID] = XORs[indice_ID] ^ ripple_payload[indice_ripple]
+                        temp = each_node
+                        del temp[u]
+                        IDs[indice_ID] = temp
+                        each_node = temp
+
+                    else:
+                        u += 1
+
+        i = 0
+        while i < len(IDs):
+            if degrees[i] == 0:
+                IDs.remove([])
+                # XORs.remove(XORs[i])
+                del XORs[i]
+                degrees.remove(0)
+            else:
+                i += 1
+
+    if num_hashmap < k:
+        return 1  # if we do not decode the k pkts that we make an error
+    else:
+        return 0
+
+
 #from plot_grafo import *
 
 c0 = 0.01
 delta = 0.05
 def main(n0, k0, eta0, C1, num_MP,L,length_random_walk):
-    print 'Length of random walk',length_random_walk
 # -- PARAMETER INITIALIZATION SECTION --------------------------------------------------------------
     payload = 10
     C1 = C1
@@ -42,17 +131,12 @@ def main(n0, k0, eta0, C1, num_MP,L,length_random_walk):
 # -- X_d INITIALIZATION --
     #THIS PARAMETER MUST BE COMPUTED THROUGH THE OPTIMIZATION PROBLEM
     Xd = 0
-    if k == 10:
-        Xd = [2.99573, 2.50572, 2.35682, 2.33247, 2.3845, 2.50515, 2.7099, 3.04852, 3.67004, 5.27534]
-    elif k == 20:
-        Xd = [2.99573, 2.43482, 2.21432, 2.10541, 2.05016, 2.0268, 2.02545, 2.04131, 2.07213, 2.11726, 2.17724,
-              2.2538, 2.35006, 2.47121, 2.62574, 2.82823, 3.106, 3.51784, 4.22502, 5.96721]
-    elif k == 40:
-        Xd = [2.99573, 2.40245, 2.15362, 2.01611, 1.93044, 1.87385, 1.83561, 1.80991, 1.79337, 1.78385, 1.77996,
-              1.78075, 1.78559, 1.79403, 1.80578, 1.82063, 1.83849, 1.85933, 1.88316, 1.91008, 1.94024, 1.97383,
-              2.01115, 2.05255, 2.09847, 2.1495, 2.20636, 2.26997, 2.34153, 2.42259, 2.51526, 2.6224, 2.74807,
-              2.89829, 3.0824, 3.31599, 3.62779, 4.07898, 4.83623, 6.65972]
-
+    with open('Dati/'+str(k)+'.csv', 'rb') as csvfile:
+        reader = csv.reader(csvfile, delimiter=',', quoting=csv.QUOTE_NONNUMERIC)  # , quotechar='|')
+        for row in reader:
+            Xd = row
+    for i in xrange(len(Xd)):
+        Xd[i] = float(Xd[i])
 
     # compute denomitator of formula 5
     partial = 0
@@ -60,7 +144,6 @@ def main(n0, k0, eta0, C1, num_MP,L,length_random_walk):
         partial += Xd[i] * (i+1.0) * pdf[i]
 
     denominator = n * partial
-    #rint 'n=',n, '\n\nX_d=', Xd, '\n\n\mu', pdf,'\n\ndenominator=', denominator
 
 # -- NETWORK INITIALIZATION --
 # Generation of storage nodes
@@ -98,6 +181,8 @@ def main(n0, k0, eta0, C1, num_MP,L,length_random_walk):
         positions[i, :] = [x, y]  # support variable for positions info, used for comp. optim. reasons
 
 
+
+
 # Find nearest neighbours using euclidean distance
     #t = time.time()
     nearest_neighbor = []                       # simplifying assumption, if no neighbors exist withing the range
@@ -120,7 +205,7 @@ def main(n0, k0, eta0, C1, num_MP,L,length_random_walk):
                 nearest_neighbor = node_list[i] # save NN reference, to use only if no neighbors are found
 
         if not checker:  # if no neighbors are found withing max dist, use NN
-            print 'Node %d has no neighbors within the range, the nearest neighbor is chosen.' % i
+            #print 'Node %d has no neighbors within the range, the nearest neighbor is chosen.' % i
             node_list[i].neighbor_write(nearest_neighbor)  # Connect node with NN
 
     #elapsed = time.time() - t
@@ -141,6 +226,7 @@ def main(n0, k0, eta0, C1, num_MP,L,length_random_walk):
         node_list[i].metropolis_prob = np.zeros(M+1)  #initialize the vetor which will contain the transition probabilities
                                                 # last node is the node itself, sembra dal metropolis che un nodo possa auto inviarsi
                                                 # un pacchetto
+        #node_list[i].cumulative_prob = np.ones(M+1)
         somma = 0
         for ii in xrange(M):                    # for each node we repeat the same operation for each attached neighbor
                                                 # we use the metropolis algorithm to compute the transition probabilities
@@ -151,7 +237,9 @@ def main(n0, k0, eta0, C1, num_MP,L,length_random_walk):
                                                 # essentially it is the pdf of the transition prob, it can be use with
                                                 # stats.rv_discrete along with the list of indicies to sample a value, as in the RSD
             somma += node_list[i].metropolis_prob[ii]       # keeps in account the cumulative distribution function
-        node_list[i].metropolis_prob[-1] = 1-somma          # add last value, corresponding to the prob of self send
+            #node_list[i].cumulative_prob[ii] = somma
+
+        node_list[i].metropolis_prob[-1] = 1-somma
         node_list[i].neighbor_list.append(node_list[i])     # add itself in the neighbor list
         node_list[i].node_degree += 1
 
@@ -166,19 +254,24 @@ def main(n0, k0, eta0, C1, num_MP,L,length_random_walk):
     for i in sensors_indexes:
         node_list[i].number_random_walk = b
 
+
  # -- PKT GENERATION  --------------------------------------------------------------------------------------------------
     source_pkt = np.zeros((k, payload), dtype=np.int64)
     codificati_in_partenza = 0
+    #t= time.time()
     for i in xrange(k):
         source_pkt[i, :], a = node_list[sensors_indexes[i]].pkt_gen2()
         codificati_in_partenza += a
     #print source_pkt
     #print 'Codificati dai sensori ',codificati_in_partenza
+    #print 'Time taken by pkt generation', time.time()-t
+
 
 
 # -- PKT  DISSEMINATION -----------------------------------------------------------------------------------------------
-    for i in xrange(n):
-        node_list[i].funzione_ausiliaria()
+
+    for i in node_list:
+        i.funzione_ausiliaria()
 
     j = 0
     t = time.time()
@@ -190,20 +283,23 @@ def main(n0, k0, eta0, C1, num_MP,L,length_random_walk):
             if j == (b * k)-codificati_in_partenza:
                 break
         #print j
-    print 'Time taken by dissemination: ',time.time()-t
+    #print 'Time taken by dissemination: ',time.time()-t
+
 
 
 # -- XORING PRCEDURE ---------------------------------------------------------------------------------------------------
+    #t = time.time()
     for i in xrange(n):
         node_list[i].encoding()
+    #print 'Time taken by encoding: ', time.time() - t
 
-    tot = 0
-    distribution_post_dissemination = np.zeros(k + 1)       # ancillary variable used to compute the distribution post dissemination
-    for i in xrange(n):
-        index = node_list[i].num_encoded                    # retrive the actual encoded degree
-        distribution_post_dissemination[index] += 1.0 / n   # augment the prob. value of the related degree
-        tot += node_list[i].num_encoded                     # compute the total degree reached
-
+    # tot = 0
+    # distribution_post_dissemination = np.zeros(k + 1)       # ancillary variable used to compute the distribution post dissemination
+    # for i in xrange(n):
+    #     index = node_list[i].num_encoded                    # retrive the actual encoded degree
+    #     distribution_post_dissemination[index] += 1.0 / n   # augment the prob. value of the related degree
+    #     tot += node_list[i].num_encoded                     # compute the total degree reached
+    #
     # # return distribution_post_dissemination[1:], pdf
     # plt.title('Post dissemination')
     # y = distribution_post_dissemination[1:]
@@ -220,7 +316,7 @@ def main(n0, k0, eta0, C1, num_MP,L,length_random_walk):
     # plt.close()
 
 
-# -- DECODING PHASE ---------------------------------------------------------------------------------------------------
+# -- DECODING PHASE --------
 # -- Initialization -------------------------
     t = time.time()
     passo = 0.1  # incremental step of the epsilon variable
@@ -228,93 +324,15 @@ def main(n0, k0, eta0, C1, num_MP,L,length_random_walk):
     for iii in xrange(len(eta)):
         h = int(k * eta[iii])
         errati = 0.0  # Number of iteration in which we do not decode
-        errati2 = 0.0
-        M = factorial(n) / (10 * factorial(h) * factorial(n - h))  # Computation of the number of iterations to perform, see paper 2
 
-        for ii in xrange(num_MP):
-            decoding_indices = rnd.sample(range(0, n), h)  # selecting h random nodes in the graph
+        for x in xrange(num_MP):
+            errati += message_passing(node_list,n,k,h)
 
-            #print 'iterazione ',ii
+        decoding_performance[iii] = (num_MP - errati) / num_MP
 
-            degrees = [0] * h
-            IDs     = [0] * h
-            XORs    = [0] * h
 
-            for node in range(h):
-                degree, ID, XOR = node_list[decoding_indices[node]].storage_info()
+    #print 'Time taken by message passing:', time.time()-t
 
-                degrees[node] = copy.deepcopy(degree)
-                IDs[node] = copy.deepcopy(ID)
-                XORs[node] = copy.deepcopy(XOR)
-
-            # -- MP. Naive approach --------------------------------
-
-            ripple_payload = []  # auxialiary vectors
-            ripple_IDs = []
-            hashmap = np.zeros((n, 2))  # vector nx2: pos[ID-1,0]-> "1" pkt of (ID-1) is decoded, "0" otherwise; pos[ID-1,1]->num_hashmap
-            num_hashmap = 0  # key counter: indicates the index of the next free row in decoded matrix
-
-            decoded = np.zeros((k, payload), dtype=np.int64)  # matrix k*payload: the i-th row stores the total XOR of the decoded pkts
-            empty_ripple = False
-
-            while (empty_ripple == False):
-
-                empty_ripple = True
-
-                position = 0  # linear search of degree one nodes
-
-                while position < len(degrees):
-
-                    if degrees[position] == 1:  # if degree 1 is found
-
-                        if hashmap[IDs[position][0] - 1, 0] == 0:
-                            decoded[num_hashmap, :] = XORs[position]
-                            hashmap[IDs[position][0] - 1, 0] = 1
-                            hashmap[IDs[position][0] - 1, 1] = num_hashmap
-                            num_hashmap += 1
-                        empty_ripple = False
-                        del degrees[position]  # decrease degree
-                        ripple_IDs.append(IDs[position])  # update ripples
-                        del IDs[position]
-                        ripple_payload.append(XORs[position])
-                        del XORs[position]  # update vector XORs
-                    else:
-                        position = position + 1
-
-                # scanning the ripple
-                for each_element in ripple_IDs:  # prendi ogni elemento del ripple...
-                    for each_node in IDs:  # ...e ogni elemento del vettore degli ID...
-                        u = 0
-                        while u < len(each_node):
-                            if each_element[0] == each_node[u]:
-                                indice_ID = IDs.index(each_node)
-                                degrees[indice_ID] -= 1
-                                indice_ripple = ripple_IDs.index(each_element)
-                                XORs[indice_ID] = XORs[indice_ID] ^ ripple_payload[indice_ripple]
-                                temp = each_node
-                                del temp[u]
-                                IDs[indice_ID] = temp
-                                each_node = temp
-
-                            else:
-                                u += 1
-
-                i = 0
-                while i < len(IDs):
-                    if degrees[i] == 0:
-                        IDs.remove([])
-                        # XORs.remove(XORs[i])
-                        del XORs[i]
-                        degrees.remove(0)
-                    else:
-                        i += 1
-
-            if num_hashmap < k:
-                errati2 += 1  # if we do not decode the k pkts that we make an error
-
-        decoding_performance[iii] = (num_MP - errati2) / num_MP
-
-    print 'Time taken by message passing:', time.time()-t
     return decoding_performance
 
 
@@ -323,14 +341,10 @@ def main(n0, k0, eta0, C1, num_MP,L,length_random_walk):
 if __name__ == "__main__":
     #cProfile.run('main(n0, k0, eta0, C1, num_MP, L)')
 
-
-
-    print 'Figure 3 and 4. \n'
-    iteration_to_mediate = 2
+    iteration_to_mediate = 20
 
     for i in xrange(1):
-        #length_random_walk = 500*(i+1)
-        length_random_walk= 1000
+        length_random_walk = 200*(i+1)
 
         eta = [1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2, 2.1, 2.2, 2.3, 2.4, 2.5]
 
@@ -343,39 +357,35 @@ if __name__ == "__main__":
 
         # -- Iterazione su diversi sistemi --
 
-        for i in xrange(iteration_to_mediate):
-            t = time.time()
-            tt = time.time()
-            y0[i, :] = main(n0=100, k0=10, eta0=eta, C1=5, num_MP=3000, L=5,length_random_walk=length_random_walk)
-            elapsed = time.time() - tt
-            print 'n=100 k=10: ', elapsed
-            tt = time.time()
-            y1[i, :] = main(n0=100, k0=20, eta0=eta, C1=5, num_MP=3000, L=5,length_random_walk=length_random_walk)
-            elapsed = time.time() - tt
-            print 'n=100 k=20: ',elapsed
-            tt = time.time()
-            y2[i, :] = main(n0=200, k0=20, eta0=eta, C1=5, num_MP=3000, L=5,length_random_walk=length_random_walk)
-            elapsed = time.time() - tt
-            print 'n=200 k=20: ',elapsed
-            tt = time.time()
-            y3[i, :] = main(n0=200, k0=40, eta0=eta, C1=5, num_MP=3000, L=5,length_random_walk=length_random_walk)
-            elapsed = time.time() - tt
-            print 'n=200 k=40: ',elapsed
-            # tt = time.time()
-            # y4[i, :] = main(n0=500, k0=50, eta0=eta, C1=5, num_MP= 1000, L=5,length_random_walk=500)
-            # elapsed = time.time() - tt
-            # print elapsed
-            # tt = time.time()
-            # y5[i, :] = main(n0=1000, k0=100, eta0=eta, C1=5, num_MP= 1000, L=5,length_random_walk=500)
-            # elapsed = time.time() - tt
-            # print elapsed
-            elapsed = time.time() - t
-            print 'Iterazione', i + 1, 'di', iteration_to_mediate, 'eseguita in', elapsed, 'secondi'
 
-        y0 = y0.mean(0)  # calcolo delle prestazioni medie
-        y1 = y1.mean(0)
-        y2 = y2.mean(0)
-        y3 = y3.mean(0)
+        num_cores = multiprocessing.cpu_count()
+        print 'Numero di core:',num_cores
+        parallel = time.time()
+        tt = time.time()
+        y0 = Parallel(n_jobs=num_cores)(delayed(main)(n0=100, k0=10, eta0=eta, C1=5, num_MP=1000, L=5,length_random_walk=length_random_walk) for ii in xrange(iteration_to_mediate))
+        print 'n=100 k=10: ', time.time() - tt
+        tt = time.time()
+        y1 = Parallel(n_jobs=num_cores)(delayed(main)(n0=100, k0=20, eta0=eta, C1=5, num_MP=1000, L=5,length_random_walk=length_random_walk) for ii in xrange(iteration_to_mediate))
+        print 'n=100 k=20: ', time.time() - tt
+        tt = time.time()
+        y2 = Parallel(n_jobs=num_cores)(delayed(main)(n0=200, k0=20, eta0=eta, C1=5, num_MP=1000, L=5,length_random_walk=length_random_walk) for ii in xrange(iteration_to_mediate))
+        print 'n=200 k=20: ', time.time() - tt
+        tt = time.time()
+        y3 = Parallel(n_jobs=num_cores)(delayed(main)(n0=200, k0=40, eta0=eta, C1=5, num_MP=1000, L=5,length_random_walk=length_random_walk) for ii in xrange(iteration_to_mediate))
+        print 'n=200 k=40: ', time.time() - tt
+        print 'Parallel time: ', time.time() - parallel
+
+        for i in xrange(iteration_to_mediate-1):
+            y0[0] += y0[i + 1]
+            y1[0] += y1[i + 1]
+            y2[0] += y2[i + 1]
+            y3[0] += y3[i + 1]
+
+        y0 = y0[0] / iteration_to_mediate
+        y1 = y1[0] / iteration_to_mediate
+        y2 = y2[0] / iteration_to_mediate
+        y3 = y3[0] / iteration_to_mediate
+
 
         # -- Salvataggio su file --
         with open('Risultati_txt/Paper1_algo1/plot_Fig3_variazione_Random_Walk='+str(length_random_walk),'wb') as file:
@@ -392,7 +402,7 @@ if __name__ == "__main__":
         plt.plot(x, y1, label='100 nodes and 20 sources', color='red', linewidth=2)
         plt.plot(x, y2, label='200 nodes and 20 sources', color='grey', linewidth=2)
         plt.plot(x, y3, label='200 nodes and 40 sources', color='magenta', linewidth=2)
-        plt.legend(loc=2)
+        plt.legend(loc=4)
         plt.grid()
         plt.savefig('Immagini/Paper1_algo1/00_Figure3_comparison_LR='+str(length_random_walk)+'c_0'+str(c0)+'delta='+str(delta)+'.pdf', dpi=150, transparent=False)
         plt.close()

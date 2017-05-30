@@ -142,7 +142,7 @@ class Storage(object):
 # TERZA VERSIONE DEL RECEIVE PER ALGO 1 PAPER 1
     def receive_pkt222(self, pkt):
         pkt.counter += 1                          # increase the pkt forwardin counter
-        if pkt.counter < self.length_random_walk:
+        if pkt.counter <= self.length_random_walk:
             self.dim_buffer += 1                  # increase the number of queued pkts
             self.out_buffer.append(pkt)           # add pkt to the outgoing queue
             return 0
@@ -230,8 +230,8 @@ class Sensor(Storage):
         return pkt.payload
 
     def pkt_gen2(self):
-        pkt = Pkt(self.ID, payload)                 # generate a PKT object
         for i in xrange(self.number_random_walk):   # mette in coda lo stesso pacchetto tante quante sono le random walk che deve generare
+            pkt = Pkt(self.ID, payload)             # generate a PKT object
             self.out_buffer.append(pkt)             # set generated pkt as ready to be sent adding it to the outgoing buffer
         self.dim_buffer = self.number_random_walk   # set the dim of the buffer to the number of queued pkts = number of random walk
 

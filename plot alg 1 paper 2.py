@@ -21,6 +21,7 @@ with open('Figure 3.txt', 'rb') as csvfile:
         y[i, :] = row
         i += 1
 
+
 y0 = y[0, :]
 y1 = y[1, :]
 y2 = y[2, :]
