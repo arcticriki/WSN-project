@@ -78,7 +78,7 @@ print 'R:',R
 #empiric_mu = [float(i)/n for i in counts]
 
 #for MATLAB usage
-with open('mu', 'wb') as myfile:
+with open('Dati/mu', 'wb') as myfile:
     wr = csv.writer(myfile, quoting=csv.QUOTE_ALL)
     wr.writerow(mu_d)
 
