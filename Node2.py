@@ -2,6 +2,7 @@ import random as rnd
 import numpy as np
 import time as time
 from scipy import stats
+import copy
 
 payload = 10
 
@@ -125,30 +126,17 @@ class Storage(object):
             self.out_buffer.append(pkt)             # add pkt to the outgoing queue
             return 0                                # 0 means pkt not stopped
 
-# SECONDA VERSIONE DEL RECEIVE PER ALGO 1 PAPER 1    LE PRESTAZIONI SONO PEGGIORI, MA E' PIU' VELOCE
-#     def receive_pkt22(self, pkt):
-#         prob = rnd.random()
-#         if prob <= self.pid:                    # if stop prob is verified, we save the pkt and stop forwarding
-#             if self.already_received[pkt.ID - 1] == 0:          # if I haven't already received and saved the pkt
-#                 self.received_from_dissemination.append(pkt)    # use a list to keep all received pkts
-#                 self.already_received[pkt.ID - 1] += 1          # store the knowledge of the fact that the pkt with this
-#                 self.num_received += 1          # ID is already been saved in thi node
-#             return 1                            # 1 means we stopped the pkt
-#         else:                                   # if not, we forward
-#             self.dim_buffer += 1                # increase the number of queued pkts
-#             self.out_buffer.append(pkt)         # add pkt to the outgoing queue
-#             return 0                            # 0 means pkt not stopped
 
 # TERZA VERSIONE DEL RECEIVE PER ALGO 1 PAPER 1
     def receive_pkt222(self, pkt):
         pkt.counter += 1                          # increase the pkt forwardin counter
         if pkt.counter <= self.length_random_walk:
             self.dim_buffer += 1                  # increase the number of queued pkts
-            self.out_buffer.append(pkt)           # add pkt to the outgoing queue
+            self.out_buffer.append(copy.deepcopy(pkt))           # add pkt to the outgoing queue
             return 0
         else:
             if self.already_received[pkt.ID - 1] == 0:          # avoid double saving of the same pkt
-                self.received_from_dissemination.append(pkt)    # use a list to keep all received pkts
+                self.received_from_dissemination.append(copy.deepcopy(pkt))    # use a list to keep all received pkts
                 self.already_received[pkt.ID - 1] += 1          # store the knowledge of the fact that the pkt with this
                 self.num_received += 1                          # ID is already been saved in thi node
             return 1                                            # 1 means we stopped the pkt
@@ -235,15 +223,6 @@ class Sensor(Storage):
             self.out_buffer.append(pkt)             # set generated pkt as ready to be sent adding it to the outgoing buffer
         self.dim_buffer = self.number_random_walk   # set the dim of the buffer to the number of queued pkts = number of random walk
 
-        #prob = rnd.random()                         # generate a random numener [0,1]
-        #if prob <= self.pid:
-        #    self.received_from_dissemination.append(pkt)    # use a list to keep all received pkts
-        #    self.already_received[pkt.ID - 1] += 1  # store the knowledge of the fact that the pkt with this
-        #                                            # ID is already been coded in thi node
-        #    self.dim_buffer -= 1                    # decrease the number of queued pkts
-        #    self.out_buffer.pop(0)                  # remove an instance of the generated pkt
-        #    self.num_received += 1
-        #    return pkt.payload, 1                   # return the pkt payload + codificato
         return pkt.payload, 0                       # return the pkt payload + non codificato
 
 

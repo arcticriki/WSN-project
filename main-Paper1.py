@@ -11,7 +11,6 @@ from RSD import *
 from math import factorial
 import csv
 import copy
-import pandas as pd
 from joblib import Parallel, delayed
 import multiprocessing
 
@@ -283,7 +282,7 @@ def main(n0, k0, eta0, C1, num_MP,L,length_random_walk):
             if j == (b * k)-codificati_in_partenza:
                 break
         #print j
-    #print 'Time taken by dissemination: ',time.time()-t
+    print 'Time taken by dissemination: ',time.time()-t
 
 
 
@@ -293,27 +292,27 @@ def main(n0, k0, eta0, C1, num_MP,L,length_random_walk):
         node_list[i].encoding()
     #print 'Time taken by encoding: ', time.time() - t
 
-    # tot = 0
-    # distribution_post_dissemination = np.zeros(k + 1)       # ancillary variable used to compute the distribution post dissemination
-    # for i in xrange(n):
-    #     index = node_list[i].num_encoded                    # retrive the actual encoded degree
-    #     distribution_post_dissemination[index] += 1.0 / n   # augment the prob. value of the related degree
-    #     tot += node_list[i].num_encoded                     # compute the total degree reached
-    #
-    # # return distribution_post_dissemination[1:], pdf
-    # plt.title('Post dissemination')
-    # y = distribution_post_dissemination[1:]
-    # x = np.linspace(1, k, k, endpoint=True)
-    # plt.axis([0, k, 0, 0.6])
-    # plt.plot(x, y, label='post dissemination')  # plot the robust pdf vs the obtained distribution after dissemination
-    # y2 = np.zeros(k)
-    # y2[:len(pdf)] = pdf
-    # plt.plot(x, y2, color='red', label='robust soliton')
-    # plt.legend(loc='upper left')
-    # plt.grid()
-    # #plt.show(block=False)
-    # plt.savefig('Immagini/Paper1_algo1/00_post_diss_n='+str(n)+'_k='+str(k)+'.pdf', dpi=150, transparent=False)
-    # plt.close()
+    tot = 0
+    distribution_post_dissemination = np.zeros(k + 1)       # ancillary variable used to compute the distribution post dissemination
+    for i in xrange(n):
+        index = node_list[i].num_encoded                    # retrive the actual encoded degree
+        distribution_post_dissemination[index] += 1.0 / n   # augment the prob. value of the related degree
+        tot += node_list[i].num_encoded                     # compute the total degree reached
+
+    # return distribution_post_dissemination[1:], pdf
+    plt.title('Post dissemination')
+    y = distribution_post_dissemination[1:]
+    x = np.linspace(1, k, k, endpoint=True)
+    plt.axis([0, k, 0, 0.6])
+    plt.plot(x, y, label='post dissemination')  # plot the robust pdf vs the obtained distribution after dissemination
+    y2 = np.zeros(k)
+    y2[:len(pdf)] = pdf
+    plt.plot(x, y2, color='red', label='robust soliton')
+    plt.legend(loc='upper left')
+    plt.grid()
+    #plt.show(block=False)
+    plt.savefig('Immagini/Post_dissemination/post_diss_RW='+str(length_random_walk)+'_n='+str(n)+'_k='+str(k)+'.pdf', dpi=150, transparent=False)
+    plt.close()
 
 
 # -- DECODING PHASE --------
@@ -341,10 +340,15 @@ def main(n0, k0, eta0, C1, num_MP,L,length_random_walk):
 if __name__ == "__main__":
     #cProfile.run('main(n0, k0, eta0, C1, num_MP, L)')
 
-    iteration_to_mediate = 20
+    num_cores = multiprocessing.cpu_count()
+    print 'Numero di core utilizzati:', num_cores
 
-    for i in xrange(1):
-        length_random_walk = 200*(i+1)
+    iteration_to_mediate = 4
+    # punti = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 120, 160, 200, 500, 1000])
+    punti = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100])
+
+    for length_random_walk in punti:
+        print 'Lunghezza della random walk:', length_random_walk
 
         eta = [1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2, 2.1, 2.2, 2.3, 2.4, 2.5]
 
@@ -352,28 +356,23 @@ if __name__ == "__main__":
         y1 = np.zeros((iteration_to_mediate, len(eta)))
         y2 = np.zeros((iteration_to_mediate, len(eta)))
         y3 = np.zeros((iteration_to_mediate, len(eta)))
-        #y4 = np.zeros((iteration_to_mediate, len(eta)))
-        #y5 = np.zeros((iteration_to_mediate, len(eta)))
+
 
         # -- Iterazione su diversi sistemi --
-
-
-        num_cores = multiprocessing.cpu_count()
-        print 'Numero di core:',num_cores
         parallel = time.time()
         tt = time.time()
-        y0 = Parallel(n_jobs=num_cores)(delayed(main)(n0=100, k0=10, eta0=eta, C1=5, num_MP=1000, L=5,length_random_walk=length_random_walk) for ii in xrange(iteration_to_mediate))
+        y0 = Parallel(n_jobs=num_cores)(delayed(main)(n0=100, k0=10, eta0=eta, C1=5, num_MP=10, L=5,length_random_walk=length_random_walk) for ii in xrange(iteration_to_mediate))
         print 'n=100 k=10: ', time.time() - tt
         tt = time.time()
-        y1 = Parallel(n_jobs=num_cores)(delayed(main)(n0=100, k0=20, eta0=eta, C1=5, num_MP=1000, L=5,length_random_walk=length_random_walk) for ii in xrange(iteration_to_mediate))
+        y1 = Parallel(n_jobs=num_cores)(delayed(main)(n0=100, k0=20, eta0=eta, C1=5, num_MP=10, L=5,length_random_walk=length_random_walk) for ii in xrange(iteration_to_mediate))
         print 'n=100 k=20: ', time.time() - tt
         tt = time.time()
-        y2 = Parallel(n_jobs=num_cores)(delayed(main)(n0=200, k0=20, eta0=eta, C1=5, num_MP=1000, L=5,length_random_walk=length_random_walk) for ii in xrange(iteration_to_mediate))
+        y2 = Parallel(n_jobs=num_cores)(delayed(main)(n0=200, k0=20, eta0=eta, C1=5, num_MP=10, L=5,length_random_walk=length_random_walk) for ii in xrange(iteration_to_mediate))
         print 'n=200 k=20: ', time.time() - tt
         tt = time.time()
-        y3 = Parallel(n_jobs=num_cores)(delayed(main)(n0=200, k0=40, eta0=eta, C1=5, num_MP=1000, L=5,length_random_walk=length_random_walk) for ii in xrange(iteration_to_mediate))
+        y3 = Parallel(n_jobs=num_cores)(delayed(main)(n0=200, k0=40, eta0=eta, C1=5, num_MP=10, L=5,length_random_walk=length_random_walk) for ii in xrange(iteration_to_mediate))
         print 'n=200 k=40: ', time.time() - tt
-        print 'Parallel time: ', time.time() - parallel
+        #print 'Parallel time: ', time.time() - parallel
 
         for i in xrange(iteration_to_mediate-1):
             y0[0] += y0[i + 1]
