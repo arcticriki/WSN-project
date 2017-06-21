@@ -116,7 +116,8 @@ class Storage(object):
     def storage_info(self):
         return self.num_encoded, self.ID_list, self.storage       #return code degree of the node, list of ID XORed pkts
                                                                   #and the result of the XOR operation
-
+    def storage_info2(self):
+        return self.num_encoded, self.ID_list
 
 # -- SENSOR NODE SPECIFICATIONS ---------------------------------------------------------------------------------------
 class Sensor(Storage):

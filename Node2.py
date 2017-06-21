@@ -146,6 +146,8 @@ class Storage(object):
     def storage_info(self):
         return self.num_encoded, self.ID_list, self.storage       #return code degree of the node, list of ID XORed pkts
                                                                   #and the result of the XOR operation
+    def storage_info2(self):
+        return self.num_encoded, self.ID_list
 
     def encoding(self):                             # procedure that encode the received pkt, algo 1 paper 1
         if self.num_received >= self.code_degree:   # if number of received pkt >= of the node code degree

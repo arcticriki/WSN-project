@@ -15,31 +15,32 @@ from joblib import Parallel, delayed
 import multiprocessing
 
 
-def message_passing(node_list,n, k, h):
+
+def message_passing_OPT(node_list,n, k, h):
     decoding_indices = rnd.sample(range(0, n), h)  # selecting h random nodes in the graph
 
 
     degrees = [0] * h
     IDs     = [0] * h
-    XORs    = [0] * h
+    #XORs    = [0] * h
 
     for node in range(h):
-        degree, ID, XOR = node_list[decoding_indices[node]].storage_info()
+        degree, ID= node_list[decoding_indices[node]].storage_info2()
 
         degrees[node] = copy.deepcopy(degree)
         IDs[node] = copy.deepcopy(ID)
-        XORs[node] = copy.deepcopy(XOR)
+        #XORs[node] = copy.deepcopy(XOR)
 
     # -- MP. Naive approach --------------------------------
 
-    ripple_payload = []  # auxialiary vectors
+    #ripple_payload = []  # auxialiary vectors
     ripple_IDs = []
     hashmap = np.zeros(
         (n, 2))  # vector nx2: pos[ID-1,0]-> "1" pkt of (ID-1) is decoded, "0" otherwise; pos[ID-1,1]->num_hashmap
     num_hashmap = 0  # key counter: indicates the index of the next free row in decoded matrix
 
-    decoded = np.zeros((k, payload),
-                       dtype=np.int64)  # matrix k*payload: the i-th row stores the total XOR of the decoded pkts
+    #decoded = np.zeros((k, payload),
+                       #dtype=np.int64)  # matrix k*payload: the i-th row stores the total XOR of the decoded pkts
     empty_ripple = False
 
     while (empty_ripple == False):
@@ -53,7 +54,7 @@ def message_passing(node_list,n, k, h):
             if degrees[position] == 1:  # if degree 1 is found
 
                 if hashmap[IDs[position][0] - 1, 0] == 0:
-                    decoded[num_hashmap, :] = XORs[position]
+                    #decoded[num_hashmap, :] = XORs[position]
                     hashmap[IDs[position][0] - 1, 0] = 1
                     hashmap[IDs[position][0] - 1, 1] = num_hashmap
                     num_hashmap += 1
@@ -61,8 +62,8 @@ def message_passing(node_list,n, k, h):
                 del degrees[position]  # decrease degree
                 ripple_IDs.append(IDs[position])  # update ripples
                 del IDs[position]
-                ripple_payload.append(XORs[position])
-                del XORs[position]  # update vector XORs
+                #ripple_payload.append(XORs[position])
+                #del XORs[position]  # update vector XORs
             else:
                 position = position + 1
 
@@ -75,7 +76,7 @@ def message_passing(node_list,n, k, h):
                         indice_ID = IDs.index(each_node)
                         degrees[indice_ID] -= 1
                         indice_ripple = ripple_IDs.index(each_element)
-                        XORs[indice_ID] = XORs[indice_ID] ^ ripple_payload[indice_ripple]
+                        #XORs[indice_ID] = XORs[indice_ID] ^ ripple_payload[indice_ripple]
                         temp = each_node
                         del temp[u]
                         IDs[indice_ID] = temp
@@ -88,8 +89,7 @@ def message_passing(node_list,n, k, h):
         while i < len(IDs):
             if degrees[i] == 0:
                 IDs.remove([])
-                # XORs.remove(XORs[i])
-                del XORs[i]
+                #del XORs[i]
                 degrees.remove(0)
             else:
                 i += 1
@@ -100,9 +100,8 @@ def message_passing(node_list,n, k, h):
         return 0
 
 
-#from plot_grafo import *
 
-c0 = 0.2
+c0 = 0.01
 delta = 0.05
 def main(n0, k0, eta0, C1, num_MP,L,length_random_walk):
 # -- PARAMETER INITIALIZATION SECTION --------------------------------------------------------------
@@ -300,62 +299,38 @@ def main(n0, k0, eta0, C1, num_MP,L,length_random_walk):
         tot += node_list[i].num_encoded                     # compute the total degree reached
 
     # return distribution_post_dissemination[1:], pdf
-    plt.title('Post dissemination')
-    y = distribution_post_dissemination[1:]
-    x = np.linspace(1, k, k, endpoint=True)
-    plt.axis([0, k, 0, 0.6])
-    plt.plot(x, y, label='post dissemination')  # plot the robust pdf vs the obtained distribution after dissemination
-    y2 = np.zeros(k)
-    y2[:len(pdf)] = pdf
-    plt.plot(x, y2, color='red', label='robust soliton')
-    plt.legend(loc='upper left')
-    plt.grid()
-    #plt.show(block=False)
-    plt.savefig('Immagini/Post_dissemination/post_diss_RW='+str(length_random_walk)+'_n='+str(n)+'_k='+str(k)+'.pdf', dpi=150, transparent=False)
-    plt.close()
+    # plt.title('Post dissemination')
+    # y = distribution_post_dissemination[1:]
+    # x = np.linspace(1, k, k, endpoint=True)
+    # plt.axis([0, k, 0, 0.6])
+    # plt.plot(x, y, label='post dissemination')  # plot the robust pdf vs the obtained distribution after dissemination
+    # y2 = np.zeros(k)
+    # y2[:len(pdf)] = pdf
+    # plt.plot(x, y2, color='red', label='robust soliton')
+    # plt.legend(loc='upper left')
+    # plt.grid()
+    # #plt.show(block=False)
+    # plt.savefig('Immagini/Post_dissemination/post_diss_RW='+str(length_random_walk)+'_n='+str(n)+'_k='+str(k)+'.pdf', dpi=150, transparent=False)
+    # plt.close()
 
 
 # -- DECODING PHASE --------
 # -- Initialization -------------------------
     t = time.time()
     passo = 0.1  # incremental step of the epsilon variable
-    decoding_performance = np.zeros(len(eta))  # ancillary variable which contains the decoding probability values
+    decoding_performance_OPT = np.zeros(len(eta))
     for iii in xrange(len(eta)):
         h = int(k * eta[iii])
-        errati = 0.0  # Number of iteration in which we do not decode
-
+        errati_OPT = 0.0
         for x in xrange(num_MP):
-            errati += message_passing(node_list,n,k,h)
+            errati_OPT += message_passing_OPT(node_list,n,k,h)
 
-        decoding_performance[iii] = (num_MP - errati) / num_MP
+        decoding_performance_OPT[iii] = (num_MP - errati_OPT) / num_MP
 
 
     #print 'Time taken by message passing:', time.time()-t
 
-    return decoding_performance
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    return decoding_performance_OPT
 
 
 
@@ -367,8 +342,10 @@ if __name__ == "__main__":
     print 'Numero di core utilizzati:', num_cores
 
     iteration_to_mediate = 8
-    punti = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 120, 160, 200, 500, 1000])
+    # punti = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 120, 160, 200, 500, 1000])
+    punti = np.array([1, 5, 10, 100])
 
+    total_time = time.time()
 
     for length_random_walk in punti:
         print 'Lunghezza della random walk:', length_random_walk
@@ -384,20 +361,17 @@ if __name__ == "__main__":
         # -- Iterazione su diversi sistemi --
         parallel = time.time()
         tt = time.time()
-        #y0 = Parallel(n_jobs=num_cores)(delayed(main)(n0=100, k0=10, eta0=eta, C1=5, num_MP=1000, L=5,length_random_walk=length_random_walk) for ii in xrange(iteration_to_mediate))
-        #print 'n=100 k=10: ', time.time() - tt
-        # tt = time.time()
-        # y1 = Parallel(n_jobs=num_cores)(delayed(main)(n0=100, k0=20, eta0=eta, C1=5, num_MP=1000, L=5,length_random_walk=length_random_walk) for ii in xrange(iteration_to_mediate))
-        # print 'n=100 k=20: ', time.time() - tt
-        # tt = time.time()
-        # y2 = Parallel(n_jobs=num_cores)(delayed(main)(n0=200, k0=20, eta0=eta, C1=5, num_MP=1000, L=5,length_random_walk=length_random_walk) for ii in xrange(iteration_to_mediate))
-        # print 'n=200 k=20: ', time.time() - tt
-        # tt = time.time()
-        # y3 = Parallel(n_jobs=num_cores)(delayed(main)(n0=200, k0=40, eta0=eta, C1=5, num_MP=1000, L=5,length_random_walk=length_random_walk) for ii in xrange(iteration_to_mediate))
-        # print 'n=200 k=40: ', time.time() - tt
-        #tt = time.time()
-        y3 = Parallel(n_jobs=num_cores)(delayed(main)(n0=1000, k0=500, eta0=eta, C1=5, num_MP=1000, L=5, length_random_walk=length_random_walk) for ii in xrange(iteration_to_mediate))
-        print 'n=1000 k=500: ', time.time() - tt
+        y0 = Parallel(n_jobs=num_cores)(delayed(main)(n0=100, k0=10, eta0=eta, C1=5, num_MP=1000, L=5,length_random_walk=length_random_walk) for ii in xrange(iteration_to_mediate))
+        print 'n=100 k=10: ', time.time() - tt
+        tt = time.time()
+        y1 = Parallel(n_jobs=num_cores)(delayed(main)(n0=100, k0=20, eta0=eta, C1=5, num_MP=1000, L=5,length_random_walk=length_random_walk) for ii in xrange(iteration_to_mediate))
+        print 'n=100 k=20: ', time.time() - tt
+        tt = time.time()
+        y2 = Parallel(n_jobs=num_cores)(delayed(main)(n0=200, k0=20, eta0=eta, C1=5, num_MP=1000, L=5,length_random_walk=length_random_walk) for ii in xrange(iteration_to_mediate))
+        print 'n=200 k=20: ', time.time() - tt
+        tt = time.time()
+        y3 = Parallel(n_jobs=num_cores)(delayed(main)(n0=200, k0=40, eta0=eta, C1=5, num_MP=1000, L=5,length_random_walk=length_random_walk) for ii in xrange(iteration_to_mediate))
+        print 'n=200 k=40: ', time.time() - tt
         #print 'Parallel time: ', time.time() - parallel
 
         for i in xrange(iteration_to_mediate-1):
@@ -413,7 +387,7 @@ if __name__ == "__main__":
 
 
         # -- Salvataggio su file --
-        with open('Risultati_txt/Paper1_algo1/plot_Fig3_variazione_Random_Walk='+str(length_random_walk),'wb') as file:
+        with open('Risultati_txt/Paper1_algo1/MPcomparison_opt='+str(length_random_walk),'wb') as file:
              wr=csv.writer(file,quoting=csv.QUOTE_ALL)
              wr.writerow(y0)
              wr.writerow(y1)
@@ -429,10 +403,15 @@ if __name__ == "__main__":
         plt.plot(x, y3, label='200 nodes and 40 sources', color='magenta', linewidth=2)
         plt.legend(loc=4)
         plt.grid()
-        plt.savefig('Immagini/Paper1_algo1/00_Figure3_comparison_LR='+str(length_random_walk)+'c_0'+str(c0)+'delta='+str(delta)+'.pdf', dpi=150, transparent=False)
+        #plt.show()
+        plt.savefig('Immagini/Paper1_algo1/figure3_Belluzzo_MPopt='+str(length_random_walk)+'c_0'+str(c0)+'delta='+str(delta)+'.pdf', dpi=150, transparent=False)
         plt.close()
 
+    print 'total time for the procedure: ', time.time() - total_time
     #names = ['Figure3Paper1.txt']
     #send_mail(names)
+
+
+
 
 

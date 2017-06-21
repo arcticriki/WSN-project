@@ -5,9 +5,9 @@ import csv
 
 C1 = 2
 payload = 10
-n = 100                                 # number of nodes
-k = 30                                  # number of sensors
-L = 5                                     # square dimension
+n = 2000                                # number of nodes
+k = 1000                                  # number of sensors
+L = 10                                     # square dimension
 c0 = 0.2                             # parameter for RSD
 delta = 0.05                              # Prob['we're not able to recover the K pkts']<=delta
 
