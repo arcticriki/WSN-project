@@ -102,7 +102,7 @@ def message_passing(node_list,n, k, h):
 
 #from plot_grafo import *
 
-c0 = 0.01
+c0 = 0.2
 delta = 0.05
 def main(n0, k0, eta0, C1, num_MP,L,length_random_walk):
 # -- PARAMETER INITIALIZATION SECTION --------------------------------------------------------------
@@ -337,6 +337,29 @@ def main(n0, k0, eta0, C1, num_MP,L,length_random_walk):
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 if __name__ == "__main__":
     #cProfile.run('main(n0, k0, eta0, C1, num_MP, L)')
 
@@ -344,8 +367,8 @@ if __name__ == "__main__":
     print 'Numero di core utilizzati:', num_cores
 
     iteration_to_mediate = 4
-    # punti = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 120, 160, 200, 500, 1000])
-    punti = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100])
+    punti = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 120, 160, 200, 500, 1000])
+
 
     for length_random_walk in punti:
         print 'Lunghezza della random walk:', length_random_walk
@@ -361,17 +384,20 @@ if __name__ == "__main__":
         # -- Iterazione su diversi sistemi --
         parallel = time.time()
         tt = time.time()
-        y0 = Parallel(n_jobs=num_cores)(delayed(main)(n0=100, k0=10, eta0=eta, C1=5, num_MP=10, L=5,length_random_walk=length_random_walk) for ii in xrange(iteration_to_mediate))
-        print 'n=100 k=10: ', time.time() - tt
-        tt = time.time()
-        y1 = Parallel(n_jobs=num_cores)(delayed(main)(n0=100, k0=20, eta0=eta, C1=5, num_MP=10, L=5,length_random_walk=length_random_walk) for ii in xrange(iteration_to_mediate))
-        print 'n=100 k=20: ', time.time() - tt
-        tt = time.time()
-        y2 = Parallel(n_jobs=num_cores)(delayed(main)(n0=200, k0=20, eta0=eta, C1=5, num_MP=10, L=5,length_random_walk=length_random_walk) for ii in xrange(iteration_to_mediate))
-        print 'n=200 k=20: ', time.time() - tt
-        tt = time.time()
-        y3 = Parallel(n_jobs=num_cores)(delayed(main)(n0=200, k0=40, eta0=eta, C1=5, num_MP=10, L=5,length_random_walk=length_random_walk) for ii in xrange(iteration_to_mediate))
-        print 'n=200 k=40: ', time.time() - tt
+        #y0 = Parallel(n_jobs=num_cores)(delayed(main)(n0=100, k0=10, eta0=eta, C1=5, num_MP=1000, L=5,length_random_walk=length_random_walk) for ii in xrange(iteration_to_mediate))
+        #print 'n=100 k=10: ', time.time() - tt
+        # tt = time.time()
+        # y1 = Parallel(n_jobs=num_cores)(delayed(main)(n0=100, k0=20, eta0=eta, C1=5, num_MP=1000, L=5,length_random_walk=length_random_walk) for ii in xrange(iteration_to_mediate))
+        # print 'n=100 k=20: ', time.time() - tt
+        # tt = time.time()
+        # y2 = Parallel(n_jobs=num_cores)(delayed(main)(n0=200, k0=20, eta0=eta, C1=5, num_MP=1000, L=5,length_random_walk=length_random_walk) for ii in xrange(iteration_to_mediate))
+        # print 'n=200 k=20: ', time.time() - tt
+        # tt = time.time()
+        # y3 = Parallel(n_jobs=num_cores)(delayed(main)(n0=200, k0=40, eta0=eta, C1=5, num_MP=1000, L=5,length_random_walk=length_random_walk) for ii in xrange(iteration_to_mediate))
+        # print 'n=200 k=40: ', time.time() - tt
+        #tt = time.time()
+        y3 = Parallel(n_jobs=num_cores)(delayed(main)(n0=1000, k0=100, eta0=eta, C1=5, num_MP=1000, L=5, length_random_walk=length_random_walk) for ii in xrange(iteration_to_mediate))
+        print 'n=1000 k=100: ', time.time() - tt
         #print 'Parallel time: ', time.time() - parallel
 
         for i in xrange(iteration_to_mediate-1):
