@@ -368,18 +368,18 @@ if __name__ == "__main__":
 
     iteration_to_mediate = 8
     print 'Numero di medie da eseguire: ', iteration_to_mediate
-    punti = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 120, 160, 200, 500, 1000])
+    punti = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 120, 160, 200, 400, 600])
 
+    eta = [1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2, 2.1, 2.2, 2.3, 2.4, 2.5]
+    eta2 = [1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2]
 
     for length_random_walk in punti:
         print 'Lunghezza della random walk:', length_random_walk
 
-        eta = [1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2, 2.1, 2.2, 2.3, 2.4, 2.5]
-
         y0 = np.zeros((iteration_to_mediate, len(eta)))
         y1 = np.zeros((iteration_to_mediate, len(eta)))
         y2 = np.zeros((iteration_to_mediate, len(eta)))
-        y3 = np.zeros((iteration_to_mediate, len(eta)))
+        y3 = np.zeros((iteration_to_mediate, len(eta2)))
 
 
         # -- Iterazione su diversi sistemi --
@@ -397,8 +397,8 @@ if __name__ == "__main__":
         # y3 = Parallel(n_jobs=num_cores)(delayed(main)(n0=200, k0=40, eta0=eta, C1=5, num_MP=1000, L=5,length_random_walk=length_random_walk) for ii in xrange(iteration_to_mediate))
         # print 'n=200 k=40: ', time.time() - tt
         # tt = time.time()
-        y3 = Parallel(n_jobs=num_cores)(delayed(main)(n0=1000, k0=100, eta0=eta, C1=5, num_MP=1000, L=5, length_random_walk=length_random_walk) for ii in xrange(iteration_to_mediate))
-        print 'n=1000 k=100: ', time.time() - tt
+        y3 = Parallel(n_jobs=num_cores)(delayed(main)(n0=5000, k0=500, eta0=eta, C1=5, num_MP=500, L=5, length_random_walk=length_random_walk) for ii in xrange(iteration_to_mediate))
+        print 'n=1000 k=500: ', time.time() - tt
         #print 'Parallel time: ', time.time() - parallel
 
         for i in xrange(iteration_to_mediate-1):
@@ -422,11 +422,14 @@ if __name__ == "__main__":
              wr.writerow(y3)
 
         plt.title('Decoding performances')
-        x = np.linspace(1, 2.5, 16, endpoint=True)
         plt.axis([1, 2.5, 0, 1])
+        x = np.linspace(1, 2.5, len(y0), endpoint=True)
         plt.plot(x, y0, label='100 nodes and 10 sources', color='blue', linewidth=2)
+        x = np.linspace(1, 2.5, len(y1), endpoint=True)
         plt.plot(x, y1, label='100 nodes and 20 sources', color='red', linewidth=2)
+        x = np.linspace(1, 2.5, len(y2), endpoint=True)
         plt.plot(x, y2, label='200 nodes and 20 sources', color='grey', linewidth=2)
+        x = np.linspace(1, 2.5, len(y3), endpoint=True)
         plt.plot(x, y3, label='200 nodes and 40 sources', color='magenta', linewidth=2)
         plt.legend(loc=4)
         plt.grid()
