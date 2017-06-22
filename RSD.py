@@ -63,7 +63,7 @@ def Robust_Soliton_Distribution(n, k, c0, delta):
     # plt.bar(x, y1, color='red')
     # plt.axis([0, upper, 0, 0.6])
     # plt.subplot(3, 1, 3)
-    # plt.title('Robust soliton cdf')
+    # plt.title('Robust soliton pdf')
     # #y2 = np.zeros(50)
     # #y2[:len(pdf)] = pdf
     # y2 = pdf[0:upper]

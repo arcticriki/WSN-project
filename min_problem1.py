@@ -2,11 +2,13 @@ from Node import *
 from RSD import *
 import numpy as np
 import csv
+import math
+import scipy.special
 
 C1 = 2
 payload = 10
-n = 2000                                # number of nodes
-k = 1000                                  # number of sensors
+n = 1100                                # number of nodes
+k = 500                                 # number of sensors
 L = 10                                     # square dimension
 c0 = 0.2                             # parameter for RSD
 delta = 0.05                              # Prob['we're not able to recover the K pkts']<=delta
@@ -86,8 +88,45 @@ with open('Dati/mu', 'wb') as myfile:
 #     wr = csv.writer(myfile, quoting=csv.QUOTE_ALL)
 #     wr.writerow(R)
 
+#--------COMPARISON BETWEEN THE CONSTRAINTS -------------
+
+d = list(range(1, k+1))
+xd = np.ones(k)
+p = np.zeros(k)
+
+up_bound = np.zeros(k)
+constrained = np.zeros(k)
+
+E = 0
+for t in xrange(k):
+    E = E + xd[t] * t * mu_d[t]
 
 
+for di in d:
+    up_bound[di-1] = ((k/di)**di)*math.exp(-xd[di-1]*di)
+
+    p[di-1] = 1 - math.exp(-xd[di-1]*di/k)
+
+    cons=0
+    for uu in xrange(di):
+        cons = cons + scipy.special.binom(k,uu)*p[di-1] * (1-p[di-1])**(k-uu)
+
+
+    constrained[di-1] = cons
+
+
+print up_bound
+print constrained
+print d
+print max(up_bound)
+#actual constraints
+
+plt.plot(d, up_bound,'b')
+plt.plot(d,constrained,'r')
+# plt.ylim(min(up_bound), 1)
+#plt.xlim(0, int(round(k/R)))
+plt.grid()
+plt.show()
 
 
 

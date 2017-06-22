@@ -125,6 +125,16 @@ def main(n0, k0, eta0, C1, num_MP,L,length_random_walk):
 # -- DEGREE INITIALIZATION --
 
     d, pdf, _ = Robust_Soliton_Distribution(n, k, c0, delta)  # See RSD doc
+
+
+    pdf = 0
+    with open('Dati/100_2000_prob2.csv', 'rb') as csvfile:
+        reader = csv.reader(csvfile, delimiter=',', quoting=csv.QUOTE_NONNUMERIC)  # , quotechar='|')
+        for row in reader:
+            pdf = row
+    for i in xrange(len(pdf)):
+        pdf[i] = float(pdf[i])
+
     # to_be_encoded = np.sum(d)                        #use to check how many pkts we should encode ***OPEN PROBLEM***
 
 # -- X_d INITIALIZATION --
@@ -136,6 +146,8 @@ def main(n0, k0, eta0, C1, num_MP,L,length_random_walk):
             Xd = row
     for i in xrange(len(Xd)):
         Xd[i] = float(Xd[i])
+    #per testare problema ottimizzazione 2
+    Xd = np.ones(k)
 
     # compute denomitator of formula 5
     partial = 0
@@ -315,6 +327,7 @@ def main(n0, k0, eta0, C1, num_MP,L,length_random_walk):
     plt.close()
 
 
+
 # -- DECODING PHASE --------
 # -- Initialization -------------------------
     t = time.time()
@@ -366,8 +379,8 @@ if __name__ == "__main__":
     num_cores = multiprocessing.cpu_count()
     print 'Numero di core utilizzati:', num_cores
 
-    iteration_to_mediate = 8
-    punti = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 120, 160, 200, 500, 1000])
+    iteration_to_mediate = 1
+    punti = np.array([1])# 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 120, 160, 200, 500, 1000])
 
 
     for length_random_walk in punti:
@@ -396,7 +409,7 @@ if __name__ == "__main__":
         # y3 = Parallel(n_jobs=num_cores)(delayed(main)(n0=200, k0=40, eta0=eta, C1=5, num_MP=1000, L=5,length_random_walk=length_random_walk) for ii in xrange(iteration_to_mediate))
         # print 'n=200 k=40: ', time.time() - tt
         #tt = time.time()
-        y3 = Parallel(n_jobs=num_cores)(delayed(main)(n0=1000, k0=500, eta0=eta, C1=5, num_MP=1000, L=5, length_random_walk=length_random_walk) for ii in xrange(iteration_to_mediate))
+        y3 = Parallel(n_jobs=num_cores)(delayed(main)(n0=2000, k0=100, eta0=eta, C1=5, num_MP=10, L=5, length_random_walk=length_random_walk) for ii in xrange(iteration_to_mediate))
         print 'n=1000 k=500: ', time.time() - tt
         #print 'Parallel time: ', time.time() - parallel
 
