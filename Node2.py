@@ -14,7 +14,9 @@ payload = 10
 #-- STORAGE NODE SPECIFICATIONS ---------------------------------------------------------------------------------
 class Storage(object):
 
-    def __init__(self, ID, X, Y, d, n, k, c1, c2, c3, pid, length_random_walk):
+    def __init__(self, ID, X, Y, d, n, k, c1, c2, c3, pid, length_random_walk, c0, delta):
+        self.c0 = c0                                # parametri robust, da usare in paper 2 algo 2
+        self.delta = delta
         self.C1 = c1                                # parameter C1
         self.ID = ID                                # ID of the node
         self.X = X                                  # position
@@ -55,6 +57,13 @@ class Storage(object):
         self.hops = []                              # list of list of pkt counters, saved upon pkt receiving
         [self.hops.append([]) for i in xrange(n)]   # how to create [[],[],.....,[]]
         self.stimati = False                        # boolean variable usen in received pkt 22
+        self.last_time = 0                          # keep trace of last arrival time
+        self.last_hop  = 0                          # keep trace of last arrival hop counter
+
+        self.n_stimato_time = 0                     #valori stimati di k e n nei due modi
+        self.n_stimato_hops = 0
+        self.k_stimato_time = 0
+        self.k_stimato_hops = 0
 
 
 
@@ -145,21 +154,48 @@ class Storage(object):
                 self.times[pkt.ID - 1].append(time.time())  # save arrival time for each pkt arriving
                 self.hops[pkt.ID-1].append(pkt.counter)     # save arrival hops for each pkt arriving
 
+                self.last_time = time.time()                # save time of last received pkt, used in k estimation
+                self.last_hop  = pkt.counter                # save hop counter of last received pkt, used in k estimation
+
                 self.dim_buffer += 1                        # increase the number of queued pkts
                 self.out_buffer.append(copy.deepcopy(pkt))  # add pkt to the outgoing queue
 
             else:
-                for i in xrange()
-                T_visit =
+
                 # stima di n
+
+                J_tot_time = 0                              # counter of the
+                J_tot_hop  = 0
+                print 'Sto iniziando a stimare:\n'
+                for i in xrange(n):
+                    try:    #T visit senza la divisione per ku
+                        T_visit_times += (self.times[i][-1] - self.times[0]) / len(self.times[i])
+                        T_visit_hops  += (self.hops[i][-1]  - self.hops[0])  / len(self.hops[i])
+
+                        J_tot_time += len(self.times[i])
+                        J_tot_hop  += len(self.hops[i])
+                    except IndexError:
+                        print 'questo n non ti serve :)'
+                self.n_stimato_time = T_visit_times / ku
+                self.n_stimato_hops = T_visit_hops / ku
+
                 # stima k
+                T_packet_time = (self.last_time - self.first_arrived1[1]) / J_tot_time
+                T_packet_hop  = (self.last_hop  - self.first_arrived2[1]) / J_tot_hop
+
+                self.k_stimato_time = self.n_stimato_time / T_packet_time
+                self.k_stimato_hop  = self.n_stimato_hop  / T_packet_hop
+
                 # robust e campionamento d
+
+
                 # codifica dai pacchetti salvati
                 #
                 #faccio la stima + calcolo d + faccio coding + vedo a che punto sono.
 
 
         else: # procedura post stima
+            print 'DIO GAT'
 
 
 
@@ -212,7 +248,10 @@ class Storage(object):
 # -- SENSOR NODE SPECIFICATIONS ---------------------------------------------------------------------------------------
 class Sensor(Storage):
 
-    def __init__(self, ID, X, Y, d, n, k, c1, c2, c3, pid,length_random_walk):
+    def __init__(self, ID, X, Y, d, n, k, c1, c2, c3, pid,length_random_walk, c0, delta):
+        self.c0 = c0                                # parametri robust, da usare in paper 2 algo 2
+        self.delta = delta
+
         self.C1 = c1                                # parameter C1
         self.ID = ID                                # ID of the node
         self.X = X                                  # position

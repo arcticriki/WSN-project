@@ -163,7 +163,7 @@ def main(n0, k0, eta0, C1, num_MP,L,length_random_walk):
         y = rnd.uniform(0.0, L)  # generation of random coordinate y
         pid = (d[i]*Xd[int(d[i])-1])/denominator                 #compute steady state probability, formula 5 paper 1
                                                             # step 2 algorithm 1.
-        node_list.append(Storage(i + 1, x, y, int(d[i]), n, k, C1, pid, length_random_walk))  # creation of Storage node
+        node_list.append(Storage(i + 1, x, y, int(d[i]), n, k, C1, pid, length_random_walk, c0, delta))  # creation of Storage node
         positions[i, :] = [x, y]
 
 
@@ -188,7 +188,7 @@ def main(n0, k0, eta0, C1, num_MP,L,length_random_walk):
         y = rnd.uniform(0.0, L)  # generation of random coordinate y
         pid = (d[i]*Xd[int(d[i])-1])/denominator                 #compute steady state probability, formula 5 paper 1
                                                             # step 2 algorithm 1.
-        node_list[i] = Sensor(i + 1, x, y, int(d[i]), n, k, C1, pid,length_random_walk)  # creation of sensor node, function Sensor(), extend Storage class
+        node_list[i] = Sensor(i + 1, x, y, int(d[i]), n, k, C1, pid,length_random_walk, c0, delta)  # creation of sensor node, function Sensor(), extend Storage class
         positions[i, :] = [x, y]  # support variable for positions info, used for comp. optim. reasons
 
 
