@@ -14,7 +14,7 @@ payload = 10
 #-- STORAGE NODE SPECIFICATIONS ---------------------------------------------------------------------------------
 class Storage(object):
 
-    def __init__(self, ID, X, Y, d, n, k, c1,pid,length_random_walk):
+    def __init__(self, ID, X, Y, d, n, k, c1, c2, c3, pid, length_random_walk):
         self.C1 = c1                                # parameter C1
         self.ID = ID                                # ID of the node
         self.X = X                                  # position
@@ -46,6 +46,18 @@ class Storage(object):
         self.custm = 0
         self.length_random_walk =length_random_walk                  # length of random walk. tunable parameter
 
+        ###### VARIABILI ALGO2 PAPER 2
+        self.ku = 0                                 # counter for number of different source pkts that have visited the node within c2
+        self.first_arrived1 = np.zeros(3)           # variable containing ID, time, visit counter of first received pkt
+        self.first_arrived2 = np.zeros(3)           # variable containing ID, time, visit counter of first received pkt
+        self.times = []                             # list of list of arrival times
+        [self.times.append([]) for i in xrange(n)]  # how to create [[],[],.....,[]]
+        self.hops = []                              # list of list of pkt counters, saved upon pkt receiving
+        [self.hops.append([]) for i in xrange(n)]   # how to create [[],[],.....,[]]
+        self.stimati = False                        # boolean variable usen in received pkt 22
+
+
+
 
 
     def get_pos(self):                              # return positions, DEPRECATED
@@ -59,27 +71,32 @@ class Storage(object):
         self.indicies = np.arange(0, self.node_degree)  # vector of indicies representing one neighbor
         self.custm = stats.rv_discrete(name='custm', values=(self.indicies, self.metropolis_prob))
 
-    def send_pkt(self, mode):                       # send function used to move messages between nodes
-        if self.dim_buffer > 0:                     # if buffer non empty --> we can send something
-            if mode == 0:                           # mode 0 = uniform at random selection
+    def send_pkt(self, mode):                           # send function used to move messages between nodes
+        if self.dim_buffer > 0:                         # if buffer non empty --> we can send something
+            if mode == 0:                               # mode 0 = uniform at random selection
                 neighbor = rnd.choice(self.neighbor_list)
-                pkt = self.out_buffer.pop(0)        # extract one pkt from the output buffer
-                self.dim_buffer -= 1                # reduce number of queued pkts
-                return neighbor.receive_pkt(pkt)    # pass pkt to neighbor and return 1 if blocked or 0 if not blocked
-            elif mode == 1:                         # mode 1 = metropolis algo (ancora da implementare per paper 1)
-                #ndicies = np.arange(0, self.node_degree)    # vector of indicies representing one neighbor
-                #custm = stats.rv_discrete(name='custm', values=(indicies, self.metropolis_prob))
-                                                    # creation of obj custm, see documentation
-                neighbor_idx = self.custm.rvs()          # randomly sample element from custm, following the distribution
+                pkt = self.out_buffer.pop(0)            # extract one pkt from the output buffer
+                self.dim_buffer -= 1                    # reduce number of queued pkts
+                return neighbor.receive_pkt21(pkt)      # pass pkt to neighbor and return 1 if blocked or 0 if not blocked
+
+            elif mode == 1:                             # mode 1 = metropolis algo (ancora da implementare per paper 1)
+                neighbor_idx = self.custm.rvs()         # randomly sample element from custm, following the distribution
                 neighbor = self.neighbor_list[neighbor_idx]   # computed through the metropolis algorithm
-                pkt = self.out_buffer.pop(0)        # extract one pkt from the output buffer
-                self.dim_buffer -= 1                # reduce number of queued pkts
-                return neighbor.receive_pkt222(pkt)   # pass pkt to neighbor and return 1 if blocked or 0 if not blocked
+                pkt = self.out_buffer.pop(0)            # extract one pkt from the output buffer
+                self.dim_buffer -= 1                    # reduce number of queued pkts
+                return neighbor.receive_pkt11(pkt)      # pass pkt to neighbor and return 1 if blocked or 0 if not blocked
+
+            elif mode == 2:                             # for algo2 paper 2, parameter estimation
+                neighbor = rnd.choice(self.neighbor_list)
+                pkt = self.out_buffer.pop(0)            # extract one pkt from the output buffer
+                self.dim_buffer -= 1                    # reduce number of queued pkts
+                return neighbor.receive_pkt22(pkt)      # pass pkt to neighbor and return 1 if blocked or 0 if not blocked
 
         else:                                       # empty buffer
             return 0
 
-    def receive_pkt(self, pkt):                     # define what to do on pkt receiving
+# RECEIVE PER ALGO 1 PAPER 2
+    def receive_pkt21(self, pkt):                     # define what to do on pkt receiving
         self.visits[pkt.ID-1] += 1                  # increase number of visits this pkt has done in this very node
 
         if self.visits[pkt.ID - 1] == 1:            # if it is the first time the pkt reaches this very node ...
@@ -107,28 +124,47 @@ class Storage(object):
                                                     # the node! That is to say: if pkt x has visited node v before
                                                     # BUT c(x)<C1nlog(n), v accepts it with Prob=0, BUT it forwards it
 
+# RECEIVE PER ALGO 2 PAPER 2
+    def receive_pkt22(self, pkt):                   # define what to do on pkt receiving
+        pkt.counter += 1                            # increace pkt counter
+        if not self.stimati :                       # procedura pre stima di k ed n
+            if self.first_arrived[2]< c2:
 
-# PRIMA VERSIONE DEL RECEIVE PER ALGO 1 PAPER 1
-    def receive_pkt2(self, pkt):
-        if self.already_received[pkt.ID-1] == 0 :
-            prob = rnd.random()
-            if prob <= self.pid:                    # if stop prob is verified, we save the pkt and stop forwarding
-                self.received_from_dissemination.append(pkt)    # use a list to keep all received pkts
-                self.already_received[pkt.ID - 1] += 1          # store the knowledge of the fact that the pkt with this
-                self.num_received += 1              # ID is already been saved in thi node
-                return 1                            # 1 means we stopped the pkt
-            else:                                   # if not, we forward
-                self.dim_buffer += 1                # increase the number of queued pkts
-                self.out_buffer.append(pkt)         # add pkt to the outgoing queue
-                return 0                            # 0 means pkt not stopped
-        else:
-            self.dim_buffer += 1                    # increase the number of queued pkts
-            self.out_buffer.append(pkt)             # add pkt to the outgoing queue
-            return 0                                # 0 means pkt not stopped
+                if self.first_arrived1[2] == 0:             # if it is the first pkt arriving, save ID, TIME, COUNTER=1
+                    self.first_arrived1[:] = ([pkt.ID, time.time(), 0])         # tempi
+                    self.first_arrived2[:] = ([pkt.ID, pkt.counter, 0])         # hops
+
+                if self.first_arrived1[0] == pkt.ID:        # se il pacchetto che vedo è il primo, incremento il contatore
+                    self.first_arrived1[2] +=1              # tempi
+                    self.first_arrived2[2] += 1             # hops
+
+                if not self.times[pkt.ID-1]:                # if it is the first time i see a pkt, increase counter ku
+                    self.ku += 1                            # counter of pkt seen at least once (not increasing if already seen)
+                    self.received_from_dissemination.append(copy.deepcopy(pkt))  # use a list to keep all received pkts if it is the first time I see them
+
+                self.times[pkt.ID - 1].append(time.time())  # save arrival time for each pkt arriving
+                self.hops[pkt.ID-1].append(pkt.counter)     # save arrival hops for each pkt arriving
+
+                self.dim_buffer += 1                        # increase the number of queued pkts
+                self.out_buffer.append(copy.deepcopy(pkt))  # add pkt to the outgoing queue
+
+            else:
+                for i in xrange()
+                T_visit =
+                # stima di n
+                # stima k
+                # robust e campionamento d
+                # codifica dai pacchetti salvati
+                #
+                #faccio la stima + calcolo d + faccio coding + vedo a che punto sono.
 
 
-# TERZA VERSIONE DEL RECEIVE PER ALGO 1 PAPER 1
-    def receive_pkt222(self, pkt):
+        else: # procedura post stima
+
+
+
+# RECEIVE PER ALGO 1 PAPER 1
+    def receive_pkt11(self, pkt):
         pkt.counter += 1                          # increase the pkt forwardin counter
         if pkt.counter <= self.length_random_walk:
             self.dim_buffer += 1                  # increase the number of queued pkts
@@ -176,7 +212,7 @@ class Storage(object):
 # -- SENSOR NODE SPECIFICATIONS ---------------------------------------------------------------------------------------
 class Sensor(Storage):
 
-    def __init__(self, ID, X, Y, d, n, k, c1, pid,length_random_walk):
+    def __init__(self, ID, X, Y, d, n, k, c1, c2, c3, pid,length_random_walk):
         self.C1 = c1                                # parameter C1
         self.ID = ID                                # ID of the node
         self.X = X                                  # position
@@ -203,6 +239,17 @@ class Sensor(Storage):
         self.already_received = np.zeros(n)         # keep trace of the already received pkts, in order not to save them both
         self.pkt_generated_gen3 = 0                 # variable containing the pkt generated from gen3, it is an ausiliary variable
         self.length_random_walk = length_random_walk                 # length of random walk. tunable parameter
+
+        ###### VARIABILI ALGO2 PAPER 2
+        self.ku = 0                                 # counter for number of different source pkts that have visited the node within c2
+        self.first_arrived1 = np.zeros(3)           # variable containing ID, time, visit counter of first received pkt
+        self.first_arrived2 = np.zeros(3)           # variable containing ID, time, visit counter of first received pkt
+        self.times = []                             # list of list of arrival times
+        [self.times.append([]) for i in xrange(n)]  # how to create [[],[],.....,[]]
+        self.hops = []                              # list of list of pkt counters, saved upon pkt receiving
+        [self.hops.append([]) for i in xrange(n)]   # how to create [[],[],.....,[]]
+        self.stimati = False  # boolean variable usen in received pkt 22
+
 
     def spec(self):     # DEPRECATED
         print 'Sensor ID is %d and its position is (x=%d, y=%d) ' % (self.ID, self.X, self.Y)
