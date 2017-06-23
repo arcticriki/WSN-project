@@ -3,6 +3,7 @@ import numpy as np
 import time as time
 from scipy import stats
 import copy
+from RSD import *
 
 payload = 10
 
@@ -187,6 +188,7 @@ class Storage(object):
                 self.k_stimato_hop  = self.n_stimato_hop  / T_packet_hop
 
                 # robust e campionamento d
+                d, pdf, _ = Robust_Soliton_Distribution2(self.n_stimato_time, self.k_stimato_timek, self.c0, self.delta)  # See RSD doc
 
 
                 # codifica dai pacchetti salvati
