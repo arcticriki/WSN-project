@@ -62,9 +62,9 @@ class Storage(object):
         self.last_hop  = 0                          # keep trace of last arrival hop counter
 
         self.n_stimato_time = 0                     #valori stimati di k e n nei due modi
-        self.n_stimato_hops = 0
+        self.n_stimato_hop  = 0
         self.k_stimato_time = 0
-        self.k_stimato_hops = 0
+        self.k_stimato_hop  = 0
 
 
 
@@ -144,7 +144,7 @@ class Storage(object):
                     self.first_arrived1[:] = ([pkt.ID, time.time(), 0])         # tempi
                     self.first_arrived2[:] = ([pkt.ID, pkt.counter, 0])         # hops
 
-                if self.first_arrived1[0] == pkt.ID:        # se il pacchetto che vedo è il primo, incremento il contatore
+                if self.first_arrived1[0] == pkt.ID:        # se il pacchetto che vedo e' il primo, incremento il contatore
                     self.first_arrived1[2] +=1              # tempi
                     self.first_arrived2[2] += 1             # hops
 
@@ -178,7 +178,7 @@ class Storage(object):
                     except IndexError:
                         print 'questo n non ti serve :)'
                 self.n_stimato_time = T_visit_times / ku
-                self.n_stimato_hops = T_visit_hops / ku
+                self.n_stimato_hop = T_visit_hops / ku
 
                 # stima k
                 T_packet_time = (self.last_time - self.first_arrived1[1]) / J_tot_time
@@ -188,7 +188,8 @@ class Storage(object):
                 self.k_stimato_hop  = self.n_stimato_hop  / T_packet_hop
 
                 # robust e campionamento d
-                d, pdf, _ = Robust_Soliton_Distribution2(self.n_stimato_time, self.k_stimato_timek, self.c0, self.delta)  # See RSD doc
+                self.d1, _, _ = Robust_Soliton_Distribution2(self.n_stimato_time, self.k_stimato_time, self.c0, self.delta)  # See RSD doc
+                self.d2, _, _ = Robust_Soliton_Distribution2(self.n_stimato_hop , self.k_stimato_hop , self.c0, self.delta)  # See RSD doc
 
 
                 # codifica dai pacchetti salvati

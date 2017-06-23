@@ -108,6 +108,8 @@ def main(n0, k0, eta0, C1, num_MP,L,length_random_walk):
 # -- PARAMETER INITIALIZATION SECTION --------------------------------------------------------------
     payload = 10
     C1 = C1
+    C2 = 0
+    C3= 0
     eta = eta0
     n = n0                                   # number of nodes
     k = k0                                   # number of sensors
@@ -163,7 +165,7 @@ def main(n0, k0, eta0, C1, num_MP,L,length_random_walk):
         y = rnd.uniform(0.0, L)  # generation of random coordinate y
         pid = (d[i]*Xd[int(d[i])-1])/denominator                 #compute steady state probability, formula 5 paper 1
                                                             # step 2 algorithm 1.
-        node_list.append(Storage(i + 1, x, y, int(d[i]), n, k, C1, pid, length_random_walk, c0, delta))  # creation of Storage node
+        node_list.append(Storage(i + 1, x, y, int(d[i]), n, k, C1,C2, C3, pid, length_random_walk, c0, delta))  # creation of Storage node
         positions[i, :] = [x, y]
 
 
@@ -188,7 +190,7 @@ def main(n0, k0, eta0, C1, num_MP,L,length_random_walk):
         y = rnd.uniform(0.0, L)  # generation of random coordinate y
         pid = (d[i]*Xd[int(d[i])-1])/denominator                 #compute steady state probability, formula 5 paper 1
                                                             # step 2 algorithm 1.
-        node_list[i] = Sensor(i + 1, x, y, int(d[i]), n, k, C1, pid,length_random_walk, c0, delta)  # creation of sensor node, function Sensor(), extend Storage class
+        node_list[i] = Sensor(i + 1, x, y, int(d[i]), n, k, C1, C2, C3, pid,length_random_walk, c0, delta)  # creation of sensor node, function Sensor(), extend Storage class
         positions[i, :] = [x, y]  # support variable for positions info, used for comp. optim. reasons
 
 

@@ -109,6 +109,8 @@ def main(n0, k0, eta0, C1, num_MP,L,length_random_walk):
 # -- PARAMETER INITIALIZATION SECTION --------------------------------------------------------------
     payload = 10
     C1 = C1
+    C2 = 0
+    C3= 0
     eta = eta0
     n = n0                                   # number of nodes
     k = k0                                   # number of sensors
@@ -134,14 +136,14 @@ def main(n0, k0, eta0, C1, num_MP,L,length_random_walk):
     for i in xrange(n):  # for on 0 to n indices
         x = rnd.uniform(0.0, L)  # generation of random coordinate x
         y = rnd.uniform(0.0, L)  # generation of random coordinate y
-        node_list.append(Storage(i + 1, x, y, d[i], n, k, C1,0 , 0, c0, delta))  # creation of Storage node
+        node_list.append(Storage(i + 1, x, y, d[i], n, k, C1,C2, C3,0 , 0, c0, delta))  # creation of Storage node
         positions[i, :] = [x, y]
 
     # Generation of sensor nodes
     for i in sensors_indexes:  # for on sensors position indices
         x = rnd.uniform(0.0, L)  # generation of random coordinate x
         y = rnd.uniform(0.0, L)  # generation of random coordinate y
-        node_list[i] = Sensor(i + 1, x, y, d[i], n,k, C1, 0, 0, c0, delta)  # creation of sensor node, function Sensor(), extend Storage class
+        node_list[i] = Sensor(i + 1, x, y, d[i], n,k, C1,C2, C3, 0, 0, c0, delta)  # creation of sensor node, function Sensor(), extend Storage class
         positions[i, :] = [x, y]  # support variable for positions info, used for comp. optim. reasons
 
     # t = time.time()
