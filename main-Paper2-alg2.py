@@ -13,7 +13,7 @@ import csv
 import copy
 from joblib import Parallel, delayed
 import multiprocessing
-
+from scipy.stats import norm
 
 def message_passing(node_list,n, k, h):
     decoding_indices = rnd.sample(range(0, n), h)  # selecting h random nodes in the graph
@@ -109,8 +109,8 @@ def main(n0, k0, eta0, C1, num_MP,L,length_random_walk):
 # -- PARAMETER INITIALIZATION SECTION --------------------------------------------------------------
     payload = 10
     C1 = C1
-    C2 = 20
-    C3= 100
+    C2 = 50
+    C3 = 100
     eta = eta0
     n = n0                                   # number of nodes
     k = k0                                   # number of sensors
@@ -214,6 +214,48 @@ def main(n0, k0, eta0, C1, num_MP,L,length_random_walk):
     # plt.show()
 
 
+    stima_n = np.zeros(n)
+    stima_k = np.zeros(n)
+    mm_n = np.zeros(2)          # min - max for n
+    mm_k = np.zeros(2)          # min - max for n
+    mm_n[0] = n
+    mm_k[0] = k
+
+    for i in xrange(n):
+
+        stima_n[i] = node_list[i].n_stimato_hop
+
+        if stima_n[i] > mm_n[1]:
+            mm_n[1] = stima_n[i]
+        elif stima_n[i] < mm_n[0] and stima_n[i]>0:
+            mm_n[0] = stima_n[i]
+
+        stima_k[i] = node_list[i].k_stimato_hop
+
+        if stima_k[i] > mm_k[1]:
+            mm_k[1] = stima_k[i]
+        elif stima_k[i] < mm_k[0] and stima_k[i]>0:
+            mm_k[0] = stima_k[i]
+
+    #print np.sort(stima_n)
+
+
+    plt.hist(stima_n, label='pdf n stimato', color='blue', linewidth=2)
+    plt.xlim([-10, mm_n[1]+100])
+    plt.legend(loc=4)
+    plt.savefig('Immagini/Paper2_algo2/00_Figure9_n='+str(n)+'_k='+str(k)+'_c0=' + str(c0) + 'delta=' + str(delta) + '.pdf', dpi=150,transparent=False)
+    plt.close()
+
+
+    plt.hist(stima_k, label='pdf k stimato', color='blue', linewidth=2)
+    plt.xlim([-10, mm_k[1]+100])
+    plt.legend(loc=4)
+    plt.savefig('Immagini/Paper2_algo2/00_Figure10_n='+str(n)+'_k='+str(k)+'_c0=' + str(c0) + 'delta=' + str(delta) + '.pdf', dpi=150,transparent=False)
+    plt.close()
+
+
+
+
 
     # -- DECODING PHASE --------
     # -- Initialization -------------------------
@@ -239,14 +281,13 @@ if __name__ == "__main__":
     num_cores = multiprocessing.cpu_count()
     print 'Numero di core utilizzati:', num_cores
 
-    iteration_to_mediate = 1
+    iteration_to_mediate = 8
     print 'Numero di medie da eseguire: ', iteration_to_mediate
 
     eta = [1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2, 2.1, 2.2, 2.3, 2.4, 2.5]
-    eta = [1]
 
     # ----------- FIGURE 3 AND 4 -------------------
-    #print 'Figure 3 and 4. \n'
+    print 'Figure 3 and 4. \n'
 
     y0 = np.zeros((iteration_to_mediate, len(eta)))
     y1 = np.zeros((iteration_to_mediate, len(eta)))
@@ -255,76 +296,72 @@ if __name__ == "__main__":
     y4 = np.zeros((iteration_to_mediate, len(eta)))
     y5 = np.zeros((iteration_to_mediate, len(eta)))
 
+
     parallel = time.time()
     tt = time.time()
-    y0 = Parallel(n_jobs=num_cores)(delayed(main)(n0=100, k0=10, eta0=eta, C1=5, num_MP=1, L=5, length_random_walk=1) for ii in xrange(iteration_to_mediate))
+    y0 = Parallel(n_jobs=num_cores)(delayed(main)(n0=100, k0=10, eta0=eta, C1=5, num_MP=3000, L=2,length_random_walk=1) for ii in xrange(iteration_to_mediate))
     print 'n=100 k=10: ', time.time() - tt
-
-    # parallel = time.time()
-    # tt = time.time()
-    # y0 = Parallel(n_jobs=num_cores)(delayed(main)(n0=100, k0=10, eta0=eta, C1=5, num_MP=3000, L=5,length_random_walk=1) for ii in xrange(iteration_to_mediate))
-    # print 'n=100 k=10: ', time.time() - tt
-    # tt = time.time()
-    # y1 = Parallel(n_jobs=num_cores)(delayed(main)(n0=100, k0=20, eta0=eta, C1=5, num_MP=3000, L=5,length_random_walk=1) for ii in xrange(iteration_to_mediate))
-    # print 'n=100 k=20: ', time.time() - tt
-    # tt = time.time()
-    # y2 = Parallel(n_jobs=num_cores)(delayed(main)(n0=200, k0=20, eta0=eta, C1=5, num_MP=3000, L=5,length_random_walk=1) for ii in xrange(iteration_to_mediate))
-    # print 'n=200 k=20: ', time.time() - tt
-    # tt = time.time()
-    # y3 = Parallel(n_jobs=num_cores)(delayed(main)(n0=200, k0=40, eta0=eta, C1=5, num_MP=2500, L=5,length_random_walk=1) for ii in xrange(iteration_to_mediate))
-    # print 'n=200 k=40: ', time.time() - tt
-    # tt = time.time()
-    # y4 = Parallel(n_jobs=num_cores)(delayed(main)(n0=500, k0=50, eta0=eta, C1=5, num_MP=2500, L=5, length_random_walk=1) for ii in xrange(iteration_to_mediate))
-    # print 'n=500 k=50: ', time.time() - tt
-    # tt = time.time()
-    # y5 = Parallel(n_jobs=num_cores)(delayed(main)(n0=1000, k0=100, eta0=eta, C1=5, num_MP=2000, L=5, length_random_walk=1) for ii in xrange(iteration_to_mediate))
-    # print 'n=1000 k=100: ', time.time() - tt
+    tt = time.time()
+    y1 = Parallel(n_jobs=num_cores)(delayed(main)(n0=100, k0=20, eta0=eta, C1=5, num_MP=3000, L=2,length_random_walk=1) for ii in xrange(iteration_to_mediate))
+    print 'n=100 k=20: ', time.time() - tt
+    tt = time.time()
+    y2 = Parallel(n_jobs=num_cores)(delayed(main)(n0=200, k0=20, eta0=eta, C1=5, num_MP=3000, L=2,length_random_walk=1) for ii in xrange(iteration_to_mediate))
+    print 'n=200 k=20: ', time.time() - tt
+    tt = time.time()
+    y3 = Parallel(n_jobs=num_cores)(delayed(main)(n0=200, k0=40, eta0=eta, C1=5, num_MP=2500, L=2,length_random_walk=1) for ii in xrange(iteration_to_mediate))
+    print 'n=200 k=40: ', time.time() - tt
+    #tt = time.time()
+    #y4 = Parallel(n_jobs=num_cores)(delayed(main)(n0=500, k0=50, eta0=eta, C1=5, num_MP=2500, L=2, length_random_walk=1) for ii in xrange(iteration_to_mediate))
+    #print 'n=500 k=50: ', time.time() - tt
+    #tt = time.time()
+    #y5 = Parallel(n_jobs=num_cores)(delayed(main)(n0=1000, k0=100, eta0=eta, C1=5, num_MP=2000, L=2, length_random_walk=1) for ii in xrange(iteration_to_mediate))
+    #print 'n=1000 k=100: ', time.time() - tt
     print 'Parallel time: ', time.time() - parallel
-    #
-    # for i in xrange(iteration_to_mediate - 1):
-    #     y0[0] += y0[i + 1]
-    #     y1[0] += y1[i + 1]
-    #     y2[0] += y2[i + 1]
-    #     y3[0] += y3[i + 1]
+
+    for i in xrange(iteration_to_mediate - 1):
+        y0[0] += y0[i + 1]
+        y1[0] += y1[i + 1]
+        y2[0] += y2[i + 1]
+        y3[0] += y3[i + 1]
     #     y4[0] += y4[i + 1]
     #     y5[0] += y5[i + 1]
-    #
-    # y0 = y0[0] / iteration_to_mediate
-    # y1 = y1[0] / iteration_to_mediate
-    # y2 = y2[0] / iteration_to_mediate
-    # y3 = y3[0] / iteration_to_mediate
+
+    y0 = y0[0] / iteration_to_mediate
+    y1 = y1[0] / iteration_to_mediate
+    y2 = y2[0] / iteration_to_mediate
+    y3 = y3[0] / iteration_to_mediate
     # y4 = y4[0] / iteration_to_mediate
     # y5 = y5[0] / iteration_to_mediate
-    #
-    # # -- Salvataggio su file --
-    # with open('Risultati_txt/Paper2_algo1/Figure 3', 'wb') as file:
-    #     wr = csv.writer(file, quoting=csv.QUOTE_ALL)
-    #     wr.writerow(y0)
-    #     wr.writerow(y1)
-    #     wr.writerow(y2)
-    #     wr.writerow(y3)
-    #
+
+    # -- Salvataggio su file --
+    with open('Risultati_txt/Paper2_algo2/Figure 3', 'wb') as file:
+        wr = csv.writer(file, quoting=csv.QUOTE_ALL)
+        wr.writerow(y0)
+        wr.writerow(y1)
+        wr.writerow(y2)
+        wr.writerow(y3)
+
     # with open('Risultati_txt/Paper2_algo1/Figure 4','wb') as file:
     #     wr = csv.writer(file, quoting=csv.QUOTE_ALL)
     #     wr.writerow(y2)
     #     wr.writerow(y4)
     #     wr.writerow(y5)
-    #
-    # plt.title('Decoding performances')
-    # plt.axis([1, 2.5, 0, 1])
-    # x = np.linspace(1, 2.5, len(y0), endpoint=True)
-    # plt.plot(x, y0, label='100 nodes and 10 sources', color='blue', linewidth=2)
-    # x = np.linspace(1, 2.5, len(y1), endpoint=True)
-    # plt.plot(x, y1, label='100 nodes and 20 sources', color='red', linewidth=2)
-    # x = np.linspace(1, 2.5, len(y2), endpoint=True)
-    # plt.plot(x, y2, label='200 nodes and 20 sources', color='grey', linewidth=2)
-    # x = np.linspace(1, 2.5, len(y3), endpoint=True)
-    # plt.plot(x, y3, label='200 nodes and 40 sources', color='magenta', linewidth=2)
-    # plt.legend(loc=4)
-    # plt.grid()
-    # plt.savefig('Immagini/Paper2_algo1/00_Figure3_c_0' + str(c0) + 'delta=' + str(delta) + '.pdf', dpi=150, transparent=False)
-    # plt.close()
-    #
+
+    plt.title('Decoding performances')
+    plt.axis([1, 2.5, 0, 1])
+    x = np.linspace(1, 2.5, len(y0), endpoint=True)
+    plt.plot(x, y0, label='100 nodes and 10 sources', color='blue', linewidth=2)
+    x = np.linspace(1, 2.5, len(y1), endpoint=True)
+    plt.plot(x, y1, label='100 nodes and 20 sources', color='red', linewidth=2)
+    x = np.linspace(1, 2.5, len(y2), endpoint=True)
+    plt.plot(x, y2, label='200 nodes and 20 sources', color='grey', linewidth=2)
+    x = np.linspace(1, 2.5, len(y3), endpoint=True)
+    plt.plot(x, y3, label='200 nodes and 40 sources', color='magenta', linewidth=2)
+    plt.legend(loc=4)
+    plt.grid()
+    plt.savefig('Immagini/Paper2_algo2/00_Figure3_c_0' + str(c0) + 'delta=' + str(delta) + '.pdf', dpi=150, transparent=False)
+    plt.close()
+
     # plt.title('Decoding performances')
     # plt.axis([1, 2.5, 0, 1])
     # x = np.linspace(1, 2.5, len(y2), endpoint=True)
