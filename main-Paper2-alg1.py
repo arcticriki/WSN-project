@@ -109,8 +109,7 @@ def main(n0, k0, eta0, C1, num_MP,L,length_random_walk):
 # -- PARAMETER INITIALIZATION SECTION --------------------------------------------------------------
     payload = 10
     C1 = C1
-    C2 = 0
-    C3= 0
+
     eta = eta0
     n = n0                                   # number of nodes
     k = k0                                   # number of sensors
@@ -136,14 +135,14 @@ def main(n0, k0, eta0, C1, num_MP,L,length_random_walk):
     for i in xrange(n):  # for on 0 to n indices
         x = rnd.uniform(0.0, L)  # generation of random coordinate x
         y = rnd.uniform(0.0, L)  # generation of random coordinate y
-        node_list.append(Storage(i + 1, x, y, d[i], n, k, C1,C2, C3,0 , 0, c0, delta))  # creation of Storage node
+        node_list.append(Storage(i + 1, x, y, d[i], n, k, C1,0 , 0, c0, delta))  # creation of Storage node
         positions[i, :] = [x, y]
 
     # Generation of sensor nodes
     for i in sensors_indexes:  # for on sensors position indices
         x = rnd.uniform(0.0, L)  # generation of random coordinate x
         y = rnd.uniform(0.0, L)  # generation of random coordinate y
-        node_list[i] = Sensor(i + 1, x, y, d[i], n,k, C1,C2, C3, 0, 0, c0, delta)  # creation of sensor node, function Sensor(), extend Storage class
+        node_list[i] = Sensor(i + 1, x, y, d[i], n,k, C1, 0, 0, c0, delta)  # creation of sensor node, function Sensor(), extend Storage class
         positions[i, :] = [x, y]  # support variable for positions info, used for comp. optim. reasons
 
     # t = time.time()
@@ -387,22 +386,6 @@ if __name__ == "__main__":
     y6 = np.zeros( number_of_points_in_x_axis)
     y7 = np.zeros( number_of_points_in_x_axis)
 
-
-    # for i in xrange(iteration_to_mediate):
-    #     tt = time.time()
-    #     print 'Iteration', i + 1, 'of', iteration_to_mediate
-    #     for ii in xrange(number_of_points_in_x_axis):
-    #         t = time.time()
-    #         y6[i, ii] = main(n0=500 * (ii + 1), k0=50 * (ii + 1), eta0=[1.4], C1=3, num_MP= 1000, L=5)
-    #         elalpsed = time.time() - t
-    #         print 'Caso eta = 1.4 e n =', 500 * (ii + 1), 'eseguito in', elalpsed, 'secondi'
-    #
-    #     for ii in xrange(number_of_points_in_x_axis):
-    #         t = time.time()
-    #         y7[i, ii] = main(n0=500 * (ii + 1), k0=50 * (ii + 1), eta0=[1.7], C1=3,  num_MP= 1000, L=5)
-    #         elalpsed = time.time() - t
-    #         print 'Caso eta = 1.7 e n =', 500 * (ii + 1), 'eseguito in', elalpsed, 'secondi'
-    #     print '\nTempo totale di ciclo =', time.time() - tt, '\n'
 
     parallel = time.time()
     for ii in xrange(number_of_points_in_x_axis):

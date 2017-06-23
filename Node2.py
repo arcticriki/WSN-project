@@ -19,6 +19,8 @@ class Storage(object):
         self.c0 = c0                                # parametri robust, da usare in paper 2 algo 2
         self.delta = delta
         self.C1 = c1                                # parameter C1
+        self.C2 = c2                                # parameter C2
+        self.C3 = c3                                # parameter C3
         self.ID = ID                                # ID of the node
         self.X = X                                  # position
         self.Y = Y                                  # position
@@ -51,10 +53,10 @@ class Storage(object):
 
         ###### VARIABILI ALGO2 PAPER 2
         self.ku = 0                                 # counter for number of different source pkts that have visited the node within c2
-        self.first_arrived1 = np.zeros(3)           # variable containing ID, time, visit counter of first received pkt
+        #self.first_arrived1 = np.zeros(3)           # variable containing ID, time, visit counter of first received pkt
         self.first_arrived2 = np.zeros(3)           # variable containing ID, time, visit counter of first received pkt
-        self.times = []                             # list of list of arrival times
-        [self.times.append([]) for i in xrange(n)]  # how to create [[],[],.....,[]]
+        #self.times = []                             # list of list of arrival times
+        #[self.times.append([]) for i in xrange(n)]  # how to create [[],[],.....,[]]
         self.hops = []                              # list of list of pkt counters, saved upon pkt receiving
         [self.hops.append([]) for i in xrange(n)]   # how to create [[],[],.....,[]]
         self.stimati = False                        # boolean variable usen in received pkt 22
@@ -65,6 +67,8 @@ class Storage(object):
         self.n_stimato_hop  = 0
         self.k_stimato_time = 0
         self.k_stimato_hop  = 0
+        #self.d_time = 0
+        self.d_hop  = 0
 
 
 
@@ -136,69 +140,118 @@ class Storage(object):
 
 # RECEIVE PER ALGO 2 PAPER 2
     def receive_pkt22(self, pkt):                   # define what to do on pkt receiving
+        self.visits[pkt.ID - 1] += 1                # increase number of visits this pkt has done in this very node
         pkt.counter += 1                            # increace pkt counter
         if not self.stimati :                       # procedura pre stima di k ed n
-            if self.first_arrived[2]< c2:
+            if self.first_arrived2[2]< self.C2:
 
-                if self.first_arrived1[2] == 0:             # if it is the first pkt arriving, save ID, TIME, COUNTER=1
-                    self.first_arrived1[:] = ([pkt.ID, time.time(), 0])         # tempi
+                if self.first_arrived2[2] == 0:             # if it is the first pkt arriving, save ID, TIME, COUNTER=1
+                    #self.first_arrived1[:] = ([pkt.ID, time.time(), 0])         # tempi
                     self.first_arrived2[:] = ([pkt.ID, pkt.counter, 0])         # hops
 
-                if self.first_arrived1[0] == pkt.ID:        # se il pacchetto che vedo e' il primo, incremento il contatore
-                    self.first_arrived1[2] +=1              # tempi
+                if self.first_arrived2[0] == pkt.ID:        # se il pacchetto che vedo e' il primo, incremento il contatore
+                    #self.first_arrived1[2] += 1             # tempi
                     self.first_arrived2[2] += 1             # hops
 
-                if not self.times[pkt.ID-1]:                # if it is the first time i see a pkt, increase counter ku
+                if not self.hops[pkt.ID-1]:                # if it is the first time i see a pkt, increase counter ku
                     self.ku += 1                            # counter of pkt seen at least once (not increasing if already seen)
                     self.received_from_dissemination.append(copy.deepcopy(pkt))  # use a list to keep all received pkts if it is the first time I see them
+                    self.num_received += 1                  # tiene conto del numero di pacchetti che ho salvato per poi codificarli dopo la stima
 
-                self.times[pkt.ID - 1].append(time.time())  # save arrival time for each pkt arriving
-                self.hops[pkt.ID-1].append(pkt.counter)     # save arrival hops for each pkt arriving
+                #self.times[pkt.ID - 1].append(time.time())  # save arrival time for each pkt arriving
+                self.hops[pkt.ID - 1].append(pkt.counter)     # save arrival hops for each pkt arriving
 
-                self.last_time = time.time()                # save time of last received pkt, used in k estimation
+                #self.last_time = time.time()                # save time of last received pkt, used in k estimation
                 self.last_hop  = pkt.counter                # save hop counter of last received pkt, used in k estimation
 
                 self.dim_buffer += 1                        # increase the number of queued pkts
                 self.out_buffer.append(copy.deepcopy(pkt))  # add pkt to the outgoing queue
+                return 0
 
             else:
-
+                self.stimati = True
                 # stima di n
 
-                J_tot_time = 0                              # counter of the
+                #J_tot_time = 0                              # counter of the
                 J_tot_hop  = 0
-                print 'Sto iniziando a stimare:\n'
-                for i in xrange(n):
+                #T_visit_times = 0
+                T_visit_hops  = 0
+                for i in xrange(self.n):
                     try:    #T visit senza la divisione per ku
-                        T_visit_times += (self.times[i][-1] - self.times[0]) / len(self.times[i])
-                        T_visit_hops  += (self.hops[i][-1]  - self.hops[0])  / len(self.hops[i])
+                        #T_visit_times += (self.times[i][-1] - self.times[i][0]) / len(self.times[i])
+                        T_visit_hops  += (self.hops[i][-1]  - self.hops[i][0])  / len(self.hops[i])
 
-                        J_tot_time += len(self.times[i])
+                        #J_tot_time += len(self.times[i])
                         J_tot_hop  += len(self.hops[i])
                     except IndexError:
-                        print 'questo n non ti serve :)'
-                self.n_stimato_time = T_visit_times / ku
-                self.n_stimato_hop = T_visit_hops / ku
+                        a=5
+
+
+                #self.n_stimato_time = T_visit_times / self.ku
+                self.n_stimato_hop = T_visit_hops / self.ku
 
                 # stima k
-                T_packet_time = (self.last_time - self.first_arrived1[1]) / J_tot_time
+                #T_packet_time = (self.last_time - self.first_arrived1[1]) / J_tot_time
                 T_packet_hop  = (self.last_hop  - self.first_arrived2[1]) / J_tot_hop
 
-                self.k_stimato_time = self.n_stimato_time / T_packet_time
-                self.k_stimato_hop  = self.n_stimato_hop  / T_packet_hop
+                #self.k_stimato_time = self.n_stimato_time / T_packet_time
+                self.k_stimato_hop  = int(round(self.n_stimato_hop  / T_packet_hop))
+
+                print 'Estimated n= %d k=%d' % (self.n_stimato_hop, self.k_stimato_hop)
+
 
                 # robust e campionamento d
-                self.d1, _, _ = Robust_Soliton_Distribution2(self.n_stimato_time, self.k_stimato_time, self.c0, self.delta)  # See RSD doc
-                self.d2, _, _ = Robust_Soliton_Distribution2(self.n_stimato_hop , self.k_stimato_hop , self.c0, self.delta)  # See RSD doc
+                # quando decido chi usare devo mettere self.code_degree
+                #self.d_time, _, _ = Robust_Soliton_Distribution2(self.n_stimato_time, self.k_stimato_time, self.c0, self.delta)  # See RSD doc
+                self.d_hop , _, _ = Robust_Soliton_Distribution2(self.n_stimato_hop , self.k_stimato_hop , self.c0, self.delta)  # See RSD doc
+                self.code_degree = self.d_hop
 
+                self.code_prob = self.code_degree / self.k_stimato_hop  # compute the code probability, d/k
 
                 # codifica dai pacchetti salvati
-                #
-                #faccio la stima + calcolo d + faccio coding + vedo a che punto sono.
+                if not self.hops[pkt.ID-1]:            # if it is the first time i see a pkt, increase counter ku
+                    self.received_from_dissemination.append(copy.deepcopy(pkt))
+                                                        # use a list to keep all received pkts if it is the first time I see them
+                self.dim_buffer += 1                    # increase the number of queued pkts
+                self.out_buffer.append(copy.deepcopy(pkt))  # add pkt to the outgoing queue
 
+                for i in xrange(self.num_received):
+                    if self.num_encoded < self.code_degree:     # ...and we still have to encode something
+                        prob = rnd.random()                     # generate a random number in the range [0,1)
+                        if prob <= self.code_prob:              # if generated number less or equal to coding probability
+                            self.ID_list.append(pkt.ID)         # save ID of node who generated the coded pkt
+                            self.storage = self.storage ^ pkt.payload  # code procedure(XOR)
+                            self.num_encoded += 1               # increase num of encoded pkts
+                    else:
+                        break
+                #faccio la stima + calcolo d + faccio coding + vedo a che punto sono.
+                return 0
 
         else: # procedura post stima
-            print 'DIO GAT'
+
+            if self.visits[pkt.ID - 1] == 1:        # if it is the first time the pkt reaches this very node ...
+                if self.num_encoded < self.code_degree:  # ...and we still have to encode something
+                    prob = rnd.random()             # generate a random number in the range [0,1)
+                    if prob <= self.code_prob:      # if generated number less or equal to coding probability
+                        self.ID_list.append(pkt.ID) # save ID of node who generated the coded pkt
+                        self.storage = self.storage ^ pkt.payload  # code procedure(XOR)
+                        self.num_encoded += 1       # increase num of encoded pkts
+                self.out_buffer.append(pkt)         # else, if pkt is at its first visit, or it haven't reached C1nlog10(n)
+                self.dim_buffer += 1
+                return 0  # NOTE: this procedure has to be done even if the pkt has already visited
+                # the node! That is to say: if pkt x has visited node v before
+                # BUT c(x)<C1nlog(n), v accepts it with Prob=0, BUT it forwards it
+            if self.visits[pkt.ID - 1] > 1:
+                if pkt.counter >= self.C3 * self.n_stimato_hop * np.log10(self.n_stimato_hop):
+                    # if packet already visited the node and its counter is greater than C1nlog10(n) then, discard it
+                    return 1                        # pkt dropped
+                else:
+                    self.out_buffer.append(pkt)     # else, if pkt is at its first visit, or it haven't reached C1nlog10(n)
+                    self.dim_buffer += 1
+                    return 0  # NOTE: this procedure has to be done even if the pkt has already visited
+                    # the node! That is to say: if pkt x has visited node v before
+                    # BUT c(x)<C1nlog(n), v accepts it with Prob=0, BUT it forwards it
+
 
 
 
@@ -256,6 +309,8 @@ class Sensor(Storage):
         self.delta = delta
 
         self.C1 = c1                                # parameter C1
+        self.C2 = c2                                # parameter C2
+        self.C3 = c3                                # parameter C3
         self.ID = ID                                # ID of the node
         self.X = X                                  # position
         self.Y = Y                                  # position
@@ -290,8 +345,16 @@ class Sensor(Storage):
         [self.times.append([]) for i in xrange(n)]  # how to create [[],[],.....,[]]
         self.hops = []                              # list of list of pkt counters, saved upon pkt receiving
         [self.hops.append([]) for i in xrange(n)]   # how to create [[],[],.....,[]]
-        self.stimati = False  # boolean variable usen in received pkt 22
+        self.stimati = False                        # boolean variable usen in received pkt 22
+        self.last_time = 0                          # keep trace of last arrival time
+        self.last_hop = 0                           # keep trace of last arrival hop counter
 
+        self.n_stimato_time = 0  # valori stimati di k e n nei due modi
+        self.n_stimato_hop = 0
+        self.k_stimato_time = 0
+        self.k_stimato_hop = 0
+        self.d_time = 0
+        self.d_hop = 0
 
     def spec(self):     # DEPRECATED
         print 'Sensor ID is %d and its position is (x=%d, y=%d) ' % (self.ID, self.X, self.Y)
