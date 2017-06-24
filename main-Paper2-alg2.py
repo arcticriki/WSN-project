@@ -14,6 +14,7 @@ import copy
 from joblib import Parallel, delayed
 import multiprocessing
 from scipy.stats import norm
+from plot_grafo import *
 
 def message_passing(node_list,n, k, h):
     decoding_indices = rnd.sample(range(0, n), h)  # selecting h random nodes in the graph
@@ -136,22 +137,23 @@ def main(n0, k0, eta0, C1, num_MP,L,length_random_walk):
     for i in xrange(n):  # for on 0 to n indices
         x = rnd.uniform(0.0, L)             # generation of random coordinate x
         y = rnd.uniform(0.0, L)             # generation of random coordinate y
-        node_list.append(Storage(i + 1, x, y, d[i], n, k, C1,C2, C3,0 , 0, c0, delta))  # creation of Storage node
+        node_list.append(Storage(i + 1, x, y, 0, n, k, C1,C2, C3,0 , 0, c0, delta))  # creation of Storage node
         positions[i, :] = [x, y]
 
     # Generation of sensor nodes
     for i in sensors_indexes:               # for on sensors position indices
         x = rnd.uniform(0.0, L)             # generation of random coordinate x
         y = rnd.uniform(0.0, L)             # generation of random coordinate y
-        node_list[i] = Sensor(i + 1, x, y, d[i], n,k, C1,C2, C3, 0, 0, c0, delta)  # creation of sensor node, function Sensor(), extend Storage class
+        node_list[i] = Sensor(i + 1, x, y, 0, n,k, C1,C2, C3, 0, 0, c0, delta)  # creation of sensor node, function Sensor(), extend Storage class
         positions[i, :] = [x, y]  # support variable for positions info, used for comp. optim. reasons
 
     # t = time.time()
     # Find nearest neighbours using euclidean distance
-    nearest_neighbor = []                   # simplifying assumption, if no neighbors exist withing the range
-                                            # we consider the nearest neighbor
-    nn_distance = 2 * L * L                 # maximum distance square equal the diagonal of the square [L,L]
+
     for i in xrange(n):                     # cycle on all nodes
+        nearest_neighbor = []               # simplifying assumption, if no neighbors exist withing the range
+                                            # we consider the nearest neighbor
+        d_min = 2 * L * L                   # maximum distance square equal the diagonal of the square [L,L]
         checker = False                     # boolean variable used to check if neighbors are found (false if not)
         for j in xrange(n):                 # compare each node with all the others
             x = positions[i, 0] - positions[j, 0]  # compute x distance between node i and node j
@@ -161,15 +163,18 @@ def main(n0, k0, eta0, C1, num_MP,L,length_random_walk):
                 if dist2 != 0:              # avoid considering self node as neighbor
                     node_list[i].neighbor_write(node_list[j])  # append operation on node's neighbor list
                     checker = True          # at least one neighbor has been founded
-            if not checker and dist2 <= nn_distance and dist2 != 0:  # in order to be sure that the graph is connected
-                                            # we determine the nearest neighbor
-                                            # even if its distance is greater than the max distance
-                nn_distance = dist2         # if distance of new NN is less than distance of previous NN, update it
-                nearest_neighbor = node_list[i]  # save NN reference, to use only if no neighbors are found
+            elif dist2 <= d_min:
+                d_min = dist2
+                nearest_neighbor =node_list[j]
 
         if not checker:                     # if no neighbors are found withing max dist, use NN
-            print 'Node %d has no neighbors within the range, the nearest neighbor is chosen.' % i
+            #print 'Node %d has no neighbors within the range, the nearest neighbor is chosen.' % i
             node_list[i].neighbor_write(nearest_neighbor)  # Connect node with NN
+
+
+    # Compute the network topology
+    #plot_grafo(node_list, n, k, sensors_indexes,L)
+
 
     # elapsed = time.time() - t
     # print 'Tempo di determinazione dei vicini:', elapsed
@@ -214,6 +219,9 @@ def main(n0, k0, eta0, C1, num_MP,L,length_random_walk):
     # plt.show()
 
 
+    [node_list[i].baro() for i in xrange(n)]
+
+
     stima_n = np.zeros(n)
     stima_k = np.zeros(n)
     mm_n = np.zeros(2)          # min - max for n
@@ -239,20 +247,19 @@ def main(n0, k0, eta0, C1, num_MP,L,length_random_walk):
 
     #print np.sort(stima_n)
 
-
-    plt.hist(stima_n, label='pdf n stimato', color='blue', linewidth=2)
-    plt.xlim([-10, mm_n[1]+100])
-    plt.legend(loc=4)
+    step=3
+    plt.hist(stima_n, bins=np.arange(mm_n[0],mm_n[1]+step,step=step) , label='Estimated $\hat n$ frequency', color='blue', linewidth=2)
+    plt.xlim([mm_n[0]-20, mm_n[1]+20])
+    plt.legend(loc=1)
     plt.savefig('Immagini/Paper2_algo2/00_Figure9_n='+str(n)+'_k='+str(k)+'_c0=' + str(c0) + 'delta=' + str(delta) + '.pdf', dpi=150,transparent=False)
     plt.close()
 
-
-    plt.hist(stima_k, label='pdf k stimato', color='blue', linewidth=2)
-    plt.xlim([-10, mm_k[1]+100])
-    plt.legend(loc=4)
+    step=1
+    plt.hist(stima_k,bins=np.arange(mm_k[0],mm_k[1]+step,step=step), label='Estimated $\hat k$ frequency', color='blue', linewidth=2)
+    plt.xlim([mm_k[0]-10, mm_k[1]+10])
+    plt.legend(loc=1)
     plt.savefig('Immagini/Paper2_algo2/00_Figure10_n='+str(n)+'_k='+str(k)+'_c0=' + str(c0) + 'delta=' + str(delta) + '.pdf', dpi=150,transparent=False)
     plt.close()
-
 
 
 
@@ -296,26 +303,33 @@ if __name__ == "__main__":
     y4 = np.zeros((iteration_to_mediate, len(eta)))
     y5 = np.zeros((iteration_to_mediate, len(eta)))
 
+    mp1=3000
+    mp2=2500
+    mp3=2000
+
+    # mp1=1
+    # mp2=1
+    # mp3=1
 
     parallel = time.time()
     tt = time.time()
-    y0 = Parallel(n_jobs=num_cores)(delayed(main)(n0=100, k0=10, eta0=eta, C1=5, num_MP=3000, L=2,length_random_walk=1) for ii in xrange(iteration_to_mediate))
+    y0 = Parallel(n_jobs=num_cores)(delayed(main)(n0=100, k0=10, eta0=eta, C1=5, num_MP= mp1 , L=np.sqrt(100*9/40),length_random_walk=1) for ii in xrange(iteration_to_mediate))
     print 'n=100 k=10: ', time.time() - tt
     tt = time.time()
-    y1 = Parallel(n_jobs=num_cores)(delayed(main)(n0=100, k0=20, eta0=eta, C1=5, num_MP=3000, L=2,length_random_walk=1) for ii in xrange(iteration_to_mediate))
+    y1 = Parallel(n_jobs=num_cores)(delayed(main)(n0=100, k0=20, eta0=eta, C1=5, num_MP= mp1, L=np.sqrt(100*9/40),length_random_walk=1) for ii in xrange(iteration_to_mediate))
     print 'n=100 k=20: ', time.time() - tt
     tt = time.time()
-    y2 = Parallel(n_jobs=num_cores)(delayed(main)(n0=200, k0=20, eta0=eta, C1=5, num_MP=3000, L=2,length_random_walk=1) for ii in xrange(iteration_to_mediate))
+    y2 = Parallel(n_jobs=num_cores)(delayed(main)(n0=200, k0=20, eta0=eta, C1=5, num_MP= mp1, L=np.sqrt(200*9/40),length_random_walk=1) for ii in xrange(iteration_to_mediate))
     print 'n=200 k=20: ', time.time() - tt
     tt = time.time()
-    y3 = Parallel(n_jobs=num_cores)(delayed(main)(n0=200, k0=40, eta0=eta, C1=5, num_MP=2500, L=2,length_random_walk=1) for ii in xrange(iteration_to_mediate))
+    y3 = Parallel(n_jobs=num_cores)(delayed(main)(n0=200, k0=40, eta0=eta, C1=5, num_MP= mp2, L=np.sqrt(200*9/40),length_random_walk=1) for ii in xrange(iteration_to_mediate))
     print 'n=200 k=40: ', time.time() - tt
-    #tt = time.time()
-    #y4 = Parallel(n_jobs=num_cores)(delayed(main)(n0=500, k0=50, eta0=eta, C1=5, num_MP=2500, L=2, length_random_walk=1) for ii in xrange(iteration_to_mediate))
-    #print 'n=500 k=50: ', time.time() - tt
-    #tt = time.time()
-    #y5 = Parallel(n_jobs=num_cores)(delayed(main)(n0=1000, k0=100, eta0=eta, C1=5, num_MP=2000, L=2, length_random_walk=1) for ii in xrange(iteration_to_mediate))
-    #print 'n=1000 k=100: ', time.time() - tt
+    # tt = time.time()
+    # y4 = Parallel(n_jobs=num_cores)(delayed(main)(n0=500, k0=50, eta0=eta, C1=5, num_MP= mp2, L=np.sqrt(500*9/40), length_random_walk=1) for ii in xrange(iteration_to_mediate))
+    # print 'n=500 k=50: ', time.time() - tt
+    # tt = time.time()
+    # y5 = Parallel(n_jobs=num_cores)(delayed(main)(n0=1000, k0=100, eta0=eta, C1=5, num_MP= mp3, L=np.sqrt(1000*9/40), length_random_walk=1) for ii in xrange(iteration_to_mediate))
+    # print 'n=1000 k=100: ', time.time() - tt
     print 'Parallel time: ', time.time() - parallel
 
     for i in xrange(iteration_to_mediate - 1):
@@ -323,15 +337,15 @@ if __name__ == "__main__":
         y1[0] += y1[i + 1]
         y2[0] += y2[i + 1]
         y3[0] += y3[i + 1]
-    #     y4[0] += y4[i + 1]
-    #     y5[0] += y5[i + 1]
+        y4[0] += y4[i + 1]
+        y5[0] += y5[i + 1]
 
     y0 = y0[0] / iteration_to_mediate
     y1 = y1[0] / iteration_to_mediate
     y2 = y2[0] / iteration_to_mediate
     y3 = y3[0] / iteration_to_mediate
-    # y4 = y4[0] / iteration_to_mediate
-    # y5 = y5[0] / iteration_to_mediate
+    y4 = y4[0] / iteration_to_mediate
+    y5 = y5[0] / iteration_to_mediate
 
     # -- Salvataggio su file --
     with open('Risultati_txt/Paper2_algo2/Figure 3', 'wb') as file:
@@ -341,11 +355,11 @@ if __name__ == "__main__":
         wr.writerow(y2)
         wr.writerow(y3)
 
-    # with open('Risultati_txt/Paper2_algo1/Figure 4','wb') as file:
-    #     wr = csv.writer(file, quoting=csv.QUOTE_ALL)
-    #     wr.writerow(y2)
-    #     wr.writerow(y4)
-    #     wr.writerow(y5)
+    with open('Risultati_txt/Paper2_algo2/Figure 4','wb') as file:
+        wr = csv.writer(file, quoting=csv.QUOTE_ALL)
+        wr.writerow(y2)
+        wr.writerow(y4)
+        wr.writerow(y5)
 
     plt.title('Decoding performances')
     plt.axis([1, 2.5, 0, 1])
@@ -362,18 +376,18 @@ if __name__ == "__main__":
     plt.savefig('Immagini/Paper2_algo2/00_Figure3_c_0' + str(c0) + 'delta=' + str(delta) + '.pdf', dpi=150, transparent=False)
     plt.close()
 
-    # plt.title('Decoding performances')
-    # plt.axis([1, 2.5, 0, 1])
-    # x = np.linspace(1, 2.5, len(y2), endpoint=True)
-    # plt.plot(x, y2, label='200 nodes and 20 sources', color='blue', linewidth=2)
-    # x = np.linspace(1, 2.5, len(y4), endpoint=True)
-    # plt.plot(x, y4, label='500 nodes and 50 sources', color='red', linewidth=2)
-    # x = np.linspace(1, 2.5, len(y5), endpoint=True)
-    # plt.plot(x, y5, label='1000 nodes and 100 sources', color='grey', linewidth=2)
-    # plt.legend(loc=4)
-    # plt.grid()
-    # plt.savefig('Immagini/Paper2_algo1/00_Figure4_c_0' + str(c0) + 'delta=' + str(delta) + '.pdf', dpi=150,transparent=False)
-    # plt.close()
+    plt.title('Decoding performances')
+    plt.axis([1, 2.5, 0, 1])
+    x = np.linspace(1, 2.5, len(y2), endpoint=True)
+    plt.plot(x, y2, label='200 nodes and 20 sources', color='blue', linewidth=2)
+    x = np.linspace(1, 2.5, len(y4), endpoint=True)
+    plt.plot(x, y4, label='500 nodes and 50 sources', color='red', linewidth=2)
+    x = np.linspace(1, 2.5, len(y5), endpoint=True)
+    plt.plot(x, y5, label='1000 nodes and 100 sources', color='grey', linewidth=2)
+    plt.legend(loc=4)
+    plt.grid()
+    plt.savefig('Immagini/Paper2_algo2/00_Figure4_c_0' + str(c0) + 'delta=' + str(delta) + '.pdf', dpi=150,transparent=False)
+    plt.close()
 
 
 
@@ -403,7 +417,7 @@ if __name__ == "__main__":
     #
     #
     # # -- Salvataggio su file --
-    # with open('Risultati_txt/Paper2_algo1/Figure 6','wb') as file:
+    # with open('Risultati_txt/Paper2_algo2/Figure 6','wb') as file:
     #     wr = csv.writer(file, quoting=csv.QUOTE_ALL)
     #     wr.writerow(y8)
     #     wr.writerow(y9)
@@ -417,7 +431,7 @@ if __name__ == "__main__":
     # plt.plot(x, y9, label='1000 nodes and 100 souces', color='red', linewidth=2)
     # plt.legend(loc=4)
     # plt.grid()
-    # plt.savefig('Immagini/Paper2_algo1/00_Figure6_c_0' + str(c0) + 'delta=' + str(delta) + '.pdf', dpi=150,transparent=False)
+    # plt.savefig('Immagini/Paper2_algo2/00_Figure6_c_0' + str(c0) + 'delta=' + str(delta) + '.pdf', dpi=150,transparent=False)
     # plt.close()
     #
 
@@ -448,7 +462,7 @@ if __name__ == "__main__":
     # print 'Parallel time: ', time.time() - parallel
     #
     # # -- Salvataggio su file --
-    # with open('Risultati_txt/Paper2_algo1/Figure 5', 'wb') as file:
+    # with open('Risultati_txt/Paper2_algo2/Figure 5', 'wb') as file:
     #     wr = csv.writer(file, quoting=csv.QUOTE_ALL)
     #     wr.writerow(y6)
     #     wr.writerow(y7)
@@ -461,7 +475,7 @@ if __name__ == "__main__":
     # plt.plot(x, y7, label='eta 1.7', color='red', linewidth=2)
     # plt.legend(loc=4)
     # plt.grid()
-    # plt.savefig('Immagini/Paper2_algo1/00_Figure5_c_0' + str(c0) + 'delta=' + str(delta) + '.pdf', dpi=150,transparent=False)
+    # plt.savefig('Immagini/Paper2_algo2/00_Figure5_c_0' + str(c0) + 'delta=' + str(delta) + '.pdf', dpi=150,transparent=False)
     # plt.close()
 
     #names = ['Figure 3.txt','Figure 4.txt','Figure 5.txt.txt','Figure 6.txt']

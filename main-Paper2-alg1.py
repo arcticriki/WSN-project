@@ -147,28 +147,30 @@ def main(n0, k0, eta0, C1, num_MP,L,length_random_walk):
 
     # t = time.time()
     # Find nearest neighbours using euclidean distance
-    nearest_neighbor = []  # simplifying assumption, if no neighbors exist withing the range
-    # we consider the nearest neighbor
-    nn_distance = 2 * L * L  # maximum distance square equal the diagonal of the square [L,L]
-    for i in xrange(n):  # cycle on all nodes
-        checker = False  # boolean variable used to check if neighbors are found (false if not)
-        for j in xrange(n):  # compare each node with all the others
+    for i in xrange(n):                     # cycle on all nodes
+        nearest_neighbor = []               # simplifying assumption, if no neighbors exist withing the range
+                                            # we consider the nearest neighbor
+        d_min = 2 * L * L                   # maximum distance square equal the diagonal of the square [L,L]
+        checker = False                     # boolean variable used to check if neighbors are found (false if not)
+        for j in xrange(n):                 # compare each node with all the others
             x = positions[i, 0] - positions[j, 0]  # compute x distance between node i and node j
             y = positions[i, 1] - positions[j, 1]  # compute y distance between node i and node j
-            dist2 = x * x + y * y  # compute distance square, avoid comp. of sqrt for comp. optim. reasons
-            if dist2 <= dmax2:  # check if distance square is less or equal the max coverage dist
-                if dist2 != 0:  # avoid considering self node as neighbor
+            dist2 = x * x + y * y           # compute distance square, avoid comp. of sqrt for comp. optim. reasons
+            if dist2 <= dmax2:              # check if distance square is less or equal the max coverage dist
+                if dist2 != 0:              # avoid considering self node as neighbor
                     node_list[i].neighbor_write(node_list[j])  # append operation on node's neighbor list
-                    checker = True  # at least one neighbor has been founded
-            if not checker and dist2 <= nn_distance and dist2 != 0:  # in order to be sure that the graph is connected
-                # we determine the nearest neighbor
-                # even if its distance is greater than the max distance
-                nn_distance = dist2  # if distance of new NN is less than distance of previous NN, update it
-                nearest_neighbor = node_list[i]  # save NN reference, to use only if no neighbors are found
+                    checker = True          # at least one neighbor has been founded
+            elif dist2 <= d_min:
+                d_min = dist2
+                nearest_neighbor =node_list[j]
 
-        if not checker:  # if no neighbors are found withing max dist, use NN
-            print 'Node %d has no neighbors within the range, the nearest neighbor is chosen.' % i
+        if not checker:                     # if no neighbors are found withing max dist, use NN
+            #print 'Node %d has no neighbors within the range, the nearest neighbor is chosen.' % i
             node_list[i].neighbor_write(nearest_neighbor)  # Connect node with NN
+
+    # Compute the network topology
+    #plot_grafo(node_list, n, k, sensors_indexes,L)
+
 
     # elapsed = time.time() - t
     # print 'Tempo di determinazione dei vicini:', elapsed
