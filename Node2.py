@@ -9,14 +9,14 @@ payload = 10
 
 # -- We conceptually divide the nodes into 2 categories:
 #    - STORAGE NODE: generic node that can only store and forward pkts
-#    - SENSOR NODE: node that can actually sense the environment and generate pktts. It can also store and forward
+#    - SENSOR NODE: node that can actually sense the environment and generate pkts. It can also store and forward
 #    (NOTE: class SENSOR extends class STORAGE)
 
 #-- STORAGE NODE SPECIFICATIONS ---------------------------------------------------------------------------------
 class Storage(object):
 
     def __init__(self, ID, X, Y, d, n, k, c1, c2, c3, pid, length_random_walk, c0, delta):
-        self.c0 = c0                                # parametri robust, da usare in paper 2 algo 2
+        self.c0 = c0                                # Robust Soliton Distribution parameters
         self.delta = delta
         self.C1 = c1                                # parameter C1
         self.C2 = c2                                # parameter C2
@@ -96,7 +96,7 @@ class Storage(object):
                 neighbor = rnd.choice(self.neighbor_list)
                 pkt = self.out_buffer.pop(0)            # extract one pkt from the output buffer
                 self.dim_buffer -= 1                    # reduce number of queued pkts
-                return neighbor.receive_pkt22(pkt)      # pass pkt to neighbor and return 1 if blocked or 0 if not blocked
+                return neighbor.receive_pkt22_v2(pkt)      # pass pkt to neighbor and return 1 if blocked or 0 if not blocked
 
         else:                                       # empty buffer
             return 0
@@ -233,6 +233,85 @@ class Storage(object):
                     # BUT c(x)<C1nlog(n), v accepts it with Prob=0, BUT it forwards it
 
 
+
+
+# RECEIVE PER ALGO 1 PAPER 1
+
+
+# RECEIVE PER ALGO 2 PAPER 2 VERSIONE 2
+    def receive_pkt22_v2(self, pkt):                   # define what to do on pkt receiving
+        pkt.C2 += 1
+        if not self.stimati :                       # procedura pre stima di k ed n
+            if self.first_arrived2[2]< self.C2:
+
+                if self.first_arrived2[2] == 0:             # if it is the first pkt arriving, save ID, TIME, COUNTER=1
+                    self.first_arrived2[:] = ([pkt.ID, pkt.C2, 0])         # hops
+
+                if self.first_arrived2[0] == pkt.ID:         # se il pacchetto che vedo e' il primo, incremento il contatore
+                    self.first_arrived2[2] += 1              # hops
+
+                if not self.hops[pkt.ID-1]:                  # if it is the first time i see a pkt, increase counter ku
+                    self.ku += 1.0                           # counter of pkt seen at least once (not increasing if already seen)
+
+                self.hops[pkt.ID - 1].append(pkt.C2)         # save arrival hops for each pkt arriving
+                self.last_hop  = pkt.C2                      # save hop counter of last received pkt, used in k estimation
+
+                self.dim_buffer += 1                         # increase the number of queued pkts
+                self.out_buffer.append(copy.deepcopy(pkt))   # add pkt to the outgoing queue
+                return 0
+
+            else:
+                self.stimati = True
+
+                # stima di n
+                J_tot_hop  = 0.0
+                T_visit_hops  = 0.0
+                for i in xrange(self.n):
+                    try:    #T visit senza la divisione per ku
+                        T_visit_hops  += (self.hops[i][-1]  - self.hops[i][0])  / float(len(self.hops[i]))
+                        J_tot_hop  += len(self.hops[i])
+                    except IndexError:
+                        a=5
+
+                self.n_stimato_hop = int(round(T_visit_hops / self.ku))
+
+                # stima k
+                T_packet_hop  = (self.last_hop  - self.first_arrived2[1]) / J_tot_hop
+                self.k_stimato_hop  = int(round(self.n_stimato_hop  / T_packet_hop))
+
+                # robust e campionamento d
+                self.code_degree , _, _ = Robust_Soliton_Distribution2(self.n_stimato_hop , self.k_stimato_hop , self.c0, self.delta)  # See RSD doc
+                self.code_prob = self.code_degree /float(self.k_stimato_hop)  # compute the code probability, d/k
+                self.dim_buffer += 1                    # increase the number of queued pkts
+                self.out_buffer.append(copy.deepcopy(pkt))  # add pkt to the outgoing queue
+                return 0
+
+        else: # procedura post stima
+            self.visits[pkt.ID - 1] += 1  # increase number of visits this pkt has done in this very node
+            pkt.counter += 1  # increace pkt counter
+
+            if self.visits[pkt.ID - 1] == 1:            # if it is the first time the pkt reaches this very node ...
+                if self.num_encoded < self.code_degree: # ...and we still have to encode something
+                    prob = rnd.random()                 # generate a random number in the range [0,1)
+                    if prob <= self.code_prob:          # if generated number less or equal to coding probability
+                        self.ID_list.append(pkt.ID)     # save ID of node who generated the coded pkt
+                        self.storage = self.storage ^ pkt.payload  # code procedure(XOR)
+                        self.num_encoded += 1           # increase num of encoded pkts
+                self.out_buffer.append(pkt)             # else, if pkt is at its first visit, or it haven't reached C1nlog10(n)
+                self.dim_buffer += 1
+                return 0  # NOTE: this procedure has to be done even if the pkt has already visited
+                # the node! That is to say: if pkt x has visited node v before
+                # BUT c(x)<C1nlog(n), v accepts it with Prob=0, BUT it forwards it
+            if self.visits[pkt.ID - 1] > 1:
+                if pkt.counter >= self.C3 * self.n_stimato_hop * np.log10(self.n_stimato_hop):
+                    # if packet already visited the node and its counter is greater than C1nlog10(n) then, discard it
+                    return 1                            # pkt dropped
+                else:
+                    self.out_buffer.append(pkt)         # else, if pkt is at its first visit, or it haven't reached C1nlog10(n)
+                    self.dim_buffer += 1
+                    return 0  # NOTE: this procedure has to be done even if the pkt has already visited
+                    # the node! That is to say: if pkt x has visited node v before
+                    # BUT c(x)<C1nlog(n), v accepts it with Prob=0, BUT it forwards it
 
 
 # RECEIVE PER ALGO 1 PAPER 1
@@ -385,6 +464,7 @@ class Pkt(object):
     def __init__(self, ID, pay):
         self.ID = ID
         self.counter = 0
+        self.C2 = 0
         self.payload = np.zeros(pay, dtype=np.int64)
         for i in xrange(pay):
             self.payload[i] = np.random.randint(0, 2)

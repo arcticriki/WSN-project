@@ -219,7 +219,7 @@ def main(n0, k0, eta0, C1, num_MP,L,length_random_walk):
     # plt.show()
 
 
-    [node_list[i].baro() for i in xrange(n)]
+    #[node_list[i].baro() for i in xrange(n)]
 
 
     stima_n = np.zeros(n)
@@ -247,7 +247,7 @@ def main(n0, k0, eta0, C1, num_MP,L,length_random_walk):
 
     #print np.sort(stima_n)
 
-    step=3
+    step = 3*int(k/10)
     plt.hist(stima_n, bins=np.arange(mm_n[0],mm_n[1]+step,step=step) , label='Estimated $\hat n$ frequency', color='blue', linewidth=2)
     plt.xlim([mm_n[0]-20, mm_n[1]+20])
     plt.legend(loc=1)
@@ -288,7 +288,7 @@ if __name__ == "__main__":
     num_cores = multiprocessing.cpu_count()
     print 'Numero di core utilizzati:', num_cores
 
-    iteration_to_mediate = 8
+    iteration_to_mediate = 4
     print 'Numero di medie da eseguire: ', iteration_to_mediate
 
     eta = [1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2, 2.1, 2.2, 2.3, 2.4, 2.5]
@@ -324,12 +324,12 @@ if __name__ == "__main__":
     tt = time.time()
     y3 = Parallel(n_jobs=num_cores)(delayed(main)(n0=200, k0=40, eta0=eta, C1=5, num_MP= mp2, L=np.sqrt(200*9/40),length_random_walk=1) for ii in xrange(iteration_to_mediate))
     print 'n=200 k=40: ', time.time() - tt
-    # tt = time.time()
-    # y4 = Parallel(n_jobs=num_cores)(delayed(main)(n0=500, k0=50, eta0=eta, C1=5, num_MP= mp2, L=np.sqrt(500*9/40), length_random_walk=1) for ii in xrange(iteration_to_mediate))
-    # print 'n=500 k=50: ', time.time() - tt
-    # tt = time.time()
-    # y5 = Parallel(n_jobs=num_cores)(delayed(main)(n0=1000, k0=100, eta0=eta, C1=5, num_MP= mp3, L=np.sqrt(1000*9/40), length_random_walk=1) for ii in xrange(iteration_to_mediate))
-    # print 'n=1000 k=100: ', time.time() - tt
+    tt = time.time()
+    y4 = Parallel(n_jobs=num_cores)(delayed(main)(n0=500, k0=50, eta0=eta, C1=5, num_MP= mp2, L=np.sqrt(500*9/40), length_random_walk=1) for ii in xrange(iteration_to_mediate))
+    print 'n=500 k=50: ', time.time() - tt
+    tt = time.time()
+    y5 = Parallel(n_jobs=num_cores)(delayed(main)(n0=1000, k0=100, eta0=eta, C1=5, num_MP= mp3, L=np.sqrt(1000*9/40), length_random_walk=1) for ii in xrange(iteration_to_mediate))
+    print 'n=1000 k=100: ', time.time() - tt
     print 'Parallel time: ', time.time() - parallel
 
     for i in xrange(iteration_to_mediate - 1):
