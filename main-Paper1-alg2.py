@@ -197,7 +197,7 @@ def main(n0, k0, eta0, C1, num_MP,L,length_random_walk):
 
 
 
-# Find nearest neighbours using euclidean distance
+# Find nearest neighbours using euclidean distances
     #t = time.time()
     for i in xrange(n):                     # cycle on all nodes
         nearest_neighbor = []               # simplifying assumption, if no neighbors exist withing the range
