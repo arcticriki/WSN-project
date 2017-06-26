@@ -126,3 +126,35 @@ def Robust_Soliton_Distribution2(n, k, c0, delta):
     d = custm.rvs()                                         # randomly sample n elements from custm, following the
                                                             # distribution of custm
     return d,pdf, R                                         # return sampled degree
+
+
+
+
+def Ideal_Soliton_Distribution(n, k, c0, delta):
+    d = np.zeros(n)   # initialization of degree variable
+
+    # Ideal Soliton Distribution
+    sd = [1.0 / k]                                          # initialization of soliton distribution with first value
+    [sd.append(1.0 / (j * (j - 1))) for j in range(2, k+1)] # append of other values following the formula in papers
+
+
+    xk = np.arange(1, k+1)                                  # vector of degree, start from 1 and goes up to k
+    custm = stats.rv_discrete(name='custm', values=(xk, sd))   # creation of obj custm, see documentation
+    for i in xrange(n):
+        d[i] = custm.rvs()                          # randomly sample n elements from custm, following the
+                                                    # distribution of custm
+    return d, sd , R                                        # return sampled degree
+
+
+def Ideal_Soliton_Distribution2(n, k, c0, delta):
+    # Ideal Soliton Distribution
+    sd = [1.0 / k]                                          # initialization of soliton distribution with first value
+    [sd.append(1.0 / (j * (j - 1))) for j in range(2, k+1)] # append of other values following the formula in papers
+
+
+    xk = np.arange(1, k+1)                                  # vector of degree, start from 1 and goes up to k
+    custm = stats.rv_discrete(name='custm', values=(xk, sd))   # creation of obj custm, see documentation
+
+    d = custm.rvs()                                         # randomly sample n elements from custm, following the
+                                                            # distribution of custm
+    return d, sd , R                                        # return sampled degree
