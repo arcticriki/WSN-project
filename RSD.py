@@ -84,7 +84,9 @@ def Robust_Soliton_Distribution(n, k, c0, delta):
 
 
 def Robust_Soliton_Distribution2(n, k, c0, delta):
-    R = c0 * np.sqrt(k) * np.log(float(k)/delta)            # computation of R parameter
+    R = c0 * np.sqrt(k) * np.log(float(k)/delta)          # computation of R parameter
+
+
     d = np.zeros(n)   # initialization of degree variable
     #print k/R
 

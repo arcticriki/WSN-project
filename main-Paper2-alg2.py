@@ -219,9 +219,6 @@ def main(n0, k0, eta0, C, num_MP,L,length_random_walk):
     # plt.show()
 
 
-    #[node_list[i].baro() for i in xrange(n)]
-
-
     stima_n = np.zeros(n)
     stima_k = np.zeros(n)
     mm_n = np.zeros(2)          # min - max for n
@@ -248,16 +245,18 @@ def main(n0, k0, eta0, C, num_MP,L,length_random_walk):
     #print np.sort(stima_n)
 
     step = 3*int(k/10)
-    plt.hist(stima_n, bins=np.arange(mm_n[0],mm_n[1]+step,step=step) , label='Estimated $\hat n$ frequency', color='blue', linewidth=2)
+    plt.xlabel('Estimation of n')
+    plt.ylabel('Number of nodes')
+    plt.hist(stima_n, bins=np.arange(mm_n[0],mm_n[1]+step,step=step), color='blue', linewidth=2)
     plt.xlim([mm_n[0]-20, mm_n[1]+20])
-    plt.legend(loc=1)
     plt.savefig('Immagini/Paper2_algo2/00_Figure9_n='+str(n)+'_k='+str(k)+'_c0=' + str(c0) + 'delta=' + str(delta) + '.pdf', dpi=150,transparent=False)
     plt.close()
 
     step=1
-    plt.hist(stima_k,bins=np.arange(mm_k[0],mm_k[1]+step,step=step), label='Estimated $\hat k$ frequency', color='blue', linewidth=2)
+    plt.xlabel('Estimation of k')
+    plt.ylabel('Number of nodes')
+    plt.hist(stima_k,bins=np.arange(mm_k[0],mm_k[1]+step,step=step), color='blue', linewidth=2)
     plt.xlim([mm_k[0]-10, mm_k[1]+10])
-    plt.legend(loc=1)
     plt.savefig('Immagini/Paper2_algo2/00_Figure10_n='+str(n)+'_k='+str(k)+'_c0=' + str(c0) + 'delta=' + str(delta) + '.pdf', dpi=150,transparent=False)
     plt.close()
 
@@ -368,6 +367,7 @@ if __name__ == "__main__":
     # plt.plot(x, y1[0:len(y1)-1], label='100 nodes and 20 sources', color='red', linewidth=2)
     # plt.plot(x, y2[0:len(y2)-1], label='200 nodes and 20 sources', color='grey', linewidth=2)
     # plt.plot(x, y3[0:len(y3)-1], label='200 nodes and 40 sources', color='magenta', linewidth=2)
+    # plt.rc('legend', fontsize=10)
     # plt.legend(loc=4)
     # plt.grid()
     # plt.savefig('Immagini/Paper2_algo2/00_Figure3_c_0' + str(c0) + 'delta=' + str(delta) + '.pdf', dpi=150, transparent=False)
@@ -379,12 +379,13 @@ if __name__ == "__main__":
     # plt.plot(x, y1[1:len(y1)], label='100 nodes and 20 sources', color='red', linewidth=2)
     # plt.plot(x, y2[1:len(y2)], label='200 nodes and 20 sources', color='grey', linewidth=2)
     # plt.plot(x, y3[1:len(y3)], label='200 nodes and 40 sources', color='magenta', linewidth=2)
+    # plt.rc('legend', fontsize=10)
     # plt.legend(loc=4)
     # plt.grid()
     # plt.savefig('Immagini/Paper2_algo2/00_Figure3_BARO_c_0' + str(c0) + 'delta=' + str(delta) + '.pdf', dpi=150,
     #             transparent=False)
     # plt.close()
-
+    #
 
     # plt.title('Decoding performances')
     # plt.axis([1, 2.5, 0, 1])
@@ -394,6 +395,7 @@ if __name__ == "__main__":
     # plt.plot(x, y4, label='500 nodes and 50 sources', color='red', linewidth=2)
     # x = np.linspace(1, 2.5, len(y5), endpoint=True)
     # plt.plot(x, y5, label='1000 nodes and 100 sources', color='grey', linewidth=2)
+    # plt.rc('legend', fontsize=10)
     # plt.legend(loc=4)
     # plt.grid()
     # plt.savefig('Immagini/Paper2_algo2/00_Figure4_c_0' + str(c0) + 'delta=' + str(delta) + '.pdf', dpi=150,transparent=False)
@@ -439,6 +441,7 @@ if __name__ == "__main__":
     # plt.axis([0, 5, 0.5, 1])
     # plt.plot(x, y8, label='500 nodes and 50 souces', color='blue', linewidth=2)
     # plt.plot(x, y9, label='1000 nodes and 100 souces', color='red', linewidth=2)
+    # plt.rc('legend', fontsize=10)
     # plt.legend(loc=4)
     # plt.grid()
     # plt.savefig('Immagini/Paper2_algo2/00_Figure6_c_0' + str(c0) + 'delta=' + str(delta) + '.pdf', dpi=150,transparent=False)
@@ -483,6 +486,7 @@ if __name__ == "__main__":
     # plt.axis([500, 5000, 0, 1])
     # plt.plot(x, y6, label='eta 1.4', color='blue', linewidth=2)
     # plt.plot(x, y7, label='eta 1.7', color='red', linewidth=2)
+    # plt.rc('legend', fontsize=10)
     # plt.legend(loc=4)
     # plt.grid()
     # plt.savefig('Immagini/Paper2_algo2/00_Figure5_c_0' + str(c0) + 'delta=' + str(delta) + '.pdf', dpi=150,transparent=False)
@@ -498,87 +502,99 @@ if __name__ == "__main__":
 
 
 
-    # # Figura in cui varia C2
-    # iteration_to_mediate = 24
-    # print 'Numero di medie da eseguire: ', iteration_to_mediate
-    #
-    # eta = [1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6]
-    #
-    # #----------- FIGURE 3 AND 4 -------------------
-    # print 'Figure C comparison. \n'
-    #
-    # num_c = 5
-    # y = np.zeros((num_c, len(eta)))
-    # y0 = np.zeros((iteration_to_mediate, len(eta)))
-    # totale = time.time()
-    #
-    # init= 50
-    # for c in xrange(num_c):
-    #
-    #     mp1 = 1500
-    #     mp2 = 1000
-    #     mp3 = 1000
-    #     C = (5, init*(c+1), 50)
-    #     print 'Sto eseguendo il conto con c2 =', C[1]
-    #     # mp1=1
-    #     # mp2=1
-    #     # mp3=1
-    #
-    #     #parallel = time.time()
-    #     tt = time.time()
-    #     y0 = Parallel(n_jobs=num_cores)(delayed(main)(n0=100, k0=10, eta0=eta, C=C, num_MP=mp1, L=np.sqrt(100 * 9 / 40), length_random_walk=1) for ii in xrange(iteration_to_mediate))
-    #     print 'n=100 k=10: ', time.time() - tt
-    #     # tt = time.time()
-    #     # y1 = Parallel(n_jobs=num_cores)(
-    #     #     delayed(main)(n0=100, k0=20, eta0=eta, C=C, num_MP=mp1, L=np.sqrt(100 * 9 / 40), length_random_walk=1) for ii in
-    #     #     xrange(iteration_to_mediate))
-    #     # print 'n=100 k=20: ', time.time() - tt
-    #     # tt = time.time()
-    #     # y2 = Parallel(n_jobs=num_cores)(
-    #     #     delayed(main)(n0=200, k0=20, eta0=eta, C=C, num_MP=mp1, L=np.sqrt(200 * 9 / 40), length_random_walk=1) for ii in
-    #     #     xrange(iteration_to_mediate))
-    #     # print 'n=200 k=20: ', time.time() - tt
-    #     # tt = time.time()
-    #     # y3 = Parallel(n_jobs=num_cores)(
-    #     #     delayed(main)(n0=200, k0=40, eta0=eta, C=C, num_MP=mp2, L=np.sqrt(200 * 9 / 40), length_random_walk=1) for ii in
-    #     #     xrange(iteration_to_mediate))
-    #     # print 'n=200 k=40: ', time.time() - tt
-    #     # tt = time.time()
-    #     # y4 = Parallel(n_jobs=num_cores)(delayed(main)(n0=500, k0=50, eta0=eta, C=C, num_MP= mp2, L=np.sqrt(500*9/40), length_random_walk=1) for ii in xrange(iteration_to_mediate))
-    #     # print 'n=500 k=50: ', time.time() - tt
-    #     # tt = time.time()
-    #     # y5 = Parallel(n_jobs=num_cores)(delayed(main)(n0=1000, k0=100, eta0=eta, C=C, num_MP= mp3, L=np.sqrt(1000*9/40), length_random_walk=1) for ii in xrange(iteration_to_mediate))
-    #     # print 'n=1000 k=100: ', time.time() - tt
-    #     #print 'Parallel time: ', time.time() - parallel
-    #
-    #     for i in xrange(iteration_to_mediate - 1):
-    #         y0[0] += y0[i + 1]
-    #
-    #
-    #     y[c,:] = y0[0] / iteration_to_mediate
-    #
-    # print 'Tempo totale di esecuzione ', time.time()-totale
-    # plt.title('Decoding performances')
-    # plt.axis([1, 2.5, 0, 1])
-    # x = np.linspace(1, 2.5, y.shape[1]-1, endpoint=True)
-    # for i in xrange(num_c):
-    #     plt.plot(x, y[i][0:y.shape[1]-1], label='c2='+str(init*(i+1)), linewidth=2)
-    # plt.legend(loc=4)
-    # plt.grid()
-    # plt.savefig('Immagini/Paper2_algo2/00_COMPARISON C2 VALUE_c_0' + str(c0) + 'delta=' + str(delta) + '.pdf', dpi=150,
-    #             transparent=False)
-    # plt.close()
-    #
-    # plt.title('Decoding performances- BARO 1')
-    # plt.axis([1, 2.5, 0, 1])
-    # for i in xrange(num_c):
-    #     plt.plot(x, y[i][1:y.shape[1]], label='c2='+str(init*(i+1)), linewidth=2)
-    #
-    # plt.legend(loc=4)
-    # plt.grid()
-    # plt.savefig('Immagini/Paper2_algo2/00_COMPARISON C2 VALUE BARO_c_0' + str(c0) + 'delta=' + str(delta) + '.pdf', dpi=150,
-    #             transparent=False)
-    # plt.close()
+    # Figura in cui varia C2
+    iteration_to_mediate = 24
+    print 'Numero di medie da eseguire: ', iteration_to_mediate
+
+    eta = [1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6]
+
+    #----------- FIGURE 3 AND 4 -------------------
+    print 'Figure C comparison. \n'
+
+    num_c = 7
+    y = np.zeros((num_c, len(eta)))
+    y0 = np.zeros((iteration_to_mediate, len(eta)))
+    totale = time.time()
+
+    init= 20
+    for c in xrange(num_c):
+
+        mp1 = 1500
+        mp2 = 1000
+        mp3 = 1000
+        C = (5, init*(c+1), 50)
+        print 'Sto eseguendo il conto con c2 =', C[1]
+        # mp1=1
+        # mp2=1
+        # mp3=1
+
+        #parallel = time.time()
+        # tt = time.time()
+        # y0 = Parallel(n_jobs=num_cores)(delayed(main)(n0=100, k0=10, eta0=eta, C=C, num_MP=mp1, L=np.sqrt(100 * 9 / 40), length_random_walk=1) for ii in xrange(iteration_to_mediate))
+        # print 'n=100 k=10: ', time.time() - tt
+        # tt = time.time()
+        # y1 = Parallel(n_jobs=num_cores)(
+        #     delayed(main)(n0=100, k0=20, eta0=eta, C=C, num_MP=mp1, L=np.sqrt(100 * 9 / 40), length_random_walk=1) for ii in
+        #     xrange(iteration_to_mediate))
+        # print 'n=100 k=20: ', time.time() - tt
+        # tt = time.time()
+        # y2 = Parallel(n_jobs=num_cores)(
+        #     delayed(main)(n0=200, k0=20, eta0=eta, C=C, num_MP=mp1, L=np.sqrt(200 * 9 / 40), length_random_walk=1) for ii in
+        #     xrange(iteration_to_mediate))
+        # print 'n=200 k=20: ', time.time() - tt
+        # tt = time.time()
+        # y3 = Parallel(n_jobs=num_cores)(
+        #     delayed(main)(n0=200, k0=40, eta0=eta, C=C, num_MP=mp2, L=np.sqrt(200 * 9 / 40), length_random_walk=1) for ii in
+        #     xrange(iteration_to_mediate))
+        # print 'n=200 k=40: ', time.time() - tt
+        tt = time.time()
+        y4 = Parallel(n_jobs=num_cores)(delayed(main)(n0=500, k0=50, eta0=eta, C=C, num_MP= mp2, L=np.sqrt(500*9/40), length_random_walk=1) for ii in xrange(iteration_to_mediate))
+        print 'n=500 k=50: ', time.time() - tt
+        # tt = time.time()
+        # y5 = Parallel(n_jobs=num_cores)(delayed(main)(n0=1000, k0=100, eta0=eta, C=C, num_MP= mp3, L=np.sqrt(1000*9/40), length_random_walk=1) for ii in xrange(iteration_to_mediate))
+        # print 'n=1000 k=100: ', time.time() - tt
+        #print 'Parallel time: ', time.time() - parallel
+
+        for i in xrange(iteration_to_mediate - 1):
+            #y0[0] += y0[i + 1]
+            # y1[0] += y1[i + 1]
+            # y2[0] += y2[i + 1]
+            # y3[0] += y3[i + 1]
+            y4[0] += y4[i + 1]
+            #y5[0] += y5[i + 1]
+
+
+
+        # y[c, :] = y0[0] / iteration_to_mediate
+        # y[c, :] = y1[0] / iteration_to_mediate
+        # y[c, :] = y2[0] / iteration_to_mediate
+        # y[c, :] = y3[0] / iteration_to_mediate
+        y[c, :] = y4[0] / iteration_to_mediate
+        # y[c, :] = y5[0] / iteration_to_mediate
+
+    print 'Tempo totale di esecuzione ', time.time()-totale
+    plt.title('Decoding performances')
+    plt.axis([1, 2.5, 0, 1])
+    x = np.linspace(1, 2.5, y.shape[1]-1, endpoint=True)
+    for i in xrange(num_c):
+        plt.plot(x, y[i][0:y.shape[1]-1], label='c2='+str(init*(i+1)), linewidth=2)
+    plt.rc('legend', fontsize=10)
+    plt.legend(loc=4)
+    plt.grid()
+    plt.savefig('Immagini/Paper2_algo2/00_COMPARISON C2 VALUE_c_0' + str(c0) + 'delta=' + str(delta) + '.pdf', dpi=150,
+                transparent=False)
+    plt.close()
+
+    plt.title('Decoding performances- BARO 1')
+    plt.axis([1, 2.5, 0, 1])
+    for i in xrange(num_c):
+        plt.plot(x, y[i][1:y.shape[1]], label='c2='+str(init*(i+1)), linewidth=2)
+    plt.rc('legend', fontsize=10)
+    plt.legend(loc=4)
+    plt.grid()
+    plt.savefig('Immagini/Paper2_algo2/00_COMPARISON C2 VALUE BARO_c_0' + str(c0) + 'delta=' + str(delta) + '.pdf', dpi=150,
+                transparent=False)
+    plt.close()
 
 
 
@@ -655,6 +671,7 @@ if __name__ == "__main__":
     # x = np.linspace(1, 2.5, y.shape[1] - 1, endpoint=True)
     # for i in xrange(num_c):
     #     plt.plot(x, y[i][0:y.shape[1] - 1], label='c3=' + str(init * (i + 1)), linewidth=2)
+    # plt.rc('legend', fontsize=10)
     # plt.legend(loc=4)
     # plt.grid()
     # plt.savefig('Immagini/Paper2_algo2/00_COMPARISON C3 VALUE_c_0' + str(c0) + 'delta=' + str(delta) + '.pdf', dpi=150,
@@ -665,7 +682,7 @@ if __name__ == "__main__":
     # plt.axis([1, 2.5, 0, 1])
     # for i in xrange(num_c):
     #     plt.plot(x, y[i][1:y.shape[1]], label='c3=' + str(init * (i + 1)), linewidth=2)
-    #
+    # plt.rc('legend', fontsize=10)
     # plt.legend(loc=4)
     # plt.grid()
     # plt.savefig('Immagini/Paper2_algo2/00_COMPARISON C3 VALUE BARO_c_0' + str(c0) + 'delta=' + str(delta) + '.pdf',
@@ -677,94 +694,97 @@ if __name__ == "__main__":
 
 
 
-    # Figura 11 paper 2
-    iteration_to_mediate = 12
-    print 'Numero di medie da eseguire: ', iteration_to_mediate
-
-    eta = [1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6]
-
-    # ----------- FIGURE 3 AND 4 -------------------
-    print 'Figure 11. \n'
-
-
-    C2 = range(15,61,5)
-    num_c = len(C2)
-    y = np.zeros((4, num_c))
-    y0 = np.zeros(iteration_to_mediate)
-    y1 = np.zeros(iteration_to_mediate)
-    y2 = np.zeros(iteration_to_mediate)
-    y3 = np.zeros(iteration_to_mediate)
-    totale = time.time()
-    counter=-1
-
-    mp1 = 1500
-    mp2 = 1000
-    mp3 = 1000
-
-    # mp1 = 1
-    # mp2 = 1
-    # mp3 = 1
-
-    for c in C2:
-        counter += 1
-
-        C = (5, c, 100)
-        print 'Sto eseguendo il conto con c2 =', C[1]
-        # parallel = time.time()
-        tt = time.time()
-        y0 = Parallel(n_jobs=num_cores)(
-            delayed(main)(n0=100, k0=10, eta0=[1.5], C=C, num_MP=mp1, L=np.sqrt(100 * 9 / 40), length_random_walk=1) for
-            ii in xrange(iteration_to_mediate))
-        y1 = Parallel(n_jobs=num_cores)(
-            delayed(main)(n0=100, k0=10, eta0=[2.0], C=C, num_MP=mp1, L=np.sqrt(100 * 9 / 40), length_random_walk=1) for
-            ii in xrange(iteration_to_mediate))
-        y2 = Parallel(n_jobs=num_cores)(
-            delayed(main)(n0=200, k0=20, eta0=[1.5], C=C, num_MP=mp1, L=np.sqrt(100 * 9 / 40), length_random_walk=1) for
-            ii in xrange(iteration_to_mediate))
-        y3 = Parallel(n_jobs=num_cores)(
-            delayed(main)(n0=200, k0=20, eta0=[2.0], C=C, num_MP=mp1, L=np.sqrt(100 * 9 / 40), length_random_walk=1) for
-            ii in xrange(iteration_to_mediate))
-        print 'n=100 k=10: ', time.time() - tt
-
-
-        for i in xrange(iteration_to_mediate - 1):
-            y0[0] += y0[i + 1]
-            y1[0] += y1[i + 1]
-            y2[0] += y2[i + 1]
-            y3[0] += y3[i + 1]
-
-        y[0, counter] = y0[0] / iteration_to_mediate
-        y[1, counter] = y1[0] / iteration_to_mediate
-        y[2, counter] = y2[0] / iteration_to_mediate
-        y[3, counter] = y3[0] / iteration_to_mediate
-
-    print 'Tempo totale di esecuzione ', time.time() - totale
-    plt.title('Decoding performances')
-    plt.xlabel('System parameter C$_2$')
-    plt.ylabel('Successfull decoding probability P$_s$')
-    plt.axis([0, C2[-1], 0, 1])
-    x = np.linspace(C2[0], C2[-1], y.shape[1] - 1, endpoint=True)
-    for i in xrange(y.shape[0]):
-        plt.plot(x, y[i][0:y.shape[1] - 1], label='c3=' + str(c), linewidth=2)
-    plt.legend(loc=4)
-    plt.grid()
-    plt.savefig('Immagini/Paper2_algo2/00_Figura11_c_0' + str(c0) + 'delta=' + str(delta) + '.pdf', dpi=150,
-                transparent=False)
-    plt.close()
-
-    plt.title('Decoding performances- BARO 1')
-    plt.axis([0, C2[-1], 0, 1])
-    plt.xlabel('System parameter c2')
-    plt.ylabel('Successfull decoding probability P$_s$')
-    for i in xrange(y.shape[0]):
-        plt.plot(x, y[i][1:y.shape[1]], label='c3=' + str(c), linewidth=2)
-
-    plt.legend(loc=4)
-    plt.grid()
-    plt.savefig('Immagini/Paper2_algo2/00_Figura11 BARO_c_0' + str(c0) + 'delta=' + str(delta) + '.pdf',
-                dpi=150,
-                transparent=False)
-    plt.close()
-
-
-    # #cProfile.run('main(n0=200, k0=40)')
+    # # Figura 11 paper 2
+    # iteration_to_mediate = 24
+    # print 'Numero di medie da eseguire: ', iteration_to_mediate
+    #
+    # eta = [1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6]
+    #
+    # # ----------- FIGURE 3 AND 4 -------------------
+    # print 'Figure 11. \n'
+    #
+    #
+    # C2 = range(5,61,5)
+    # num_c = len(C2)
+    # y = np.zeros((4, num_c))
+    # y0 = np.zeros(iteration_to_mediate)
+    # y1 = np.zeros(iteration_to_mediate)
+    # y2 = np.zeros(iteration_to_mediate)
+    # y3 = np.zeros(iteration_to_mediate)
+    # totale = time.time()
+    # counter=-1
+    #
+    # mp1 = 2500
+    # mp2 = 2000
+    # mp3 = 2000
+    #
+    # # mp1 = 1
+    # # mp2 = 1
+    # # mp3 = 1
+    #
+    # for c in C2:
+    #     counter += 1
+    #     C = (5, c, 100)
+    #
+    #     tt = time.time()
+    #     y0 = Parallel(n_jobs=num_cores)(
+    #        delayed(main)(n0=100, k0=10, eta0=[1.5], C=C, num_MP=mp1, L=np.sqrt(100 * 9 / 40), length_random_walk=1) for
+    #        ii in xrange(iteration_to_mediate))
+    #     y1 = Parallel(n_jobs=num_cores)(
+    #        delayed(main)(n0=100, k0=10, eta0=[2.0], C=C, num_MP=mp1, L=np.sqrt(100 * 9 / 40), length_random_walk=1) for
+    #        ii in xrange(iteration_to_mediate))
+    #     y2 = Parallel(n_jobs=num_cores)(
+    #        delayed(main)(n0=200, k0=20, eta0=[1.5], C=C, num_MP=mp1, L=np.sqrt(100 * 9 / 40), length_random_walk=1) for
+    #        ii in xrange(iteration_to_mediate))
+    #     y3 = Parallel(n_jobs=num_cores)(
+    #        delayed(main)(n0=200, k0=20, eta0=[2.0], C=C, num_MP=mp1, L=np.sqrt(100 * 9 / 40), length_random_walk=1) for
+    #        ii in xrange(iteration_to_mediate))
+    #
+    #     print 'Iteration with C2 =', C[1], ', duration ',time.time() - tt
+    #
+    #
+    #
+    #     label_n = [100, 100, 200, 200]
+    #     label_k = [10, 10, 20, 20]
+    #     lable_eta = [1.5, 2.0, 1.5, 2.0]
+    #
+    #     for i in xrange(iteration_to_mediate - 1):
+    #         y0[0] += y0[i + 1]
+    #         y1[0] += y1[i + 1]
+    #         y2[0] += y2[i + 1]
+    #         y3[0] += y3[i + 1]
+    #
+    #     y[0, counter] = y0[0] / iteration_to_mediate
+    #     y[1, counter] = y1[0] / iteration_to_mediate
+    #     y[2, counter] = y2[0] / iteration_to_mediate
+    #     y[3, counter] = y3[0] / iteration_to_mediate
+    #
+    # print 'Tempo totale di esecuzione ', time.time() - totale
+    #
+    # plt.title('Decoding performances')
+    # plt.xlabel('System parameter C$_2$')
+    # plt.ylabel('Successfull decoding probability P$_s$')
+    # plt.axis([0, C2[-1], 0, 1])
+    # x = np.linspace(C2[0], C2[-1], y.shape[1] - 1, endpoint=True)
+    # for i in xrange(y.shape[0]):
+    #     plt.plot(x, y[i][0:y.shape[1] - 1], label=str(label_n[i])+' nodes and '+str(label_k[i])+' sources with $\eta$ '+ str(lable_eta[i]), linewidth=2)
+    # plt.rc('legend', fontsize=10)
+    # plt.legend(loc=4)
+    # plt.grid()
+    # plt.savefig('Immagini/Paper2_algo2/00_Figura11_c_0' + str(c0) + 'delta=' + str(delta) + '.pdf', dpi=150,transparent=False)
+    # plt.close()
+    #
+    # plt.title('Decoding performances- BARO 1')
+    # plt.xlabel('System parameter c2')
+    # plt.ylabel('Successfull decoding probability P$_s$')
+    # plt.axis([0, C2[-1], 0, 1])
+    # for i in xrange(y.shape[0]):
+    #     plt.plot(x, y[i][1:y.shape[1]],label=str(label_n[i])+' nodes and '+str(label_k[i])+' sources with $\eta$ '+ str(lable_eta[i]), linewidth=2)
+    # plt.rc('legend', fontsize=10)
+    # plt.legend(loc=4)
+    # plt.grid()
+    # plt.savefig('Immagini/Paper2_algo2/00_Figura11 BARO_c_0' + str(c0) + 'delta=' + str(delta) + '.pdf',dpi=150,transparent=False)
+    # plt.close()
+    #
+    #
+    # # #cProfile.run('main(n0=200, k0=40)')
