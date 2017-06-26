@@ -2,7 +2,7 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
-def send_mail(names):
+def send_mail(names,message):
     fromaddr = 'team.wsn2@gmail.com'
     toaddrs2  = 'mattia.soldan.ms@gmail.com'
     toaddrs = 'riccardo.belluzzo@gmail.com'
@@ -12,13 +12,14 @@ def send_mail(names):
     msg = MIMEMultipart('alternative')
     msg['Subject'] = 'Risultati simulazioni Wireless.'
     msg['From'] = fromaddr
-    body = 'File della simulazione'
+    body = message
 
-    for n in names:
-        f = file(n)
-        attachment = MIMEText(f.read())
-        attachment.add_header('Content-Disposition', 'attachment', filename=n)
-        msg.attach(attachment)
+    if len(names)>0:
+        for n in names:
+            f = file(n)
+            attachment = MIMEText(f.read())
+            attachment.add_header('Content-Disposition', 'attachment', filename=n)
+            msg.attach(attachment)
 
     content = MIMEText(body, 'plain')
     msg.attach(content)
