@@ -526,7 +526,7 @@ if __name__ == "__main__":
     for c in xrange(num_c):
         C = (5, init*(c+1), 50)
         #parallel = time.time()
-        # tt = time.time()
+        tt = time.time()
         # y0 = Parallel(n_jobs=num_cores)(delayed(main)(n0=100, k0=10, eta0=eta, C=C, num_MP=mp1, L=np.sqrt(100 * 9 / 40), length_random_walk=1) for ii in xrange(iteration_to_mediate))
         # print 'n=100 k=10: ', time.time() - tt
         # tt = time.time()
@@ -544,13 +544,13 @@ if __name__ == "__main__":
         #     delayed(main)(n0=200, k0=40, eta0=eta, C=C, num_MP=mp2, L=np.sqrt(200 * 9 / 40), length_random_walk=1) for ii in
         #     xrange(iteration_to_mediate))
         # print 'n=200 k=40: ', time.time() - tt
-        tt = time.time()
-        y4 = Parallel(n_jobs=num_cores)(delayed(main)(n0=500, k0=50, eta0=eta, C=C, num_MP= mp2, L=np.sqrt(500*9/40), length_random_walk=1) for ii in xrange(iteration_to_mediate))
-        print 'n=500 k=50: ', time.time() - tt
+        # tt = time.time()
+        # y4 = Parallel(n_jobs=num_cores)(delayed(main)(n0=500, k0=50, eta0=eta, C=C, num_MP= mp2, L=np.sqrt(500*9/40), length_random_walk=1) for ii in xrange(iteration_to_mediate))
+        # print 'n=500 k=50: ', time.time() - tt
         # tt = time.time()
         # y5 = Parallel(n_jobs=num_cores)(delayed(main)(n0=1000, k0=100, eta0=eta, C=C, num_MP= mp3, L=np.sqrt(1000*9/40), length_random_walk=1) for ii in xrange(iteration_to_mediate))
         # print 'n=1000 k=100: ', time.time() - tt
-        #print 'Parallel time: ', time.time() - parallel
+        print 'Iteration with C2 =', C[1], ', duration ', time.time() - tt
 
         for i in xrange(iteration_to_mediate - 1):
             #y0[0] += y0[i + 1]
