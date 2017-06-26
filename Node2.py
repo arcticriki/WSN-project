@@ -235,8 +235,6 @@ class Storage(object):
 
 
 
-# RECEIVE PER ALGO 1 PAPER 1
-
 
 # RECEIVE PER ALGO 2 PAPER 2 VERSIONE 2
     def receive_pkt22_v2(self, pkt):                   # define what to do on pkt receiving
@@ -272,15 +270,30 @@ class Storage(object):
                         J_tot_hop  += len(self.hops[i])
                     except IndexError:
                         a=5
+                    #J_tot_hop += len(self.hops[i])
 
                 self.n_stimato_hop = int(round(T_visit_hops / self.ku))
 
                 # stima k
                 T_packet_hop  = (self.last_hop  - self.first_arrived2[1]) / J_tot_hop
+
                 self.k_stimato_hop  = int(round(self.n_stimato_hop  / T_packet_hop))
+                #print self.k_stimato_hop
 
                 # robust e campionamento d
-                self.code_degree , _, _ = Robust_Soliton_Distribution2(self.n_stimato_hop , self.k_stimato_hop , self.c0, self.delta)  # See RSD doc
+                try:
+                    self.code_degree , _, _ = Robust_Soliton_Distribution2(self.n_stimato_hop , self.k_stimato_hop , self.c0, self.delta)  # See RSD doc
+
+                except (ZeroDivisionError,RuntimeWarning):
+
+                    print 'n= ',self.n_stimato_hop,'\nk=', self.k_stimato_hop
+                    print 'T_visit_hops', T_visit_hops
+                    print 'T_visit_hops / self.ku',T_visit_hops / self.ku
+                    print 'self.n_stimato_hop  / T_packet_hop',self.n_stimato_hop  / T_packet_hop
+                    print self.hops
+                    raise SystemExit(0)
+
+
                 self.code_prob = self.code_degree /float(self.k_stimato_hop)  # compute the code probability, d/k
                 self.dim_buffer += 1                    # increase the number of queued pkts
                 self.out_buffer.append(copy.deepcopy(pkt))  # add pkt to the outgoing queue
