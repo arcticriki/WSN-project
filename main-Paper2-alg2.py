@@ -503,7 +503,7 @@ if __name__ == "__main__":
 
 
     # Figura in cui varia C2
-    iteration_to_mediate = 24
+    iteration_to_mediate = 16
     print 'Numero di medie da eseguire: ', iteration_to_mediate
 
     eta = [1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6]
@@ -517,17 +517,14 @@ if __name__ == "__main__":
     totale = time.time()
 
     init= 20
+    mp1 = 1500
+    mp2 = 1000
+    mp3 = 1000
+    # mp1=1
+    # mp2=1
+    # mp3=1
     for c in xrange(num_c):
-
-        mp1 = 1500
-        mp2 = 1000
-        mp3 = 1000
         C = (5, init*(c+1), 50)
-        print 'Sto eseguendo il conto con c2 =', C[1]
-        # mp1=1
-        # mp2=1
-        # mp3=1
-
         #parallel = time.time()
         # tt = time.time()
         # y0 = Parallel(n_jobs=num_cores)(delayed(main)(n0=100, k0=10, eta0=eta, C=C, num_MP=mp1, L=np.sqrt(100 * 9 / 40), length_random_walk=1) for ii in xrange(iteration_to_mediate))

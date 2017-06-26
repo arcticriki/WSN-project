@@ -9,16 +9,16 @@ eta_new = np.array([1,1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,1.9,2])
 y0 = np.zeros(len(eta))
 
 
-x = np.array([1,2,3,4,5,6,7,8,9,10,20,30,40,50,60,70,80,90,100,120,160,200,500,1000])
+#x = np.array([1,2,3,4,5,6,7,8,9,10,20,30,40,50,60,70,80,90,100,120,160,200,500,1000])
 x_new = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 120, 160, 200, 400, 600])
 #x=np.array([1,2,3,4,5,6,7,8,9,10,20,30,40,50,60,70,80,90,100])
 appoggio = np.zeros((4,len(eta)))
-y = np.zeros((len(x), len(eta)))
-mean_decoding = np.zeros(len(x))
+y = np.zeros((len(x_new)+1, len(eta)))
+mean_decoding = np.zeros(len(x_new))
 cont1 = 0   #riga che voglio prendere tra le 4
 cont2 = 0   #righe che prendo dentro ai file
 riga = 3    #riga che voglio
-for i in xrange(x[-1]):
+for i in xrange(x_new[-1]):
     RW = 1 * ( i + 1 )
     try:
         with open('Risultati_txt/Paper1_algo1/plot_Fig3_variazione_Random_Walk='+str(RW), 'rb') as csvfile:
