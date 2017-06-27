@@ -104,7 +104,7 @@ def message_passing(node_list,n, k, h):
 
 c0 = 0.2
 delta = 0.05
-def main(n0, k0, eta0, C1, num_MP,L,length_random_walk):
+def main(n0, k0, eta0, C1, num_MP,L,length_random_walk,solution):
 # -- PARAMETER INITIALIZATION SECTION --------------------------------------------------------------
     payload = 10
     C1 = C1
@@ -316,7 +316,7 @@ def main(n0, k0, eta0, C1, num_MP,L,length_random_walk):
     plt.legend(loc='upper left')
     plt.grid()
     #plt.show(block=False)
-    plt.savefig('Immagini/Paper1_algo2/Post_dissemination/post_diss_RW='+str(length_random_walk)+'_n='+str(n)+'_k='+str(k)+'.pdf', dpi=150, transparent=False)
+    plt.savefig('Immagini/Paper1_algo2/Post_dissemination/post_diss_RW='+str(length_random_walk)+'_n='+str(n)+'_k='+str(k)+'_values'+solution+'.pdf', dpi=150, transparent=False)
     plt.close()
 
 

@@ -104,7 +104,7 @@ def message_passing(node_list,n, k, h):
 
 c0 = 0.2
 delta = 0.05
-def main(n0, k0, eta0, C1, num_MP,L,length_random_walk):
+def main(n0, k0, eta0, C1, num_MP,L,length_random_walk,solution):
 # -- PARAMETER INITIALIZATION SECTION --------------------------------------------------------------
     payload = 10
     C1 = C1
@@ -131,14 +131,30 @@ def main(n0, k0, eta0, C1, num_MP,L,length_random_walk):
 # -- X_d INITIALIZATION --
     #THIS PARAMETER MUST BE COMPUTED THROUGH THE OPTIMIZATION PROBLEM
     Xd = 0
-    with open('Dati/'+str(k)+'.csv', 'rb') as csvfile:
-        reader = csv.reader(csvfile, delimiter=',', quoting=csv.QUOTE_NONNUMERIC)  # , quotechar='|')
-        for row in reader:
-            Xd = row
-    for i in xrange(len(Xd)):
-        Xd[i] = float(Xd[i])
-    #per testare problema ottimizzazione 2
-    Xd = np.ones(k)
+    if solution == 'ones':
+        Xd = np.ones(k)
+        print 'Generati xd ones'
+
+    if solution == 'Larghi_Math':
+        with open('Dati/OptProblem1/'+solution+'/'+str(k)+'_'+str(c0)+'_'+str(delta)+'_L_KR.csv', 'rb') as csvfile:
+            reader = csv.reader(csvfile, delimiter=',', quoting=csv.QUOTE_NONNUMERIC)  # , quotechar='|')
+            for row in reader:
+                Xd = row
+        for i in xrange(len(Xd)):
+            Xd[i] = float(Xd[i])
+        print 'Caricati Xd '+ solution
+
+    if solution == 'Stretti_Math':
+        with open('Dati/OptProblem1/'+solution+'/'+str(k)+'_'+str(c0)+'_'+str(delta)+'_S_KR.csv', 'rb') as csvfile:
+            reader = csv.reader(csvfile, delimiter=',', quoting=csv.QUOTE_NONNUMERIC)  # , quotechar='|')
+            for row in reader:
+                Xd = row
+        for i in xrange(len(Xd)):
+            Xd[i] = float(Xd[i])
+        print 'Caricati Xd ' + solution
+
+
+
 
     # compute denomitator of formula 5
     partial = 0
@@ -304,7 +320,7 @@ def main(n0, k0, eta0, C1, num_MP,L,length_random_walk):
     plt.legend(loc='upper left')
     plt.grid()
     #plt.show(block=False)
-    plt.savefig('Immagini/Paper1_algo1/Post_dissemination/post_diss_RW='+str(length_random_walk)+'_n='+str(n)+'_k='+str(k)+'.pdf', dpi=150, transparent=False)
+    plt.savefig('Immagini/Paper1_algo1/Post_dissemination/post_diss_RW='+str(length_random_walk)+'_n='+str(n)+'_k='+str(k)+'_values'+solution+'.pdf', dpi=150, transparent=False)
     plt.close()
 
 
@@ -361,38 +377,48 @@ if __name__ == "__main__":
     print 'Numero di core utilizzati:', num_cores
 
     iteration_to_mediate = 1
-    punti = np.array([1])# 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 120, 160, 200, 500, 1000])
-
+    #punti = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 120, 160, 200, 500, 1000])
+    punti = [50]
 
     for length_random_walk in punti:
         print 'Lunghezza della random walk:', length_random_walk
 
-        eta = [1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2, 2.1, 2.2, 2.3, 2.4, 2.5]
-
+        eta = [1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6]
+        # sol = 'ones'
+        sol = 'Larghi_Math'
+        # sol = 'Stretti_Math'
         y0 = np.zeros((iteration_to_mediate, len(eta)))
         y1 = np.zeros((iteration_to_mediate, len(eta)))
         y2 = np.zeros((iteration_to_mediate, len(eta)))
         y3 = np.zeros((iteration_to_mediate, len(eta)))
+        y3 = np.zeros((iteration_to_mediate, len(eta)))
+        y3 = np.zeros((iteration_to_mediate, len(eta)))
 
+        mp1 = 2500
+        mp2 = 2000
+        mp3 = 2000
 
+        # mp1 = 1
+        # mp2 = 1
+        # mp3 = 1
         # -- Iterazione su diversi sistemi --
         parallel = time.time()
         tt = time.time()
-        #y0 = Parallel(n_jobs=num_cores)(delayed(main)(n0=100, k0=10, eta0=eta, C1=5, num_MP=1000, L=5,length_random_walk=length_random_walk) for ii in xrange(iteration_to_mediate))
-        #print 'n=100 k=10: ', time.time() - tt
-        # tt = time.time()
-        # y1 = Parallel(n_jobs=num_cores)(delayed(main)(n0=100, k0=20, eta0=eta, C1=5, num_MP=1000, L=5,length_random_walk=length_random_walk) for ii in xrange(iteration_to_mediate))
-        # print 'n=100 k=20: ', time.time() - tt
-        # tt = time.time()
-        # y2 = Parallel(n_jobs=num_cores)(delayed(main)(n0=200, k0=20, eta0=eta, C1=5, num_MP=1000, L=5,length_random_walk=length_random_walk) for ii in xrange(iteration_to_mediate))
-        # print 'n=200 k=20: ', time.time() - tt
-        # tt = time.time()
-        # y3 = Parallel(n_jobs=num_cores)(delayed(main)(n0=200, k0=40, eta0=eta, C1=5, num_MP=1000, L=5,length_random_walk=length_random_walk) for ii in xrange(iteration_to_mediate))
-        # print 'n=200 k=40: ', time.time() - tt
-        #tt = time.time()
-        y3 = Parallel(n_jobs=num_cores)(delayed(main)(n0=2000, k0=100, eta0=eta, C1=5, num_MP=10, L=5, length_random_walk=length_random_walk) for ii in xrange(iteration_to_mediate))
-        print 'n=1000 k=500: ', time.time() - tt
-        #print 'Parallel time: ', time.time() - parallel
+        y0 = Parallel(n_jobs=num_cores)(delayed(main)(n0=100, k0=10, eta0=eta, C1=5, num_MP=mp1, L=5,length_random_walk=length_random_walk,solution=sol) for ii in xrange(iteration_to_mediate))
+        print 'n=100 k=10: ', time.time() - tt
+        tt = time.time()
+        y1 = Parallel(n_jobs=num_cores)(delayed(main)(n0=100, k0=20, eta0=eta, C1=5, num_MP=mp1, L=5,length_random_walk=length_random_walk,solution=sol) for ii in xrange(iteration_to_mediate))
+        print 'n=100 k=20: ', time.time() - tt
+        tt = time.time()
+        y2 = Parallel(n_jobs=num_cores)(delayed(main)(n0=200, k0=20, eta0=eta, C1=5, num_MP=mp1, L=5,length_random_walk=length_random_walk,solution=sol) for ii in xrange(iteration_to_mediate))
+        print 'n=200 k=20: ', time.time() - tt
+        tt = time.time()
+        y3 = Parallel(n_jobs=num_cores)(delayed(main)(n0=200, k0=40, eta0=eta, C1=5, num_MP=mp2, L=5,length_random_walk=length_random_walk,solution=sol) for ii in xrange(iteration_to_mediate))
+        print 'n=200 k=40: ', time.time() - tt
+        tt = time.time()
+        #y5 = Parallel(n_jobs=num_cores)(delayed(main)(n0=2000, k0=100, eta0=eta, C1=5, num_MP=10, L=5, length_random_walk=length_random_walk) for ii in xrange(iteration_to_mediate))
+        #print 'n=1000 k=500: ', time.time() - tt
+        print 'Parallel time: ', time.time() - parallel
 
         for i in xrange(iteration_to_mediate-1):
             y0[0] += y0[i + 1]
