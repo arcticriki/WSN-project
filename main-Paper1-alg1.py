@@ -129,13 +129,13 @@ def main(n0, k0, eta0, C1, num_MP,L,length_random_walk):
     d, pdf, _ = Robust_Soliton_Distribution(n, k, c0, delta)  # See RSD doc
 
 
-    pdf = 0
-    with open('Dati/100_2000_prob2.csv', 'rb') as csvfile:
-        reader = csv.reader(csvfile, delimiter=',', quoting=csv.QUOTE_NONNUMERIC)  # , quotechar='|')
-        for row in reader:
-            pdf = row
-    for i in xrange(len(pdf)):
-        pdf[i] = float(pdf[i])
+    # pdf = 0
+    # with open('Dati/100_2000_prob2.csv', 'rb') as csvfile:
+    #     reader = csv.reader(csvfile, delimiter=',', quoting=csv.QUOTE_NONNUMERIC)  # , quotechar='|')
+    #     for row in reader:
+    #         pdf = row
+    # for i in xrange(len(pdf)):
+    #     pdf[i] = float(pdf[i])
 
     # to_be_encoded = np.sum(d)                        #use to check how many pkts we should encode ***OPEN PROBLEM***
 
