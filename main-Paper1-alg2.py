@@ -13,7 +13,7 @@ import csv
 import copy
 from joblib import Parallel, delayed
 import multiprocessing
-
+#from plot_grafo import *
 
 def message_passing(node_list,n, k, h):
     decoding_indices = rnd.sample(range(0, n), h)  # selecting h random nodes in the graph
@@ -100,22 +100,18 @@ def message_passing(node_list,n, k, h):
         return 0
 
 
-#from plot_grafo import *
-
-c0 = 0.2
-delta = 0.05
 def main(n0, k0, eta0, C1, num_MP,L,length_random_walk,solution):
 # -- PARAMETER INITIALIZATION SECTION --------------------------------------------------------------
     payload = 10
     C1 = C1
     C2 = 0
-    C3= 0
+    C3 = 0
     eta = eta0
     n = n0                                   # number of nodes
     k = k0                                   # number of sensors
     #L = L                                   # square dimension
-    #c0 = 0.01                                 # parameter for RSD
-    #delta = 0.05                              # Prob['we're not able to recover the K pkts']<=delta
+    c0 = 0.2                                 # parameter for RSD
+    delta = 0.05                             # Prob['we're not able to recover the K pkts']<=delta
 
     positions = np.zeros((n, 2))             # matrix containing info on all node positions
     node_list = []                           # list of references to node objects
@@ -130,7 +126,7 @@ def main(n0, k0, eta0, C1, num_MP,L,length_random_walk,solution):
 
 
     pdf = 0
-    with open('Dati/500_2000_prob2_Belluzzo.csv', 'rb') as csvfile:
+    with open('Dati/OptProblem2/K'+str(k)+'_N'+str(n)+'_.csv', 'rb') as csvfile:
         reader = csv.reader(csvfile, delimiter=',', quoting=csv.QUOTE_NONNUMERIC)  # , quotechar='|')
         for row in reader:
             pdf = row
@@ -140,15 +136,7 @@ def main(n0, k0, eta0, C1, num_MP,L,length_random_walk,solution):
     # to_be_encoded = np.sum(d)                        #use to check how many pkts we should encode ***OPEN PROBLEM***
 
 # -- X_d INITIALIZATION --
-    #THIS PARAMETER MUST BE COMPUTED THROUGH THE OPTIMIZATION PROBLEM
-    # Xd = 0
-    # with open('Dati/'+str(k)+'.csv', 'rb') as csvfile:
-    #     reader = csv.reader(csvfile, delimiter=',', quoting=csv.QUOTE_NONNUMERIC)  # , quotechar='|')
-    #     for row in reader:
-    #         Xd = row
-    # for i in xrange(len(Xd)):
-    #     Xd[i] = float(Xd[i])
-    #per testare problema ottimizzazione 2
+
     Xd = np.ones(k)
 
     # compute denomitator of formula 5
