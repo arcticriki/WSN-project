@@ -133,7 +133,7 @@ def main(n0, k0, eta0, C1, num_MP,L,length_random_walk,solution):
     Xd = 0
     if solution == 'ones':
         Xd = np.ones(k)
-        print 'Generati xd ones'
+        #print 'Generati xd ones'
 
     if solution == 'Larghi_Math':
         with open('Dati/OptProblem1/'+solution+'/'+str(k)+'_'+str(c0)+'_'+str(delta)+'_L_KR.csv', 'rb') as csvfile:
@@ -142,7 +142,7 @@ def main(n0, k0, eta0, C1, num_MP,L,length_random_walk,solution):
                 Xd = row
         for i in xrange(len(Xd)):
             Xd[i] = float(Xd[i])
-        print 'Caricati Xd '+ solution
+        #print 'Caricati Xd '+ solution
 
     if solution == 'Stretti_Math':
         with open('Dati/OptProblem1/'+solution+'/'+str(k)+'_'+str(c0)+'_'+str(delta)+'_S_KR.csv', 'rb') as csvfile:
@@ -151,7 +151,7 @@ def main(n0, k0, eta0, C1, num_MP,L,length_random_walk,solution):
                 Xd = row
         for i in xrange(len(Xd)):
             Xd[i] = float(Xd[i])
-        print 'Caricati Xd ' + solution
+        #print 'Caricati Xd ' + solution
 
 
 
@@ -309,7 +309,7 @@ def main(n0, k0, eta0, C1, num_MP,L,length_random_walk,solution):
         tot += node_list[i].num_encoded                     # compute the total degree reached
 
     # return distribution_post_dissemination[1:], pdf
-    plt.title('Post dissemination')
+    plt.title('Post dissemination - '+solution)
     y = distribution_post_dissemination[1:]
     x = np.linspace(1, k, k, endpoint=True)
     plt.axis([0, k, 0, 0.6])
@@ -317,7 +317,7 @@ def main(n0, k0, eta0, C1, num_MP,L,length_random_walk,solution):
     y2 = np.zeros(k)
     y2[:len(pdf)] = pdf
     plt.plot(x, y2, color='red', label='robust soliton')
-    plt.legend(loc='upper left')
+    plt.legend(loc=1)
     plt.grid()
     #plt.show(block=False)
     plt.savefig('Immagini/Paper1_algo1/Post_dissemination/post_diss_RW='+str(length_random_walk)+'_n='+str(n)+'_k='+str(k)+'_values'+solution+'.pdf', dpi=150, transparent=False)
