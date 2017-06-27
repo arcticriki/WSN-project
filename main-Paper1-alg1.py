@@ -158,21 +158,6 @@ def main(n0, k0, eta0, C1, num_MP,L,length_random_walk):
         positions[i, :] = [x, y]
 
 
-    # plt.title('Post dissemination')
-    # y1 = positions[:,1]
-    # y2 = positions[sensors_indexes,1]
-    #
-    # x1 = positions[:,0]
-    # x2 = positions[sensors_indexes,0]
-    # plt.axis([0, L, 0, L])
-    # plt.plot(x1, y1, linestyle='', marker='o', label='STORAGE')  # plot the robust pdf vs the obtained distribution after dissemination
-    # plt.plot(x2, y2, linestyle='', marker='o', color='red', label='SENSORS')
-    # plt.legend(loc='upper left')
-    # plt.grid()
-    # #plt.show(block=False)
-    # plt.savefig('Immagini/Paper1_algo1/00_disposition_n='+str(n)+'_k='+str(k)+'.pdf', dpi=150, transparent=False)
-    # plt.close()
-
 # Generation of sensor nodes
     for i in sensors_indexes:  # for on sensors position indices
         x = rnd.uniform(0.0, L)  # generation of random coordinate x
@@ -319,7 +304,7 @@ def main(n0, k0, eta0, C1, num_MP,L,length_random_walk):
     plt.legend(loc='upper left')
     plt.grid()
     #plt.show(block=False)
-    plt.savefig('Immagini/Post_dissemination/post_diss_RW='+str(length_random_walk)+'_n='+str(n)+'_k='+str(k)+'.pdf', dpi=150, transparent=False)
+    plt.savefig('Immagini/Paper1_algo1/Post_dissemination/post_diss_RW='+str(length_random_walk)+'_n='+str(n)+'_k='+str(k)+'.pdf', dpi=150, transparent=False)
     plt.close()
 
 
