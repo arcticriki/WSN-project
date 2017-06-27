@@ -130,7 +130,7 @@ def main(n0, k0, eta0, C1, num_MP,L,length_random_walk):
 
 
     pdf = 0
-    with open('Dati/100_2000_prob2.csv', 'rb') as csvfile:
+    with open('Dati/500_2000_prob2_Belluzzo.csv', 'rb') as csvfile:
         reader = csv.reader(csvfile, delimiter=',', quoting=csv.QUOTE_NONNUMERIC)  # , quotechar='|')
         for row in reader:
             pdf = row
@@ -141,13 +141,13 @@ def main(n0, k0, eta0, C1, num_MP,L,length_random_walk):
 
 # -- X_d INITIALIZATION --
     #THIS PARAMETER MUST BE COMPUTED THROUGH THE OPTIMIZATION PROBLEM
-    Xd = 0
-    with open('Dati/'+str(k)+'.csv', 'rb') as csvfile:
-        reader = csv.reader(csvfile, delimiter=',', quoting=csv.QUOTE_NONNUMERIC)  # , quotechar='|')
-        for row in reader:
-            Xd = row
-    for i in xrange(len(Xd)):
-        Xd[i] = float(Xd[i])
+    # Xd = 0
+    # with open('Dati/'+str(k)+'.csv', 'rb') as csvfile:
+    #     reader = csv.reader(csvfile, delimiter=',', quoting=csv.QUOTE_NONNUMERIC)  # , quotechar='|')
+    #     for row in reader:
+    #         Xd = row
+    # for i in xrange(len(Xd)):
+    #     Xd[i] = float(Xd[i])
     #per testare problema ottimizzazione 2
     Xd = np.ones(k)
 
@@ -316,14 +316,18 @@ def main(n0, k0, eta0, C1, num_MP,L,length_random_walk):
         tot += node_list[i].num_encoded                     # compute the total degree reached
 
     # return distribution_post_dissemination[1:], pdf
+
+    #computation of R
+    R = c0*np.log(k0/delta)*np.sqrt(k0)
+
     plt.title('Post dissemination')
     y = distribution_post_dissemination[1:]
     x = np.linspace(1, k, k, endpoint=True)
-    plt.axis([0, k, 0, 0.6])
-    plt.plot(x, y, label='post dissemination')  # plot the robust pdf vs the obtained distribution after dissemination
+    plt.axis([0, int(round(k/R)), 0, 0.6]) #note that it can be interesting to see it until K/R
+    plt.plot(x, y, label='Optimized PDF post-dissemination')  # plot the robust pdf vs the obtained distribution after dissemination
     y2 = np.zeros(k)
     y2[:len(pdf)] = pdf
-    plt.plot(x, y2, color='red', label='robust soliton')
+    plt.plot(x, y2, color='red', label='Optimized PDF pre-dissemination')
     plt.legend(loc='upper left')
     plt.grid()
     #plt.show(block=False)
@@ -383,7 +387,7 @@ if __name__ == "__main__":
 
     iteration_to_mediate = 1
     #punti = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 120, 160, 200, 500, 1000])
-    punti = np.array([1])
+    punti = np.array([10])
 
 
     for length_random_walk in punti:
@@ -412,7 +416,7 @@ if __name__ == "__main__":
         # y3 = Parallel(n_jobs=num_cores)(delayed(main)(n0=200, k0=40, eta0=eta, C1=5, num_MP=1000, L=5,length_random_walk=length_random_walk) for ii in xrange(iteration_to_mediate))
         # print 'n=200 k=40: ', time.time() - tt
         #tt = time.time()
-        y3 = Parallel(n_jobs=num_cores)(delayed(main)(n0=2000, k0=100, eta0=eta, C1=5, num_MP=10, L=5, length_random_walk=length_random_walk) for ii in xrange(iteration_to_mediate))
+        y3 = Parallel(n_jobs=num_cores)(delayed(main)(n0=2000, k0=500, eta0=eta, C1=5, num_MP=10, L=5, length_random_walk=length_random_walk) for ii in xrange(iteration_to_mediate))
         print 'n=1000 k=500: ', time.time() - tt
         #print 'Parallel time: ', time.time() - parallel
 
@@ -429,24 +433,24 @@ if __name__ == "__main__":
 
 
         # -- Salvataggio su file --
-        with open('Risultati_txt/Paper1_algo1/plot_Fig3_variazione_Random_Walk='+str(length_random_walk),'wb') as file:
-             wr=csv.writer(file,quoting=csv.QUOTE_ALL)
-             wr.writerow(y0)
-             wr.writerow(y1)
-             wr.writerow(y2)
-             wr.writerow(y3)
-
-        plt.title('Decoding performances')
-        x = np.linspace(1, 2.5, 16, endpoint=True)
-        plt.axis([1, 2.5, 0, 1])
-        plt.plot(x, y0, label='100 nodes and 10 sources', color='blue', linewidth=2)
-        plt.plot(x, y1, label='100 nodes and 20 sources', color='red', linewidth=2)
-        plt.plot(x, y2, label='200 nodes and 20 sources', color='grey', linewidth=2)
-        plt.plot(x, y3, label='200 nodes and 40 sources', color='magenta', linewidth=2)
-        plt.legend(loc=4)
-        plt.grid()
-        plt.savefig('Immagini/Paper1_algo1/00_Figure3_comparison_LR='+str(length_random_walk)+'c_0'+str(c0)+'delta='+str(delta)+'.pdf', dpi=150, transparent=False)
-        plt.close()
+        # with open('Risultati_txt/Paper1_algo1/plot_Fig3_variazione_Random_Walk='+str(length_random_walk),'wb') as file:
+        #      wr=csv.writer(file,quoting=csv.QUOTE_ALL)
+        #      wr.writerow(y0)
+        #      wr.writerow(y1)
+        #      wr.writerow(y2)
+        #      wr.writerow(y3)
+        #
+        # plt.title('Decoding performances')
+        # x = np.linspace(1, 2.5, 16, endpoint=True)
+        # plt.axis([1, 2.5, 0, 1])
+        # plt.plot(x, y0, label='100 nodes and 10 sources', color='blue', linewidth=2)
+        # plt.plot(x, y1, label='100 nodes and 20 sources', color='red', linewidth=2)
+        # plt.plot(x, y2, label='200 nodes and 20 sources', color='grey', linewidth=2)
+        # plt.plot(x, y3, label='200 nodes and 40 sources', color='magenta', linewidth=2)
+        # plt.legend(loc=4)
+        # plt.grid()
+        # plt.savefig('Immagini/Paper1_algo1/00_Figure3_comparison_LR='+str(length_random_walk)+'c_0'+str(c0)+'delta='+str(delta)+'.pdf', dpi=150, transparent=False)
+        # plt.close()
 
     #names = ['Figure3Paper1.txt']
     #send_mail(names)
