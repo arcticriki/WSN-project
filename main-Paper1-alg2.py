@@ -414,7 +414,7 @@ if __name__ == "__main__":
         plt.plot(x, y3, label='200 nodes and 40 sources', color='magenta', linewidth=1, marker='o', markersize=4.0)
         plt.legend(loc=4)
         plt.grid()
-        plt.savefig('Immagini/Paper1_algo1/00_Figure3_comparison_LR=' + str(length_random_walk) + 'c_0' + str(
+        plt.savefig('Immagini/Paper1_algo2/00_Figure3_comparison_LR=' + str(length_random_walk) + 'c_0' + str(
             c0) + 'delta=' + str(delta) + '.pdf', dpi=150, transparent=False)
         plt.close()
 
