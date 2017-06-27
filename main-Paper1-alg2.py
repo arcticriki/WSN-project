@@ -100,7 +100,7 @@ def message_passing(node_list,n, k, h):
         return 0
 
 
-def main(n0, k0, eta0, C1, num_MP,L,length_random_walk,solution):
+def main(n0, k0, eta0, C1, num_MP,L,length_random_walk):
 # -- PARAMETER INITIALIZATION SECTION --------------------------------------------------------------
     payload = 10
     C1 = C1
@@ -126,10 +126,11 @@ def main(n0, k0, eta0, C1, num_MP,L,length_random_walk,solution):
 
 
     pdf = 0
-    with open('Dati/OptProblem2/K'+str(k)+'_N'+str(n)+'_.csv', 'rb') as csvfile:
+    with open('Dati/OptProblem2/K'+str(k)+'_N'+str(n)+'_'+str(c0)+'_'+str(delta)+'.csv', 'rb') as csvfile:
         reader = csv.reader(csvfile, delimiter=',', quoting=csv.QUOTE_NONNUMERIC)  # , quotechar='|')
         for row in reader:
             pdf = row
+        print 'Caricato',n,k
     for i in xrange(len(pdf)):
         pdf[i] = float(pdf[i])
 
@@ -304,7 +305,7 @@ def main(n0, k0, eta0, C1, num_MP,L,length_random_walk,solution):
     plt.legend(loc='upper left')
     plt.grid()
     #plt.show(block=False)
-    plt.savefig('Immagini/Paper1_algo2/Post_dissemination/post_diss_RW='+str(length_random_walk)+'_n='+str(n)+'_k='+str(k)+'_values'+solution+'.pdf', dpi=150, transparent=False)
+    plt.savefig('Immagini/Paper1_algo2/Post_dissemination/post_diss_RW='+str(length_random_walk)+'_n='+str(n)+'_k='+str(k)+'.pdf', dpi=150, transparent=False)
     plt.close()
 
 
