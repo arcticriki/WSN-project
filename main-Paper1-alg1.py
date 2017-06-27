@@ -142,6 +142,7 @@ def main(n0, k0, eta0, C1, num_MP,L,length_random_walk,solution):
                 Xd = row
         for i in xrange(len(Xd)):
             Xd[i] = float(Xd[i])
+        #print len(Xd)
         #print 'Caricati Xd '+ solution
 
     if solution == 'Stretti_Math':
@@ -151,6 +152,7 @@ def main(n0, k0, eta0, C1, num_MP,L,length_random_walk,solution):
                 Xd = row
         for i in xrange(len(Xd)):
             Xd[i] = float(Xd[i])
+        #print len(Xd)
         #print 'Caricati Xd ' + solution
 
 
@@ -375,7 +377,7 @@ if __name__ == "__main__":
 
     num_cores = multiprocessing.cpu_count()
     print 'Numero di core utilizzati:', num_cores
-
+## Decoding pribability of several network dimensions -----------------------------------------------------------------
     # iteration_to_mediate = 1
     # #punti = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 120, 160, 200, 500, 1000])
     # punti = [50]
@@ -456,33 +458,29 @@ if __name__ == "__main__":
     #send_mail(names)
 
 
-    # Comparison different solution for the optimization problem
+## Comparison different solution for the optimization problem ----------------------------------------------------------
     print 'Comparison for different solution of the optimization problem'
 
-    iteration_to_mediate = 4
+    iteration_to_mediate = 8
     print 'Iteration to mediate ', iteration_to_mediate
     # punti = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 120, 160, 200, 500, 1000])
     punti = [50]
 
     eta = [1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6]
+    sol = ['ones', 'Larghi_Math', 'Stretti_Math']
 
-    # sol = 'ones'
-    sol = 'Larghi_Math'
-    # sol = 'Stretti_Math'
     for length_random_walk in punti:
         print 'Lunghezza della random walk:', length_random_walk
 
-
-        sol = ['ones','Larghi_Math','Stretti_Math']
         y0 = np.zeros((iteration_to_mediate, len(eta)))
         y1 = np.zeros((iteration_to_mediate, len(eta)))
         y2 = np.zeros((iteration_to_mediate, len(eta)))
 
-        mp1 = 2500
+        mp1 = 1500
         mp2 = 2000
         mp3 = 2000
         n0 = 100
-        k0 = 10
+        k0 = 20
         # mp1 = 1
         # mp2 = 1
         # mp3 = 1
@@ -490,13 +488,8 @@ if __name__ == "__main__":
         parallel = time.time()
         tt = time.time()
         y0 = Parallel(n_jobs=num_cores)(delayed(main)(n0=n0, k0=k0, eta0=eta, C1=5, num_MP=mp1, L=5, length_random_walk=length_random_walk,solution=sol[0]) for ii in xrange(iteration_to_mediate))
-        print 'n=100 k=10: ', time.time() - tt
-        tt = time.time()
         y1 = Parallel(n_jobs=num_cores)(delayed(main)(n0=n0, k0=k0, eta0=eta, C1=5, num_MP=mp1, L=5, length_random_walk=length_random_walk,solution=sol[1]) for ii in xrange(iteration_to_mediate))
-        print 'n=100 k=20: ', time.time() - tt
-        tt = time.time()
         y2 = Parallel(n_jobs=num_cores)(delayed(main)(n0=n0, k0=k0, eta0=eta, C1=5, num_MP=mp1, L=5, length_random_walk=length_random_walk,solution=sol[2]) for ii in xrange(iteration_to_mediate))
-        print 'n=200 k=20: ', time.time() - tt
         print 'Total time: ', time.time() - parallel
 
         for i in xrange(iteration_to_mediate - 1):
@@ -524,3 +517,55 @@ if __name__ == "__main__":
         plt.close()
 
 
+## Figura di confronto tra diverse random walk in termini di decoding prob ---------------------------------------------
+
+    print 'Comparison for diffente length of random walk - fixed solution'
+
+    iteration_to_mediate = 8
+    print 'Iteration to mediate ', iteration_to_mediate
+    # punti = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 120, 160, 200, 500, 1000])
+    punti = [1,10,50,100,200]
+    y = np.zeros((len(punti), len(eta)))
+    eta = [1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6]
+    sol = ['ones', 'Larghi_Math', 'Stretti_Math']
+
+    mp1 = 1500
+    mp2 = 2000
+    mp3 = 2000
+    n0 = 200
+    k0 = 40
+    # mp1 = 1
+    # mp2 = 1
+    # mp3 = 1
+    cont = -1
+    for length_random_walk in punti:
+        cont += 1
+        print 'Lunghezza della random walk:', length_random_walk
+        y0 = np.zeros((iteration_to_mediate, len(eta)))
+
+        # -- Iterazione su diversi sistemi --
+        tt = time.time()
+        y0 = Parallel(n_jobs=num_cores)(
+            delayed(main)(n0=n0, k0=k0, eta0=eta, C1=5, num_MP=mp1, L=5, length_random_walk=length_random_walk,solution=sol[1]) for ii in xrange(iteration_to_mediate))
+        print 'n='+str(n0)+' k='+str(k0)+': ', time.time() - tt
+
+
+        for i in xrange(iteration_to_mediate - 1):
+            y0[0] += y0[i + 1]
+
+        y0 = y0[0] / iteration_to_mediate
+
+        y[i][:]=y0
+
+    plt.title('Decoding performances - Change RW - ' + str(n0) + ' nodes and ' + str(k0) + ' sources')
+    plt.xlabel('Decoding ratio $\eta$')
+    plt.ylabel('Successfull decoding probability P$_s$')
+    x = np.linspace(1, 2.5, len(y0) - 1, endpoint=True)
+    plt.axis([1, 2.5, 0, 1])
+    for i in xrange(len(punti)):
+        plt.plot(x, y[i][1:len(y0)], label=punti[i], linewidth=1, marker='o', markersize=4.0)
+    plt.legend(loc=4)
+    plt.grid()
+    plt.savefig('Immagini/Paper1_algo1/00_Comparison_Length_Random_Walk_'+str(punti)+'_c0=' + str(c0) \
+                + '_delta=' + str(delta) + '_n=' + str(n0) + '_k=' + str(k0) + '.pdf', dpi=150,transparent=False)
+    plt.close()
