@@ -122,10 +122,11 @@ def main(n0, k0, eta0, C1, num_MP,L,length_random_walk):
 
 # -- DEGREE INITIALIZATION --
 
-    d, pdf, _ = Robust_Soliton_Distribution(n, k, c0, delta)  # See RSD doc
+    #d, pdf, _ = Robust_Soliton_Distribution(n, k, c0, delta)  # See RSD doc
 
 
     pdf = 0
+    d = np.zeros(n)
     with open('Dati/OptProblem2/K'+str(k)+'_N'+str(n)+'_'+str(c0)+'_'+str(delta)+'.csv', 'rb') as csvfile:
         reader = csv.reader(csvfile, delimiter=',', quoting=csv.QUOTE_NONNUMERIC)  # , quotechar='|')
         for row in reader:
@@ -133,6 +134,13 @@ def main(n0, k0, eta0, C1, num_MP,L,length_random_walk):
         print 'Caricato',n,k
     for i in xrange(len(pdf)):
         pdf[i] = float(pdf[i])
+
+    xk = np.arange(1, k + 1)  # vector of degree, start from 1 and goes up to k
+    custm = stats.rv_discrete(name='custm', values=(xk, pdf))  # creation of obj custm, see documentation
+
+    for i in xrange(n):
+        d[i] = custm.rvs()  # randomly sample n elements from custm, following the
+            # distribution of custm
 
     # to_be_encoded = np.sum(d)                        #use to check how many pkts we should encode ***OPEN PROBLEM***
 
