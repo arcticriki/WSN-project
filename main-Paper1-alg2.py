@@ -404,18 +404,18 @@ if __name__ == "__main__":
         # -- Iterazione su diversi sistemi --
         parallel = time.time()
         tt = time.time()
-        #y0 = Parallel(n_jobs=num_cores)(delayed(main)(n0=100, k0=10, eta0=eta, C1=5, num_MP=1000, L=5,length_random_walk=length_random_walk) for ii in xrange(iteration_to_mediate))
-        #print 'n=100 k=10: ', time.time() - tt
-        # tt = time.time()
-        # y1 = Parallel(n_jobs=num_cores)(delayed(main)(n0=100, k0=20, eta0=eta, C1=5, num_MP=1000, L=5,length_random_walk=length_random_walk) for ii in xrange(iteration_to_mediate))
-        # print 'n=100 k=20: ', time.time() - tt
-        # tt = time.time()
-        # y2 = Parallel(n_jobs=num_cores)(delayed(main)(n0=200, k0=20, eta0=eta, C1=5, num_MP=1000, L=5,length_random_walk=length_random_walk) for ii in xrange(iteration_to_mediate))
-        # print 'n=200 k=20: ', time.time() - tt
-        # tt = time.time()
-        # y3 = Parallel(n_jobs=num_cores)(delayed(main)(n0=200, k0=40, eta0=eta, C1=5, num_MP=1000, L=5,length_random_walk=length_random_walk) for ii in xrange(iteration_to_mediate))
-        # print 'n=200 k=40: ', time.time() - tt
-        #tt = time.time()
+        y0 = Parallel(n_jobs=num_cores)(delayed(main)(n0=100, k0=10, eta0=eta, C1=5, num_MP=1000, L=5,length_random_walk=length_random_walk) for ii in xrange(iteration_to_mediate))
+        print 'n=100 k=10: ', time.time() - tt
+        tt = time.time()
+        y1 = Parallel(n_jobs=num_cores)(delayed(main)(n0=100, k0=20, eta0=eta, C1=5, num_MP=1000, L=5,length_random_walk=length_random_walk) for ii in xrange(iteration_to_mediate))
+        print 'n=100 k=20: ', time.time() - tt
+        tt = time.time()
+        y2 = Parallel(n_jobs=num_cores)(delayed(main)(n0=200, k0=20, eta0=eta, C1=5, num_MP=1000, L=5,length_random_walk=length_random_walk) for ii in xrange(iteration_to_mediate))
+        print 'n=200 k=20: ', time.time() - tt
+        tt = time.time()
+        y3 = Parallel(n_jobs=num_cores)(delayed(main)(n0=200, k0=40, eta0=eta, C1=5, num_MP=1000, L=5,length_random_walk=length_random_walk) for ii in xrange(iteration_to_mediate))
+        print 'n=200 k=40: ', time.time() - tt
+        tt = time.time()
         y3 = Parallel(n_jobs=num_cores)(delayed(main)(n0=2000, k0=500, eta0=eta, C1=5, num_MP=10, L=5, length_random_walk=length_random_walk) for ii in xrange(iteration_to_mediate))
         print 'n=1000 k=500: ', time.time() - tt
         #print 'Parallel time: ', time.time() - parallel
@@ -431,26 +431,18 @@ if __name__ == "__main__":
         y2 = y2[0] / iteration_to_mediate
         y3 = y3[0] / iteration_to_mediate
 
-
-        # -- Salvataggio su file --
-        # with open('Risultati_txt/Paper1_algo1/plot_Fig3_variazione_Random_Walk='+str(length_random_walk),'wb') as file:
-        #      wr=csv.writer(file,quoting=csv.QUOTE_ALL)
-        #      wr.writerow(y0)
-        #      wr.writerow(y1)
-        #      wr.writerow(y2)
-        #      wr.writerow(y3)
-        #
-        # plt.title('Decoding performances')
-        # x = np.linspace(1, 2.5, 16, endpoint=True)
-        # plt.axis([1, 2.5, 0, 1])
-        # plt.plot(x, y0, label='100 nodes and 10 sources', color='blue', linewidth=2)
-        # plt.plot(x, y1, label='100 nodes and 20 sources', color='red', linewidth=2)
-        # plt.plot(x, y2, label='200 nodes and 20 sources', color='grey', linewidth=2)
-        # plt.plot(x, y3, label='200 nodes and 40 sources', color='magenta', linewidth=2)
-        # plt.legend(loc=4)
-        # plt.grid()
-        # plt.savefig('Immagini/Paper1_algo1/00_Figure3_comparison_LR='+str(length_random_walk)+'c_0'+str(c0)+'delta='+str(delta)+'.pdf', dpi=150, transparent=False)
-        # plt.close()
+        plt.title('Decoding performances')
+        x = np.linspace(1, 2.5, 16, endpoint=True)
+        plt.axis([1, 2.5, 0, 1])
+        plt.plot(x, y0, label='100 nodes and 10 sources', color='blue', linewidth=1, marker='o', markersize=4.0)
+        plt.plot(x, y1, label='100 nodes and 20 sources', color='red', linewidth=1, marker='o', markersize=4.0)
+        plt.plot(x, y2, label='200 nodes and 20 sources', color='grey', linewidth=1, marker='o', markersize=4.0)
+        plt.plot(x, y3, label='200 nodes and 40 sources', color='magenta', linewidth=1, marker='o', markersize=4.0)
+        plt.legend(loc=4)
+        plt.grid()
+        plt.savefig('Immagini/Paper1_algo1/00_Figure3_comparison_LR=' + str(length_random_walk) + 'c_0' + str(
+            c0) + 'delta=' + str(delta) + '.pdf', dpi=150, transparent=False)
+        plt.close()
 
     #names = ['Figure3Paper1.txt']
     #send_mail(names)
