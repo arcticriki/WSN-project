@@ -291,7 +291,7 @@ def main(n0, k0, eta0, C1, num_MP,L,length_random_walk,solution):
             if j == (b * k)-codificati_in_partenza:
                 break
         #print j
-    print 'Time taken by dissemination: ',time.time()-t
+    #print 'Time taken by dissemination: ',time.time()-t
 
 
 
@@ -376,81 +376,81 @@ if __name__ == "__main__":
     num_cores = multiprocessing.cpu_count()
     print 'Numero di core utilizzati:', num_cores
 
-    iteration_to_mediate = 1
-    #punti = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 120, 160, 200, 500, 1000])
-    punti = [50]
-
-    for length_random_walk in punti:
-        print 'Lunghezza della random walk:', length_random_walk
-
-        eta = [1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6]
-        # sol = 'ones'
-        sol = 'Larghi_Math'
-        # sol = 'Stretti_Math'
-        y0 = np.zeros((iteration_to_mediate, len(eta)))
-        y1 = np.zeros((iteration_to_mediate, len(eta)))
-        y2 = np.zeros((iteration_to_mediate, len(eta)))
-        y3 = np.zeros((iteration_to_mediate, len(eta)))
-        y3 = np.zeros((iteration_to_mediate, len(eta)))
-        y3 = np.zeros((iteration_to_mediate, len(eta)))
-
-        mp1 = 2500
-        mp2 = 2000
-        mp3 = 2000
-
-        # mp1 = 1
-        # mp2 = 1
-        # mp3 = 1
-        # -- Iterazione su diversi sistemi --
-        parallel = time.time()
-        tt = time.time()
-        y0 = Parallel(n_jobs=num_cores)(delayed(main)(n0=100, k0=10, eta0=eta, C1=5, num_MP=mp1, L=5,length_random_walk=length_random_walk,solution=sol) for ii in xrange(iteration_to_mediate))
-        print 'n=100 k=10: ', time.time() - tt
-        tt = time.time()
-        y1 = Parallel(n_jobs=num_cores)(delayed(main)(n0=100, k0=20, eta0=eta, C1=5, num_MP=mp1, L=5,length_random_walk=length_random_walk,solution=sol) for ii in xrange(iteration_to_mediate))
-        print 'n=100 k=20: ', time.time() - tt
-        tt = time.time()
-        y2 = Parallel(n_jobs=num_cores)(delayed(main)(n0=200, k0=20, eta0=eta, C1=5, num_MP=mp1, L=5,length_random_walk=length_random_walk,solution=sol) for ii in xrange(iteration_to_mediate))
-        print 'n=200 k=20: ', time.time() - tt
-        tt = time.time()
-        y3 = Parallel(n_jobs=num_cores)(delayed(main)(n0=200, k0=40, eta0=eta, C1=5, num_MP=mp2, L=5,length_random_walk=length_random_walk,solution=sol) for ii in xrange(iteration_to_mediate))
-        print 'n=200 k=40: ', time.time() - tt
-        tt = time.time()
-        #y5 = Parallel(n_jobs=num_cores)(delayed(main)(n0=2000, k0=100, eta0=eta, C1=5, num_MP=10, L=5, length_random_walk=length_random_walk) for ii in xrange(iteration_to_mediate))
-        #print 'n=1000 k=500: ', time.time() - tt
-        print 'Parallel time: ', time.time() - parallel
-
-        for i in xrange(iteration_to_mediate-1):
-            y0[0] += y0[i + 1]
-            y1[0] += y1[i + 1]
-            y2[0] += y2[i + 1]
-            y3[0] += y3[i + 1]
-
-        y0 = y0[0] / iteration_to_mediate
-        y1 = y1[0] / iteration_to_mediate
-        y2 = y2[0] / iteration_to_mediate
-        y3 = y3[0] / iteration_to_mediate
-
-
-        # -- Salvataggio su file --
-        with open('Risultati_txt/Paper1_algo1/plot_Fig3_variazione_Random_Walk='+str(length_random_walk),'wb') as file:
-             wr=csv.writer(file,quoting=csv.QUOTE_ALL)
-             wr.writerow(y0)
-             wr.writerow(y1)
-             wr.writerow(y2)
-             wr.writerow(y3)
-
-        plt.title('Decoding performances')
-        x = np.linspace(1, 2.5, 16, endpoint=True)
-        plt.axis([1, 2.5, 0, 1])
-        plt.plot(x, y0, label='100 nodes and 10 sources', color='blue', linewidth=1,marker='o',markersize=4.0)
-        plt.plot(x, y1, label='100 nodes and 20 sources', color='red', linewidth=1,marker='o',markersize=4.0)
-        plt.plot(x, y2, label='200 nodes and 20 sources', color='grey', linewidth=1,marker='o',markersize=4.0)
-        plt.plot(x, y3, label='200 nodes and 40 sources', color='magenta', linewidth=1,marker='o',markersize=4.0)
-        plt.legend(loc=4)
-        plt.grid()
-        plt.savefig('Immagini/Paper1_algo1/00_Figure3_comparison_LR='+str(length_random_walk)+'c_0'+str(c0)+'delta='+str(delta)+'.pdf', dpi=150, transparent=False)
-        plt.close()
+    # iteration_to_mediate = 1
+    # #punti = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 120, 160, 200, 500, 1000])
+    # punti = [50]
+    #
+    # for length_random_walk in punti:
+    #     print 'Lunghezza della random walk:', length_random_walk
+    #
+    #     eta = [1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6]
+    #     # sol = 'ones'
+    #     sol = 'Larghi_Math'
+    #     # sol = 'Stretti_Math'
+    #     y0 = np.zeros((iteration_to_mediate, len(eta)))
+    #     y1 = np.zeros((iteration_to_mediate, len(eta)))
+    #     y2 = np.zeros((iteration_to_mediate, len(eta)))
+    #     y3 = np.zeros((iteration_to_mediate, len(eta)))
+    #     y3 = np.zeros((iteration_to_mediate, len(eta)))
+    #     y3 = np.zeros((iteration_to_mediate, len(eta)))
+    #
+    #     mp1 = 2500
+    #     mp2 = 2000
+    #     mp3 = 2000
+    #
+    #     # mp1 = 1
+    #     # mp2 = 1
+    #     # mp3 = 1
+    #     # -- Iterazione su diversi sistemi --
+    #     parallel = time.time()
+    #     tt = time.time()
+    #     y0 = Parallel(n_jobs=num_cores)(delayed(main)(n0=100, k0=10, eta0=eta, C1=5, num_MP=mp1, L=5,length_random_walk=length_random_walk,solution=sol) for ii in xrange(iteration_to_mediate))
+    #     print 'n=100 k=10: ', time.time() - tt
+    #     tt = time.time()
+    #     y1 = Parallel(n_jobs=num_cores)(delayed(main)(n0=100, k0=20, eta0=eta, C1=5, num_MP=mp1, L=5,length_random_walk=length_random_walk,solution=sol) for ii in xrange(iteration_to_mediate))
+    #     print 'n=100 k=20: ', time.time() - tt
+    #     tt = time.time()
+    #     y2 = Parallel(n_jobs=num_cores)(delayed(main)(n0=200, k0=20, eta0=eta, C1=5, num_MP=mp1, L=5,length_random_walk=length_random_walk,solution=sol) for ii in xrange(iteration_to_mediate))
+    #     print 'n=200 k=20: ', time.time() - tt
+    #     tt = time.time()
+    #     y3 = Parallel(n_jobs=num_cores)(delayed(main)(n0=200, k0=40, eta0=eta, C1=5, num_MP=mp2, L=5,length_random_walk=length_random_walk,solution=sol) for ii in xrange(iteration_to_mediate))
+    #     print 'n=200 k=40: ', time.time() - tt
+    #     tt = time.time()
+    #     #y5 = Parallel(n_jobs=num_cores)(delayed(main)(n0=2000, k0=100, eta0=eta, C1=5, num_MP=10, L=5, length_random_walk=length_random_walk) for ii in xrange(iteration_to_mediate))
+    #     #print 'n=1000 k=500: ', time.time() - tt
+    #     print 'Parallel time: ', time.time() - parallel
+    #
+    #     for i in xrange(iteration_to_mediate-1):
+    #         y0[0] += y0[i + 1]
+    #         y1[0] += y1[i + 1]
+    #         y2[0] += y2[i + 1]
+    #         y3[0] += y3[i + 1]
+    #
+    #     y0 = y0[0] / iteration_to_mediate
+    #     y1 = y1[0] / iteration_to_mediate
+    #     y2 = y2[0] / iteration_to_mediate
+    #     y3 = y3[0] / iteration_to_mediate
+    #
+    #
+    #     # -- Salvataggio su file --
+    #     with open('Risultati_txt/Paper1_algo1/plot_Fig3_variazione_Random_Walk='+str(length_random_walk),'wb') as file:
+    #          wr=csv.writer(file,quoting=csv.QUOTE_ALL)
+    #          wr.writerow(y0)
+    #          wr.writerow(y1)
+    #          wr.writerow(y2)
+    #          wr.writerow(y3)
+    #
+    #     plt.title('Decoding performances')
+    #     x = np.linspace(1, 2.5, 16, endpoint=True)
+    #     plt.axis([1, 2.5, 0, 1])
+    #     plt.plot(x, y0, label='100 nodes and 10 sources', color='blue', linewidth=1,marker='o',markersize=4.0)
+    #     plt.plot(x, y1, label='100 nodes and 20 sources', color='red', linewidth=1,marker='o',markersize=4.0)
+    #     plt.plot(x, y2, label='200 nodes and 20 sources', color='grey', linewidth=1,marker='o',markersize=4.0)
+    #     plt.plot(x, y3, label='200 nodes and 40 sources', color='magenta', linewidth=1,marker='o',markersize=4.0)
+    #     plt.legend(loc=4)
+    #     plt.grid()
+    #     plt.savefig('Immagini/Paper1_algo1/00_Figure3_comparison_LR='+str(length_random_walk)+'c_0'+str(c0)+'delta='+str(delta)+'.pdf', dpi=150, transparent=False)
+    #     plt.close()
 
     #names = ['Figure3Paper1.txt']
     #send_mail(names)
@@ -459,7 +459,7 @@ if __name__ == "__main__":
     # Comparison different solution for the optimization problem
     print 'Comparison for different solution of the optimization problem'
 
-    iteration_to_mediate = 1
+    iteration_to_mediate = 4
     print 'Iteration to mediate ', iteration_to_mediate
     # punti = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 120, 160, 200, 500, 1000])
     punti = [50]
@@ -473,81 +473,54 @@ if __name__ == "__main__":
         print 'Lunghezza della random walk:', length_random_walk
 
 
-        # sol = 'ones'
-        sol = 'Larghi_Math'
-        # sol = 'Stretti_Math'
+        sol = ['ones','Larghi_Math','Stretti_Math']
         y0 = np.zeros((iteration_to_mediate, len(eta)))
         y1 = np.zeros((iteration_to_mediate, len(eta)))
         y2 = np.zeros((iteration_to_mediate, len(eta)))
-        y3 = np.zeros((iteration_to_mediate, len(eta)))
-        y3 = np.zeros((iteration_to_mediate, len(eta)))
-        y3 = np.zeros((iteration_to_mediate, len(eta)))
 
         mp1 = 2500
         mp2 = 2000
         mp3 = 2000
-
+        n0 = 100
+        k0 = 10
         # mp1 = 1
         # mp2 = 1
         # mp3 = 1
         # -- Iterazione su diversi sistemi --
         parallel = time.time()
         tt = time.time()
-        y0 = Parallel(n_jobs=num_cores)(
-            delayed(main)(n0=100, k0=10, eta0=eta, C1=5, num_MP=mp1, L=5, length_random_walk=length_random_walk,
-                          solution=sol) for ii in xrange(iteration_to_mediate))
+        y0 = Parallel(n_jobs=num_cores)(delayed(main)(n0=n0, k0=k0, eta0=eta, C1=5, num_MP=mp1, L=5, length_random_walk=length_random_walk,solution=sol[0]) for ii in xrange(iteration_to_mediate))
         print 'n=100 k=10: ', time.time() - tt
         tt = time.time()
-        y1 = Parallel(n_jobs=num_cores)(
-            delayed(main)(n0=100, k0=20, eta0=eta, C1=5, num_MP=mp1, L=5, length_random_walk=length_random_walk,
-                          solution=sol) for ii in xrange(iteration_to_mediate))
+        y1 = Parallel(n_jobs=num_cores)(delayed(main)(n0=n0, k0=k0, eta0=eta, C1=5, num_MP=mp1, L=5, length_random_walk=length_random_walk,solution=sol[1]) for ii in xrange(iteration_to_mediate))
         print 'n=100 k=20: ', time.time() - tt
         tt = time.time()
-        y2 = Parallel(n_jobs=num_cores)(
-            delayed(main)(n0=200, k0=20, eta0=eta, C1=5, num_MP=mp1, L=5, length_random_walk=length_random_walk,
-                          solution=sol) for ii in xrange(iteration_to_mediate))
+        y2 = Parallel(n_jobs=num_cores)(delayed(main)(n0=n0, k0=k0, eta0=eta, C1=5, num_MP=mp1, L=5, length_random_walk=length_random_walk,solution=sol[2]) for ii in xrange(iteration_to_mediate))
         print 'n=200 k=20: ', time.time() - tt
-        tt = time.time()
-        y3 = Parallel(n_jobs=num_cores)(
-            delayed(main)(n0=200, k0=40, eta0=eta, C1=5, num_MP=mp2, L=5, length_random_walk=length_random_walk,
-                          solution=sol) for ii in xrange(iteration_to_mediate))
-        print 'n=200 k=40: ', time.time() - tt
-        tt = time.time()
-        # y5 = Parallel(n_jobs=num_cores)(delayed(main)(n0=2000, k0=100, eta0=eta, C1=5, num_MP=10, L=5, length_random_walk=length_random_walk) for ii in xrange(iteration_to_mediate))
-        # print 'n=1000 k=500: ', time.time() - tt
-        print 'Parallel time: ', time.time() - parallel
+        print 'Total time: ', time.time() - parallel
 
         for i in xrange(iteration_to_mediate - 1):
             y0[0] += y0[i + 1]
             y1[0] += y1[i + 1]
             y2[0] += y2[i + 1]
-            y3[0] += y3[i + 1]
 
         y0 = y0[0] / iteration_to_mediate
         y1 = y1[0] / iteration_to_mediate
         y2 = y2[0] / iteration_to_mediate
-        y3 = y3[0] / iteration_to_mediate
 
-        # -- Salvataggio su file --
-        with open('Risultati_txt/Paper1_algo1/plot_Fig3_variazione_Random_Walk=' + str(length_random_walk),
-                  'wb') as file:
-            wr = csv.writer(file, quoting=csv.QUOTE_ALL)
-            wr.writerow(y0)
-            wr.writerow(y1)
-            wr.writerow(y2)
-            wr.writerow(y3)
 
-        plt.title('Decoding performances')
-        x = np.linspace(1, 2.5, 16, endpoint=True)
+        plt.title('Decoding performances - '+str(n0)+' nodes and '+str(k0)+' sources')
+        plt.xlabel('Decoding ratio $\eta$')
+        plt.ylabel('Successfull decoding probability P$_s$')
+        x = np.linspace(1, 2.5, len(y0)-1, endpoint=True)
         plt.axis([1, 2.5, 0, 1])
-        plt.plot(x, y0, label='100 nodes and 10 sources', color='blue', linewidth=1, marker='o', markersize=4.0)
-        plt.plot(x, y1, label='100 nodes and 20 sources', color='red', linewidth=1, marker='o', markersize=4.0)
-        plt.plot(x, y2, label='200 nodes and 20 sources', color='grey', linewidth=1, marker='o', markersize=4.0)
-        plt.plot(x, y3, label='200 nodes and 40 sources', color='magenta', linewidth=1, marker='o', markersize=4.0)
+        plt.plot(x, y0[1:len(y0)], label=str(sol[0]), color='blue', linewidth=1, marker='o', markersize=4.0)
+        plt.plot(x, y1[1:len(y0)], label=str(sol[1]), color='red', linewidth=1, marker='o', markersize=4.0)
+        plt.plot(x, y2[1:len(y0)], label=str(sol[2]), color='green', linewidth=1, marker='o', markersize=4.0)
         plt.legend(loc=4)
         plt.grid()
-        plt.savefig('Immagini/Paper1_algo1/00_Figure3_comparison_LR=' + str(length_random_walk) + 'c_0' + str(
-            c0) + 'delta=' + str(delta) + '.pdf', dpi=150, transparent=False)
+        plt.savefig('Immagini/Paper1_algo1/00_Comparison_OPTsolutions_LR='+str(length_random_walk)+\
+                    '_c0='+str(c0)+'_delta='+str(delta)+'_n='+str(n0)+'_k='+str(k0)+'.pdf', dpi=150, transparent=False)
         plt.close()
 
 
