@@ -526,7 +526,7 @@ if __name__ == "__main__":
     iteration_to_mediate = 8
     print 'Iteration to mediate ', iteration_to_mediate
     eta = [1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6]
-    punti = [1,5,19,50,100,500]
+    punti = [1, 3, 5, 10, 50, 500]
     y = np.zeros((len(punti), len(eta)))
     eta = [1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6]
     sol = ['ones', 'Larghi_Math', 'Stretti_Math']
