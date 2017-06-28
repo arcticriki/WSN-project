@@ -99,7 +99,8 @@ def message_passing(node_list,n, k, h):
     else:
         return 0
 
-
+c0 = 0.2                                 # parameter for RSD
+delta = 0.05                             # Prob['we're not able to recover the K pkts']<=delta
 def main(n0, k0, eta0, C1, num_MP,L,length_random_walk):
 # -- PARAMETER INITIALIZATION SECTION --------------------------------------------------------------
     payload = 10
@@ -110,8 +111,7 @@ def main(n0, k0, eta0, C1, num_MP,L,length_random_walk):
     n = n0                                   # number of nodes
     k = k0                                   # number of sensors
     #L = L                                   # square dimension
-    c0 = 0.2                                 # parameter for RSD
-    delta = 0.05                             # Prob['we're not able to recover the K pkts']<=delta
+
 
     positions = np.zeros((n, 2))             # matrix containing info on all node positions
     node_list = []                           # list of references to node objects
@@ -280,7 +280,7 @@ def main(n0, k0, eta0, C1, num_MP,L,length_random_walk):
             if j == (b * k)-codificati_in_partenza:
                 break
         #print j
-    print 'Time taken by dissemination: ',time.time()-t
+    # print 'Time taken by dissemination: ',time.time()-t
 
 
 
@@ -305,7 +305,7 @@ def main(n0, k0, eta0, C1, num_MP,L,length_random_walk):
     plt.title('Post dissemination')
     y = distribution_post_dissemination[1:]
     x = np.linspace(1, k, k, endpoint=True)
-    plt.axis([0, int(round(k/R)), 0, 0.6]) #note that it can be interesting to see it until K/R
+    plt.axis([0, k, 0, 0.6]) #note that it can be interesting to see it until K/R
     plt.plot(x, y, label='Optimized PDF post-dissemination')  # plot the robust pdf vs the obtained distribution after dissemination
     y2 = np.zeros(k)
     y2[:len(pdf)] = pdf
@@ -367,9 +367,9 @@ if __name__ == "__main__":
     num_cores = multiprocessing.cpu_count()
     print 'Numero di core utilizzati:', num_cores
 
-    iteration_to_mediate = 1
+    iteration_to_mediate = 2
     #punti = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 120, 160, 200, 500, 1000])
-    punti = np.array([10])
+    punti = np.array([50])
 
 
     for length_random_walk in punti:
