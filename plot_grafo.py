@@ -38,5 +38,5 @@ def plot_grafo(node_list, n , k , sensors_indexes, L):
     plt.xlim(-0.5, L*1.05)
     plt.ylim(-0.5, L*1.05)
     #plt.show()
-    plt.savefig('Immagini/Grafo_n=' + str(n) + '_k=' + str(k) + '.pdf', dpi=150, transparent=True)
+    plt.savefig('Immagini/Grafo/Grafo_n=' + str(n) + '_k=' + str(k) + '.pdf', dpi=150, transparent=True)
 
