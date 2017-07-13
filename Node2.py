@@ -177,6 +177,10 @@ class Storage(object):
                     self.code_degree , _, _ = Robust_Soliton_Distribution2(self.n_stimato_hop , self.k_stimato_hop , self.c0, self.delta)  # See RSD doc
                     self.code_prob = self.code_degree / float(self.k_stimato_hop)  # compute the code probability, d/k
                 else:
+                    # self.stimati = True
+                    # self.k_stimato_hop = 1
+                    # self.code_degree, _, _ = Robust_Soliton_Distribution2(self.n_stimato_hop, self.k_stimato_hop,self.c0, self.delta)  # See RSD doc
+                    # self.code_prob = self.code_degree / float(self.k_stimato_hop)  # compute the code probability, d/k
                     print 'rimandata'
 
 
@@ -255,20 +259,6 @@ class Storage(object):
 
     def last_ID(self):
         print self.ID_list
-
-    # def baro(self):       DEPRECATED
-    #     if not self.stimati:
-    #         self.k_stimato_hop = self.k
-    #         self.code_prob = self.code_degree / float(self.k_stimato_hop)  # compute the code probability, d/k
-    #
-    #         for i in xrange(self.num_received):
-    #             if self.num_encoded < self.code_degree:  # ...and we still have to encode something
-    #                 pkt = self.received_from_dissemination[i]
-    #                 prob = rnd.random()  # generate a random number in the range [0,1)
-    #                 if prob <= self.code_prob:  # if generated number less or equal to coding probability
-    #                     self.ID_list.append(pkt.ID)  # save ID of node who generated the coded pkt
-    #                     self.storage = self.storage ^ pkt.payload  # code procedure(XOR)
-    #                     self.num_encoded += 1  # increase num of encoded pkts
 
 
 

@@ -273,36 +273,69 @@ import multiprocessing
 # plt.close()
 
 
-y11 = 0
-y21 = 0
-y22 = 0
-n0=[100,200,500,1000]
+# y11 = 0
+# y21 = 0
+# y22 = 0
+# n0=[100,200,500,1000]
+#
+# with open('Risultati_txt/Tempi disseminazione Paper1 algo1 ','rb') as file:
+#     reader = csv.reader(file, delimiter=',')
+#     for row in reader:
+#         y11 = row
+#
+# with open('Risultati_txt/Tempi disseminazione Paper2 algo1 ','rb') as file:
+#     reader = csv.reader(file, delimiter=',')
+#     for row in reader:
+#         y21 = row
+#
+# with open('Risultati_txt/Tempi disseminazione Paper2 algo2 ','rb') as file:
+#     reader = csv.reader(file, delimiter=',')
+#     for row in reader:
+#         y22 = row
+#
+#
+#
+# plt.xlabel('Network dimension n')
+# plt.ylabel('Duration dissemination phase')
+# plt.axis([100, 1000, 0, 400])
+# plt.plot(n0, y11, label='EDFC', linewidth=1, marker='o', markersize=4.0)
+# plt.plot(n0, y21, label='LTCDS - I', linewidth=1, marker='o', markersize=4.0)
+# plt.plot(n0, y22, label='LTCDS - II', linewidth=1, marker='o', markersize=4.0)
+# plt.rc('legend', fontsize=12)
+# plt.legend(loc=2)
+# plt.grid()
+# plt.savefig('Immagini/00_FINAL_comparison_tempi.pdf', dpi=150, transparent=False)
+# plt.close()
 
-with open('Risultati_txt/Tempi disseminazione Paper1 algo1 ','rb') as file:
+
+
+
+eta = [1.5, 2.0, 1.5, 2.0]
+C_list = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60]
+
+n0 = [100, 100, 200, 200]
+k0 = [10, 10, 20, 20]
+c0=0.2
+delta= 0.05
+i=0
+y = np.zeros((len(n0),len(C_list)))
+
+with open('Immagini/Paper2_algo2/C2 variation', 'rb') as file:
     reader = csv.reader(file, delimiter=',')
     for row in reader:
-        y11 = row
-
-with open('Risultati_txt/Tempi disseminazione Paper2 algo1 ','rb') as file:
-    reader = csv.reader(file, delimiter=',')
-    for row in reader:
-        y21 = row
-
-with open('Risultati_txt/Tempi disseminazione Paper2 algo2 ','rb') as file:
-    reader = csv.reader(file, delimiter=',')
-    for row in reader:
-        y22 = row
+        y[i,:] = row
+        i += 1
 
 
-
-plt.xlabel('Network dimension n')
-plt.ylabel('Duration dissemination phase')
-plt.axis([100, 1000, 0, 400])
-plt.plot(n0, y11, label='EDFC', linewidth=1, marker='o', markersize=4.0)
-plt.plot(n0, y21, label='LTCDS - I', linewidth=1, marker='o', markersize=4.0)
-plt.plot(n0, y22, label='LTCDS - II', linewidth=1, marker='o', markersize=4.0)
-plt.rc('legend', fontsize=12)
-plt.legend(loc=2)
+plt.xlabel('Parameter $C_2$')
+plt.ylabel('Successfull decoding probability P$_s$')
+plt.axis([0, C_list[-1], 0, 1])
+for i in xrange(len(n0)):
+    plt.plot(C_list, y[i][:], label='n=' + str(n0[i]) + '   k=' + str(k0[i]) + '   $\eta$=' + str(eta[i]), linewidth=1,
+             marker='o', markersize=4.0)
+plt.rc('legend', fontsize=10)
+plt.legend(loc=4)
 plt.grid()
-plt.savefig('Immagini/00_FINAL_comparison_tempi.pdf', dpi=150, transparent=False)
+plt.savefig('Immagini/Paper2_algo2/00_COMPARISON C2 VALUE_n0=' + str(n0) + '_k0=' + str(k0) + '_c0=' + \
+            str(c0) + 'delta=' + str(delta) + '.pdf', dpi=150, transparent=False)
 plt.close()

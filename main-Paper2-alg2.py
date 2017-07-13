@@ -692,105 +692,92 @@ if __name__ == "__main__":
 
 
     # ############### # Figura in cui varia C2   VERSIONE 2 --------------------------------------------------------------
-    #
-    # iteration_to_mediate = 48
-    # print 'Numero di medie da eseguire: ', iteration_to_mediate
-    # target = 0  # Mettere a 0 quando si vuole fare il grafico della decoding prob.
-    # eta = [1.8]
-    # print 'Figure C_2 comparison. \n'
-    #
-    # C_list = [15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80]  # ,150]
-    #
-    # totale = time.time()
-    #
-    # mp1 = 2000
-    # mp2 = 2000
-    # mp3 = 1500
-    # # mp1=100
-    # # mp2=1
-    # # mp3=1
-    #
-    # #n0 = [100, 100, 200, 200]
-    # #k0 = [10, 20, 20, 40]
-    #
-    # n0 = [100, 200, 500, 1000]
-    # k0 = [10, 40, 50, 100]
-    #
-    # y = np.zeros((len(n0),len(C_list) ))
-    # cont = -1
-    #
-    # for c in xrange(len(C_list)):
-    #     cont += 1
-    #     C = (5, C_list[c], 70)
-    #
-    #     y0 = np.zeros((iteration_to_mediate, len(eta)))
-    #     y1 = np.zeros((iteration_to_mediate, len(eta)))
-    #     y2 = np.zeros((iteration_to_mediate, len(eta)))
-    #     y3 = np.zeros((iteration_to_mediate, len(eta)))
-    #     y4 = np.zeros((iteration_to_mediate, len(eta)))
-    #     y5 = np.zeros((iteration_to_mediate, len(eta)))
-    #
-    #     parallel = time.time()
-    #     tt = time.time()
-    #     y0 = Parallel(n_jobs=num_cores)(delayed(main)(n0=n0[0], k0=k0[0], eta0=eta, C=C, num_MP=mp1, L=np.sqrt(n0[0] * 9 / 40), \
-    #                        length_random_walk=1,target=target) for ii in xrange(iteration_to_mediate))
-    #     print 'n=100 k=10: ', time.time() - tt
-    #     y[0, cont] = np.sum(y0, 0) / iteration_to_mediate
-    #
-    #     #tt = time.time()
-    #     #y1 = Parallel(n_jobs=num_cores)(delayed(main)(n0=n0[1], k0=k0[1], eta0=eta, C=C, num_MP=mp1, L=np.sqrt(n0[1] * 9 / 40), \
-    #     #                 length_random_walk=1,target=target) for ii in xrange(iteration_to_mediate))
-    #     #print 'n=100 k=20: ', time.time() - tt
-    #     #y[1, cont] = np.sum(y1, 0) / iteration_to_mediate
-    #
-    #     #tt = time.time()
-    #     #y2 = Parallel(n_jobs=num_cores)(delayed(main)(n0=n0[2], k0=k0[2], eta0=eta, C=C, num_MP=mp1, L=np.sqrt(n0[2] * 9 / 40), \
-    #     #                 length_random_walk=1,target=target) for ii in xrange(iteration_to_mediate))
-    #     #print 'n=200 k=20: ', time.time() - tt
-    #     #y[2, cont] = np.sum(y2, 0) / iteration_to_mediate
-    #
-    #     tt = time.time()
-    #     y3 = Parallel(n_jobs=num_cores)(delayed(main)(n0=200, k0=40, eta0=eta, C=C, num_MP=mp2, L=np.sqrt(200 * 9 / 40), \
-    #                      length_random_walk=1, target=target) for ii in xrange(iteration_to_mediate))
-    #     print 'n=200 k=40: ', time.time() - tt
-    #     y[1, cont] = np.sum(y3, 0) / iteration_to_mediate
-    #
-    #     tt = time.time()
-    #     y4 = Parallel(n_jobs=num_cores)(delayed(main)(n0=500, k0=50, eta0=eta, C=C, num_MP= mp2, L=np.sqrt(500 * 9 / 40), \
-    #                      length_random_walk=1,target=target) for ii in xrange(iteration_to_mediate))
-    #     print 'n=500 k=50: ', time.time() - tt
-    #     y[2, cont] = np.sum(y4, 0) / iteration_to_mediate
-    #
-    #
-    #     tt = time.time()
-    #     y5 = Parallel(n_jobs=num_cores)(delayed(main)(n0=1000, k0=100, eta0=eta, C=C, num_MP= mp3, L=np.sqrt(1000*9/40), \
-    #                       length_random_walk=1,target=target) for ii in xrange(iteration_to_mediate))
-    #     print 'n=1000 k=100: ', time.time() - tt
-    #     y[3, cont] = np.sum(y5, 0) / iteration_to_mediate
-    #
-    #     print 'Iteration with C2 =', C[1], ', duration ', time.time() - parallel
-    #
-    #
-    # with open('Immagini/Paper2_algo2/C2 variation', 'wb') as file:
-    #     wr = csv.writer(file, quoting=csv.QUOTE_ALL)
-    #     for i in xrange(len(n0)):
-    #         wr.writerow(y[i][:])
-    #
-    # print 'Tempo totale di esecuzione ', time.time() - totale
-    #
-    # plt.xlabel('Parameter $C_2$')
-    # plt.ylabel('Successfull decoding probability P$_s$')
-    # plt.axis([C_list[0] - 0.5, C_list[-1] + 0.5, 0, 1])
-    # for i in xrange(len(n0)):
-    #     plt.plot(C_list, y[i][:], label='n ='+str(n0[i])+' k = '+str(n0[i]), linewidth=1, marker='o', markersize=4.0)
-    # plt.rc('legend', fontsize=10)
-    # plt.legend(loc=4)
-    # plt.grid()
-    # plt.savefig('Immagini/Paper2_algo2/00_COMPARISON C2 VALUE_n0=' + str(n0) + '_k0=' + str(k0) + '_c0=' + str(
-    #     c0) + 'delta=' + str(delta) + '.pdf', dpi=150,
-    #             transparent=False)
-    # plt.close()
-    #
+
+    iteration_to_mediate = 48
+    print 'Numero di medie da eseguire: ', iteration_to_mediate
+    target = 0  # Mettere a 0 quando si vuole fare il grafico della decoding prob.
+    eta = [1.5, 2.0, 1.5, 2.0]
+    print 'Figure C_2 comparison. \n'
+
+    C_list = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60]
+
+    totale = time.time()
+
+    mp1 = 2000
+    mp2 = 2000
+    mp3 = 1500
+    # mp1=100
+    # mp2=1
+    # mp3=1
+
+    #n0 = [100, 100, 200, 200]
+    #k0 = [10, 20, 20, 40]
+
+    n0 = [100, 100, 200, 200]
+    k0 = [10, 10, 40, 40]
+
+    y = np.zeros((len(n0),len(C_list) ))
+    cont = -1
+
+    for c in xrange(len(C_list)):
+        cont += 1
+        C = (5, C_list[c], 50)
+
+        y0 = np.zeros((iteration_to_mediate, len(eta)))
+        y1 = np.zeros((iteration_to_mediate, len(eta)))
+        y2 = np.zeros((iteration_to_mediate, len(eta)))
+        y3 = np.zeros((iteration_to_mediate, len(eta)))
+        y4 = np.zeros((iteration_to_mediate, len(eta)))
+        y5 = np.zeros((iteration_to_mediate, len(eta)))
+
+        parallel = time.time()
+        tt = time.time()
+        y0 = Parallel(n_jobs=num_cores)(delayed(main)(n0=n0[0], k0=k0[0], eta0=eta[0], C=C, num_MP=mp1, L=np.sqrt(n0[0] * 9 / 40), \
+                           length_random_walk=1,target=target) for ii in xrange(iteration_to_mediate))
+        print 'n=100 k=10 eta=1.5: ', time.time() - tt
+        y[0, cont] = np.sum(y0, 0) / iteration_to_mediate
+
+        tt = time.time()
+        y1 = Parallel(n_jobs=num_cores)(delayed(main)(n0=n0[1], k0=k0[1], eta0=eta[1], C=C, num_MP=mp1, L=np.sqrt(n0[1] * 9 / 40), \
+                        length_random_walk=1,target=target) for ii in xrange(iteration_to_mediate))
+        print 'n=100 k=10 eta=2.0: ', time.time() - tt
+        y[1, cont] = np.sum(y1, 0) / iteration_to_mediate
+
+        tt = time.time()
+        y2 = Parallel(n_jobs=num_cores)(delayed(main)(n0=n0[2], k0=k0[2], eta0=eta[2], C=C, num_MP=mp1, L=np.sqrt(n0[2] * 9 / 40), \
+                        length_random_walk=1,target=target) for ii in xrange(iteration_to_mediate))
+        print 'n=200 k=40 eta=1.5: ', time.time() - tt
+        y[2, cont] = np.sum(y2, 0) / iteration_to_mediate
+
+        tt = time.time()
+        y3 = Parallel(n_jobs=num_cores)(delayed(main)(n0=n0[3], k0=k0[3], eta0=eta[3], C=C, num_MP=mp2, L=np.sqrt(n0[3] * 9 / 40), \
+                         length_random_walk=1, target=target) for ii in xrange(iteration_to_mediate))
+        print 'n=200 k=40 eta=2.0: ', time.time() - tt
+        y[3, cont] = np.sum(y3, 0) / iteration_to_mediate
+
+
+        print 'Iteration with C2 =', C[1], ', duration ', time.time() - parallel
+
+
+    with open('Immagini/Paper2_algo2/C2 variation', 'wb') as file:
+        wr = csv.writer(file, quoting=csv.QUOTE_ALL)
+        for i in xrange(len(n0)):
+            wr.writerow(y[i][:])
+
+    print 'Tempo totale di esecuzione ', time.time() - totale
+
+    plt.xlabel('Parameter $C_2$')
+    plt.ylabel('Successfull decoding probability P$_s$')
+    plt.axis([C_list[0] - 0.5, C_list[-1] + 0.5, 0, 1])
+    for i in xrange(len(n0)):
+        plt.plot(C_list, y[i][:], label='n ='+str(n0[i])+' k = '+str(n0[i])+' $\eta$ = '+str(eta[i]) , linewidth=1, marker='o', markersize=4.0)
+    plt.rc('legend', fontsize=10)
+    plt.legend(loc=4)
+    plt.grid()
+    plt.savefig('Immagini/Paper2_algo2/00_COMPARISON C2 VALUE_n0=' + str(n0) + '_k0=' + str(k0) + '_c0=' + \
+                str(c0) + 'delta=' + str(delta) + '.pdf', dpi=150,transparent=False)
+    plt.close()
+
 
 
 
@@ -1049,52 +1036,52 @@ if __name__ == "__main__":
 
 
     ########### Grafico dei tempi ------------------------------------------------------------------------------------
-    iteration_to_mediate = 4
-    print 'Numero di medie da eseguire: ', iteration_to_mediate
-
-    eta = [1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2, 2.1, 2.2, 2.3, 2.4, 2.5]
-    n0 = [100, 200, 500, 1000]
-    y0 = np.zeros(iteration_to_mediate)
-    y1 = np.zeros(iteration_to_mediate)
-    y2 = np.zeros(iteration_to_mediate)
-    y3 = np.zeros(iteration_to_mediate)
-    y = np.zeros(len(n0))
-
-    mp1 = 3000
-    mp2 = 2500
-    mp3 = 2500
-    C = (5, 40, 50)
-
-    target = 0
-    parallel = time.time()
-    tt = time.time()
-    y0 = Parallel(n_jobs=num_cores)(delayed(main)(n0=100, k0=10, eta0=eta, C=C, num_MP= mp1 , \
-                  L=np.sqrt(100*9/40),length_random_walk=1,target=target) for ii in xrange(iteration_to_mediate))
-    y[0] = np.sum(y0, 0) / iteration_to_mediate
-
-    print 'n=100 k=10: ', time.time() - tt
-
-    tt = time.time()
-    y1 = Parallel(n_jobs=num_cores)(delayed(main)(n0=200, k0=40, eta0=eta, C=C, num_MP= mp2, \
-                  L=np.sqrt(200*9/40),length_random_walk=1,target=target) for ii in xrange(iteration_to_mediate))
-    y[1] = np.sum(y1, 0) / iteration_to_mediate
-    print 'n=200 k=40: ', time.time() - tt
-
-    tt = time.time()
-    y2 = Parallel(n_jobs=num_cores)(delayed(main)(n0=500, k0=50, eta0=eta, C=C, num_MP= mp2, \
-                  L=np.sqrt(500*9/40), length_random_walk=1,target=target) for ii in xrange(iteration_to_mediate))
-    y[2] = np.sum(y2, 0) / iteration_to_mediate
-    print 'n=500 k=50: ', time.time() - tt
-    tt = time.time()
-    y3 = Parallel(n_jobs=num_cores)(delayed(main)(n0=1000, k0=100, eta0=eta, C=C, num_MP=mp3, \
-                  L=np.sqrt(1000 * 9 / 40), length_random_walk=1, target=target) for ii in xrange(iteration_to_mediate))
-    y[3] = np.sum(y3, 0) / iteration_to_mediate
-    print 'n=1000 k=100: ', time.time() - tt
-    print 'Parallel time: ', time.time() - parallel
-
-
-    # -- Salvataggio su file --
-    with open('Risultati_txt/Tempi disseminazione Paper2 algo2 ', 'wb') as file:
-        wr = csv.writer(file, quoting=csv.QUOTE_ALL)
-        wr.writerow(y)
-
+    # iteration_to_mediate = 4
+    # print 'Numero di medie da eseguire: ', iteration_to_mediate
+    #
+    # eta = [1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2, 2.1, 2.2, 2.3, 2.4, 2.5]
+    # n0 = [100, 200, 500, 1000]
+    # y0 = np.zeros(iteration_to_mediate)
+    # y1 = np.zeros(iteration_to_mediate)
+    # y2 = np.zeros(iteration_to_mediate)
+    # y3 = np.zeros(iteration_to_mediate)
+    # y = np.zeros(len(n0))
+    #
+    # mp1 = 3000
+    # mp2 = 2500
+    # mp3 = 2500
+    # C = (5, 40, 50)
+    #
+    # target = 0
+    # parallel = time.time()
+    # tt = time.time()
+    # y0 = Parallel(n_jobs=num_cores)(delayed(main)(n0=100, k0=10, eta0=eta, C=C, num_MP= mp1 , \
+    #               L=np.sqrt(100*9/40),length_random_walk=1,target=target) for ii in xrange(iteration_to_mediate))
+    # y[0] = np.sum(y0, 0) / iteration_to_mediate
+    #
+    # print 'n=100 k=10: ', time.time() - tt
+    #
+    # tt = time.time()
+    # y1 = Parallel(n_jobs=num_cores)(delayed(main)(n0=200, k0=40, eta0=eta, C=C, num_MP= mp2, \
+    #               L=np.sqrt(200*9/40),length_random_walk=1,target=target) for ii in xrange(iteration_to_mediate))
+    # y[1] = np.sum(y1, 0) / iteration_to_mediate
+    # print 'n=200 k=40: ', time.time() - tt
+    #
+    # tt = time.time()
+    # y2 = Parallel(n_jobs=num_cores)(delayed(main)(n0=500, k0=50, eta0=eta, C=C, num_MP= mp2, \
+    #               L=np.sqrt(500*9/40), length_random_walk=1,target=target) for ii in xrange(iteration_to_mediate))
+    # y[2] = np.sum(y2, 0) / iteration_to_mediate
+    # print 'n=500 k=50: ', time.time() - tt
+    # tt = time.time()
+    # y3 = Parallel(n_jobs=num_cores)(delayed(main)(n0=1000, k0=100, eta0=eta, C=C, num_MP=mp3, \
+    #               L=np.sqrt(1000 * 9 / 40), length_random_walk=1, target=target) for ii in xrange(iteration_to_mediate))
+    # y[3] = np.sum(y3, 0) / iteration_to_mediate
+    # print 'n=1000 k=100: ', time.time() - tt
+    # print 'Parallel time: ', time.time() - parallel
+    #
+    #
+    # # -- Salvataggio su file --
+    # with open('Risultati_txt/Tempi disseminazione Paper2 algo2 ', 'wb') as file:
+    #     wr = csv.writer(file, quoting=csv.QUOTE_ALL)
+    #     wr.writerow(y)
+    #
