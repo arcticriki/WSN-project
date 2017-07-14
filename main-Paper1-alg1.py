@@ -348,7 +348,7 @@ def comparison_network_dimensions(iteration_to_mediate,L_RW,mp):
     plt.close()
 
 
-def comparison_solution_opt_problem(iteration_to_mediate, L_RW,n0,k0, mp1):
+def comparison_solution_opt_problem(iteration_to_mediate, L_RW,n0,k0, mp):
     ## Comparison different solution for the optimization problem ----------------------------------------------------------
 
     print 'Comparison for different solution of the optimization problem'
@@ -379,19 +379,19 @@ def comparison_solution_opt_problem(iteration_to_mediate, L_RW,n0,k0, mp1):
             # -- Iterazione su diversi sistemi --
             parallel = time.time()
             tt = time.time()
-            y0 = Parallel(n_jobs=num_cores)(delayed(main)(n0=n0[a], k0=k0[a], eta0=eta, C1=5, num_MP=mp1, L=5, \
+            y0 = Parallel(n_jobs=num_cores)(delayed(main)(n0=n0[a], k0=k0[a], eta0=eta, C1=5, num_MP=mp, L=5, \
                   length_random_walk=length_random_walk,solution=sol[0],target = 0) for ii in xrange(iteration_to_mediate))
             print 'Time taken by ' + str(sol[0]) + ' = ', time.time() - tt
             tt = time.time()
-            y1 = Parallel(n_jobs=num_cores)(delayed(main)(n0=n0[a], k0=k0[a], eta0=eta, C1=5, num_MP=mp1, L=5, \
+            y1 = Parallel(n_jobs=num_cores)(delayed(main)(n0=n0[a], k0=k0[a], eta0=eta, C1=5, num_MP=mp, L=5, \
                   length_random_walk=length_random_walk,solution=sol[1],target = 0) for ii in xrange(iteration_to_mediate))
             print 'Time taken by ' + str(sol[1]) + ' = ', time.time() - tt
             tt = time.time()
-            y2 = Parallel(n_jobs=num_cores)(delayed(main)(n0=n0[a], k0=k0[a], eta0=eta, C1=5, num_MP=mp1, L=5, \
+            y2 = Parallel(n_jobs=num_cores)(delayed(main)(n0=n0[a], k0=k0[a], eta0=eta, C1=5, num_MP=mp, L=5, \
                   length_random_walk=length_random_walk,solution=sol[2],target = 0) for ii in xrange(iteration_to_mediate))
             print 'Time taken by ' + str(sol[2]) + ' = ', time.time() - tt
             tt = time.time()
-            y3 = Parallel(n_jobs=num_cores)(delayed(main)(n0=n0[a], k0=k0[a], eta0=eta, C1=5, num_MP=mp1, L=5, \
+            y3 = Parallel(n_jobs=num_cores)(delayed(main)(n0=n0[a], k0=k0[a], eta0=eta, C1=5, num_MP=mp, L=5, \
                   length_random_walk=length_random_walk, solution=sol[3], target=0) for ii in xrange(iteration_to_mediate))
             print 'Time taken by ' + str(sol[03]) + ' = ', time.time() - tt
             print
@@ -645,11 +645,11 @@ if __name__ == "__main__":
     # Graphs can be found at: ../Immagini/Paper1_algo1/00_Comparison_OPTsolutions_LR=......
     # Text file can be found at: ../Risultati_txt/Paper1_algo1/00_Comparison_n......
 
-    punti = [1, 2, 3, 4, 5, 7, 10, 15, 20, 30, 40, 50, 80]
-    comparison_length_of_random_walk(iteration_to_mediate=200,L_RW=punti, n0=200, k0=40,solution=3000)
+    L_RW = [1, 2, 3, 4, 5, 7, 10, 15, 20, 30, 40, 50, 80]
+    comparison_length_of_random_walk(iteration_to_mediate=200,punti =L_RW, n0=200, k0=40,mp=1)
     # Comparison for several length of the random walk (punti). It generates a file containing the results.
     # Text file can be found at: ../Immagini/Paper1_algo1/LRW comparison
     # NB: This function is heavy time consuming.
 
-    dissemination_cost(iteration_to_mediate=1)
+    dissemination_cost(iteration_to_mediate=12)
     # Compute the dissemination time, in order to asses the complexity. Presented in the overall comparison in the report of the project
