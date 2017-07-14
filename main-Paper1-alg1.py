@@ -632,7 +632,7 @@ def dissemination_cost(iteration_to_mediate):
 
 if __name__ == "__main__":
 
-    comparison_network_dimensions(iteration_to_mediate=1, L_RW=100, mp=1)
+    comparison_network_dimensions(iteration_to_mediate=12, L_RW=100, mp=3000)
     # Comparison for several network dimensions (n0,k0)=[(100,10);(100,20);(200,20);(200,40);(500,50);(1000,100)]
     # This function produces two separate figures, one comparing first 4 couples n,k, the other considering all values.
     # Moreover it generates a text file containing the vectors of the plots.
@@ -640,14 +640,13 @@ if __name__ == "__main__":
     #                         ../Immagini/Paper1_algo1/00_FINAL_comparison_LR=......
     # Text file can be found at: ../Risultati_txt/Paper1_algo1/plot_Fig3_=.......
 
-    comparison_solution_opt_problem(iteration_to_mediate=1, L_RW=100,n0=200,k0=40, mp=1)
+    comparison_solution_opt_problem(iteration_to_mediate=12, L_RW=100,n0=200,k0=40, mp=3000)
     # Comparison for several solutions of the optimization problem, it generates a graph and a text file.
     # Graphs can be found at: ../Immagini/Paper1_algo1/00_Comparison_OPTsolutions_LR=......
     # Text file can be found at: ../Risultati_txt/Paper1_algo1/00_Comparison_n......
 
     punti = [1, 2, 3, 4, 5, 7, 10, 15, 20, 30, 40, 50, 80]
-    #iteration_to_mediate = 200
-    comparison_length_of_random_walk(iteration_to_mediate=1,L_RW=punti, n0=200, k0=40,solution=1)
+    comparison_length_of_random_walk(iteration_to_mediate=200,L_RW=punti, n0=200, k0=40,solution=3000)
     # Comparison for several length of the random walk (punti). It generates a file containing the results.
     # Text file can be found at: ../Immagini/Paper1_algo1/LRW comparison
     # NB: This function is heavy time consuming.

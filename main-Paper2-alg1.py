@@ -369,7 +369,7 @@ def dissemination_cost(iteration_to_mediate=8):
 
 if __name__ == "__main__":
 
-    comparison_network_dimensions(iteration_to_mediate=1, C1=5, mp=1)
+    comparison_network_dimensions(iteration_to_mediate=12, C1=5, mp=3000)
     # Comparison for several network dimensions (n0,k0)=[(100,10);(100,20);(200,20);(200,40);(500,50);(1000,100)]
     # This function produces two separate figures, one comparing first 4 couples n,k, the other considering
     # (200,40);(500,50);(1000,100). It reproduces Fig 3 and 4 of paper 2
@@ -380,14 +380,14 @@ if __name__ == "__main__":
     #                            ../Risultati_txt/Paper2_algo1/Figure 4
 
     #iteration_to_mediate = 100
-    comparison_C1(iteration_to_mediate=1, mp=1)
+    comparison_C1(iteration_to_mediate=100, mp=3000)
     # Comparison for several values of system parameter C1. It generates a figure and a file containing the results.
     # It generates the same results as figure 6 of paper 2.
     # Graphs can be found at: ../Immagini/Paper2_algo1/00_Figure6_n='..........
     # Text file can be found at: ../Risultati_txt/Paper2_algo1/Figure 6
     # NB: This function is heavy time consuming.
 
-    figure_5(iteration_to_mediate=1, mp=1)
+    figure_5(iteration_to_mediate=12, mp=3000)
     # Generation of figure 5, paper 2.
 
     dissemination_cost(iteration_to_mediate=1)
