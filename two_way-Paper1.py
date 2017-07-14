@@ -2,23 +2,25 @@ import numpy as np  # import of package numpy for mathematical tools
 import random as rnd  # import of package random for homonym tools
 import matplotlib.pyplot as plt  # import of package matplotlib.pyplot for plottools
 import time as time
-from Node2 import *         #importa la versione due della classe nodo
-from send_mail import *
+from Node import *         #importa la versione due della classe nodo
 import cProfile
 from RSD import *
 from math import factorial
 import csv
 import copy
+from message_passing import *
+from joblib import Parallel, delayed
+import multiprocessing
 
 def main(n0, k0, eta0, C1, num_MP,L):
 # -- PARAMETER INITIALIZATION SECTION --------------------------------------------------------------
-    payload = 10
+    payload = 1
     C1 = C1
     eta = eta0
     n = n0                                   # number of nodes
     k = k0                                   # number of sensors
-    #L = L                                    # square dimension
-    c0 = 0.1                                 # parameter for RSD
+    #L = L                                   # square dimension
+    c0 = 0.01                                 # parameter for RSD
     delta = 0.5                              # Prob['we're not able to recover the K pkts']<=delta
 
     positions = np.zeros((n, 2))  # matrix containing info on all node positions
@@ -37,7 +39,8 @@ def main(n0, k0, eta0, C1, num_MP,L):
     for i in xrange(n):  # for on 0 to n indices
         x = rnd.uniform(0.0, L)  # generation of random coordinate x
         y = rnd.uniform(0.0, L)  # generation of random coordinate y
-        node_list.append(Storage(i + 1, x, y, int(d[i]), n, k, C1, pid=0))  # creation of Storage node
+        node_list.append(Storage(i + 1, x, y, int(d[i]), n, k, 0, 0, 0, 0, 0, c0, delta))  # creation of Storage node
+
         positions[i, :] = [x, y]
 
 
@@ -45,7 +48,7 @@ def main(n0, k0, eta0, C1, num_MP,L):
     for i in sensors_indexes:  # for on sensors position indices
         x = rnd.uniform(0.0, L)  # generation of random coordinate x
         y = rnd.uniform(0.0, L)  # generation of random coordinate y
-        node_list[i] = Sensor(i + 1, x, y, int(d[i]), n, k, C1, pid=0)  # creation of sensor node, function Sensor(), extend Storage class
+        node_list[i] = Sensor(i + 1, x, y, int(d[i]), n, k, 0, 0, 0, 0, 0, c0, delta)  # creation of sensor node, function Sensor(), extend Storage class
         positions[i, :] = [x, y]  # support variable for positions info, used for comp. optim. reasons
 
 
@@ -75,7 +78,7 @@ def main(n0, k0, eta0, C1, num_MP,L):
             print 'Node %d has no neighbors within the range, the nearest neighbor is chosen.' % i
             node_list[i].neighbor_write(nearest_neighbor)  # Connect node with NN
 
-    elapsed = time.time() - t
+    #elapsed = time.time() - t
     #print '\nTempo di determinazione dei vicini:', elapsed
 
 
@@ -100,162 +103,77 @@ def main(n0, k0, eta0, C1, num_MP,L):
 
 # -- DECODING PHASE ---------------------------------------------------------------------------------------------------
 # -- Initialization -------------------------
-
-    passo = 0.1  # incremental step of the epsilon variable
+    t = time.time()
+    passo = 0.1                                # incremental step of the epsilon variable
     decoding_performance = np.zeros(len(eta))  # ancillary variable which contains the decoding probability values
     for iii in xrange(len(eta)):
         h = int(k * eta[iii])
-        errati = 0.0  # Number of iteration in which we do not decode
-        errati2 = 0.0
-        M = factorial(n) / (10 * factorial(h) * factorial(n - h))  # Computation of the number of iterations to perform, see paper 2
+        errati = 0.0                           # Number of iteration in which we do not decode
 
-        for ii in xrange(num_MP):
-            decoding_indices = rnd.sample(range(0, n), h)  # selecting h random nodes in the graph
+        for x in xrange(num_MP):
+            errati += message_passing(node_list, n, k, h)
 
-            #print 'iterazione ',ii
+        decoding_performance[iii] = (num_MP - errati) / num_MP
 
-            degrees = [0] * h
-            IDs     = [0] * h
-            XORs    = [0] * h
-
-            for node in range(h):
-                degree, ID, XOR = node_list[decoding_indices[node]].storage_info()
-
-                degrees[node] = copy.deepcopy(degree)
-                IDs[node] = copy.deepcopy(ID)
-                XORs[node] = copy.deepcopy(XOR)
-
-            # -- MP. Naive approach --------------------------------
-
-            ripple_payload = []  # auxialiary vectors
-            ripple_IDs = []
-            hashmap = np.zeros((n, 2))  # vector nx2: pos[ID-1,0]-> "1" pkt of (ID-1) is decoded, "0" otherwise; pos[ID-1,1]->num_hashmap
-            num_hashmap = 0  # key counter: indicates the index of the next free row in decoded matrix
-
-            decoded = np.zeros((k, payload), dtype=np.int64)  # matrix k*payload: the i-th row stores the total XOR of the decoded pkts
-            empty_ripple = False
-
-            while (empty_ripple == False):
-
-                empty_ripple = True
-
-                position = 0  # linear search of degree one nodes
-
-                while position < len(degrees):
-
-                    if degrees[position] == 1:  # if degree 1 is found
-
-                        if hashmap[IDs[position][0] - 1, 0] == 0:
-                            decoded[num_hashmap, :] = XORs[position]
-                            hashmap[IDs[position][0] - 1, 0] = 1
-                            hashmap[IDs[position][0] - 1, 1] = num_hashmap
-                            num_hashmap += 1
-                        empty_ripple = False
-                        del degrees[position]  # decrease degree
-                        ripple_IDs.append(IDs[position])  # update ripples
-                        del IDs[position]
-                        ripple_payload.append(XORs[position])
-                        del XORs[position]  # update vector XORs
-                    else:
-                        position = position + 1
-
-                # scanning the ripple
-                for each_element in ripple_IDs:  # prendi ogni elemento del ripple...
-                    for each_node in IDs:  # ...e ogni elemento del vettore degli ID...
-                        u = 0
-                        while u < len(each_node):
-                            if each_element[0] == each_node[u]:
-                                indice_ID = IDs.index(each_node)
-                                degrees[indice_ID] -= 1
-                                indice_ripple = ripple_IDs.index(each_element)
-                                XORs[indice_ID] = XORs[indice_ID] ^ ripple_payload[indice_ripple]
-                                temp = each_node
-                                del temp[u]
-                                IDs[indice_ID] = temp
-                                each_node = temp
-
-                            else:
-                                u += 1
-
-                i = 0
-                while i < len(IDs):
-                    if degrees[i] == 0:
-                        IDs.remove([])
-                        # XORs.remove(XORs[i])
-                        del XORs[i]
-                        degrees.remove(0)
-                    else:
-                        i += 1
-
-            if num_hashmap < k:
-                errati2 += 1  # if we do not decode the k pkts that we make an error
-
-        decoding_performance[iii] = (num_MP - errati2) / num_MP
-
+    # print 'Time taken by message passing:', time.time()-t
     return decoding_performance
 
 if __name__ == "__main__":
-
-    # n0 = 100
-    # k0 = 20
-    # eta0 = [1.5]
-    # C1 = 5
-    # num_MP = 10
-    # L = 15
-    #
-    # main(n0, k0, eta0, C1, num_MP, L)
-
+    num_cores = multiprocessing.cpu_count()
+    print 'Numero di core utilizzati:', num_cores
 
     print 'Figure 3 and 4. \n'
-    iteration_to_mediate = 10
-    eta = [1,1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,1.9,2,2.1,2.2,2.3,2.4,2.5]
+    iteration_to_mediate = 4
+    eta = np.arange(1.0,2.6,step=0.1)
 
     y0 = np.zeros((iteration_to_mediate, len(eta)))
     y1 = np.zeros((iteration_to_mediate, len(eta)))
     y2 = np.zeros((iteration_to_mediate, len(eta)))
     y3 = np.zeros((iteration_to_mediate, len(eta)))
-    #y4 = np.zeros((iteration_to_mediate, len(eta)))
-    #y5 = np.zeros((iteration_to_mediate, len(eta)))
+    y4 = np.zeros((iteration_to_mediate, len(eta)))
+    y5 = np.zeros((iteration_to_mediate, len(eta)))
+
 
     # -- Iterazione su diversi sistemi --
-    for i in xrange(iteration_to_mediate):
-        t = time.time()
-        tt= time.time()
-        y0[i, :] = main(n0=100, k0=10, eta0=eta, C1=5, num_MP= 3000, L=5)
-        elapsed= time.time()-tt
-        print elapsed
-        tt = time.time()
-        y1[i, :] = main(n0=100, k0=20, eta0=eta, C1=5, num_MP= 3000, L=5)
-        elapsed = time.time() - tt
-        print elapsed
-        tt = time.time()
-        y2[i, :] = main(n0=200, k0=20, eta0=eta, C1=5, num_MP= 3000, L=5)
-        elapsed = time.time() - tt
-        print elapsed
-        tt = time.time()
-        y3[i, :] = main(n0=200, k0=40, eta0=eta, C1=5, num_MP= 3000, L=5)
-        elapsed = time.time() - tt
-        print elapsed
-        #tt = time.time()
-        #y4[i, :] = main(n0=500, k0=50, eta0=eta, C1=5, num_MP= 1000, L=5)
-        #elapsed = time.time() - tt
-        #print elapsed
-        #tt = time.time()
-        #y5[i, :] = main(n0=1000, k0=100, eta0=eta, C1=5, num_MP= 1000, L=5)
-        #elapsed = time.time() - tt
-        #print elapsed
-        elapsed = time.time()-t
-        print 'Iterazione',i+1, 'di', iteration_to_mediate, 'eseguita in', elapsed, 'secondi'
 
-    y0 = y0.mean(0)     # calcolo delle prestazioni medie
-    y1 = y1.mean(0)
-    y2 = y2.mean(0)
-    y3 = y3.mean(0)
-    #y4 = y4.mean(0)
-    #y5 = y5.mean(0)
+    t = time.time()
+    tt= time.time()
+    y0 = Parallel(n_jobs=num_cores)(delayed(main)(n0=100, k0=10, eta0=eta, C1=5, num_MP= 3000, \
+                                                  L=5) for ii in xrange(iteration_to_mediate))
+    print 'n=100 k=10: ', time.time() - tt
+    tt = time.time()
+    y1 = Parallel(n_jobs=num_cores)(delayed(main)(n0=100, k0=20, eta0=eta, C1=5, num_MP=3000, \
+                    L=5) for ii in xrange(iteration_to_mediate))
+    print 'n=100 k=20: ', time.time() - tt
+    tt = time.time()
+    y2 = Parallel(n_jobs=num_cores)(delayed(main)(n0=200, k0=20, eta0=eta, C1=5, num_MP=3000, \
+                    L=5) for ii in xrange(iteration_to_mediate))
+    print 'n=200 k=20: ', time.time() - tt
+    tt = time.time()
+    y3 = Parallel(n_jobs=num_cores)(delayed(main)(n0=200, k0=40, eta0=eta, C1=5, num_MP=3000, \
+                    L=5) for ii in xrange(iteration_to_mediate))
+    print 'n=200 k=40: ', time.time() - tt
+    tt = time.time()
+    y4 = Parallel(n_jobs=num_cores)(delayed(main)(n0=500, k0=50, eta0=eta, C1=5, num_MP=3000, \
+                    L=5) for ii in xrange(iteration_to_mediate))
+    print 'n=500 k=50: ', time.time() - tt
+    tt = time.time()
+    y5 = Parallel(n_jobs=num_cores)(delayed(main)(n0=1000, k0=100, eta0=eta, C1=5, num_MP=3000, \
+                    L=5) for ii in xrange(iteration_to_mediate))
+    print 'n=1000 k=100: ', time.time() - tt
+
+
+
+    y0 = np.sum(y0, 0) / iteration_to_mediate
+    y1 = np.sum(y1, 0) / iteration_to_mediate
+    y2 = np.sum(y2, 0) / iteration_to_mediate
+    y3 = np.sum(y3, 0) / iteration_to_mediate
+    y4 = np.sum(y4, 0) / iteration_to_mediate
+    y5 = np.sum(y5, 0) / iteration_to_mediate
+
 
     # # -- Salvataggio su file --
-    # with open('Figure 3-Paper1.txt','wb') as file:
+    # with open('Figure 3-Paper1','wb') as file:
     #     wr=csv.writer(file,quoting=csv.QUOTE_ALL)
     #     wr.writerow(y0)
     #     wr.writerow(y1)
@@ -263,33 +181,36 @@ if __name__ == "__main__":
     #     wr.writerow(y3)
     #
     #
-    # with open('Figure 4-Paper1.txt', 'wb') as file:
+    # with open('Figure 4-Paper1', 'wb') as file:
     #     wr = csv.writer(file, quoting=csv.QUOTE_ALL)
     #     wr.writerow(y2)
     #     wr.writerow(y4)
     #     wr.writerow(y5)
 
 
-
-
-    plt.title('Decoding performances')
-    x = np.linspace(1, 2.5, 16, endpoint=True)
-    plt.axis([1, 2.5, 0, 1])
-    plt.plot(x, y0, label='100 nodes and 10 sources',color='blue'   ,linewidth=2)
-    plt.plot(x, y1, label='100 nodes and 20 sources',color='red'    ,linewidth=2)
-    plt.plot(x, y2, label='200 nodes and 20 sources',color='grey'   ,linewidth=2)
-    plt.plot(x, y3, label='200 nodes and 40 sources',color='magenta',linewidth=2)
+    plt.axis([1, eta[-1], 0, 1])
+    plt.xlabel('Decoding ratio $\eta$')
+    plt.ylabel('Successfull decoding probability P$_s$')
+    x = np.linspace(1, eta[-1], len(y0), endpoint=True)
+    plt.plot(x, y0, label='100 nodes and 10 sources', color='blue', linewidth=1, marker='o', markersize=4.0)
+    plt.plot(x, y1, label='100 nodes and 20 sources', color='red', linewidth=1, marker='o', markersize=4.0)
+    plt.plot(x, y2, label='200 nodes and 20 sources', color='grey', linewidth=1, marker='o', markersize=4.0)
+    plt.plot(x, y3, label='200 nodes and 40 sources', color='magenta', linewidth=1, marker='o', markersize=4.0)
+    plt.rc('legend', fontsize=10)
     plt.legend(loc=4)
     plt.grid()
     plt.savefig('Immagini/Paper1_algo1/00_Figure3_comparison_ottimo_two_way.pdf', dpi=150, transparent=False)
     plt.close()
 
-    # plt.title('Decoding performances ')
-    # x = np.linspace(1, 2.5, 16, endpoint=True)
-    # plt.axis([1, 2.5, 0, 1])
-    # plt.plot(x, y2, label='200 nodes and 20 sources', color='blue', linewidth=2)
-    # plt.plot(x, y4, label='500 nodes and 50 sources', color='red', linewidth=2)
-    # plt.plot(x, y5, label='1000 nodes and 100 sources', color='magenta', linewidth=2)
-    # plt.legend(loc=4)
-    # plt.grid()
-    # plt.show()
+    plt.axis([1, eta[-1], 0, 1])
+    plt.xlabel('Decoding ratio $\eta$')
+    plt.ylabel('Successfull decoding probability P$_s$')
+    x = np.linspace(1, eta[-1], len(y0), endpoint=True)
+    plt.plot(x, y2, label='200 nodes and 40 sources', color='blue', linewidth=1, marker='o', markersize=4.0)
+    plt.plot(x, y4, label='500 nodes and 50 sources', color='red', linewidth=1, marker='o', markersize=4.0)
+    plt.plot(x, y5, label='1000 nodes and 100 sources', color='grey', linewidth=1, marker='o', markersize=4.0)
+    plt.rc('legend', fontsize=10)
+    plt.legend(loc=4)
+    plt.grid()
+    plt.savefig('Immagini/Paper1_algo1/00_Figure4_comparison_ottimo_two_way.pdf', dpi=150, transparent=False)
+    plt.close()

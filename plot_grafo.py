@@ -2,6 +2,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
+########################################################################################################################
+# This function can be used to plot the random graph, storage nodes and their edges will be shows as grey dots and lines.
+# Sensors nodes and their edges will be shown as red dots and lines.
+########################################################################################################################
+
 def plot_grafo(node_list, n , k , sensors_indexes, L):
     ii=-1
     x1 = np.zeros(n)
@@ -37,6 +42,5 @@ def plot_grafo(node_list, n , k , sensors_indexes, L):
     plt.axis('off')
     plt.xlim(-0.5, L*1.05)
     plt.ylim(-0.5, L*1.05)
-    #plt.show()
     plt.savefig('Immagini/Grafo/Grafo_n=' + str(n) + '_k=' + str(k) + '.pdf', dpi=150, transparent=True)
 
