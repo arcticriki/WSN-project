@@ -10,4 +10,5 @@ The setting of objective function and constraints follows what presented in [1].
 It is possible to set the Violation Probabilities or the Bounds on them  commenting/uncommenting the function named *cf*.
 It is possible to save the results to a CSV file uncommenting the *Export* function.
     
-    
+In the folder *Larghi_Math" there can be found some examples of solutions.
+In the folder *Annealing* there are present the solutions found by another team, cited in the report, that have implemented a C++ code of the Simulated Annealing algorithm.
